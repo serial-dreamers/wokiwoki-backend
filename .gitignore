@@ -360,5 +360,5 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
-FodyWeavers.xsd
-/src/Wokiwoki.Api/appsettings.json
+FodyWeavers.xsd 
+/src/Wokiwoki.Api/.env
