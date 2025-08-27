@@ -1,0 +1,6 @@
+@Wokiwoki.Api_HostAddress = http://localhost:5027
+
+GET {{Wokiwoki.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
