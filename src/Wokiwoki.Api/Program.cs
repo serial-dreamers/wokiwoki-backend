@@ -1,8 +1,7 @@
 using dotenv.net;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
+ 
 //DI Web API Services
 builder.AddWebAPIServices();
 
@@ -25,7 +24,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseAuthorization(); 
+
 
 app.MapControllers();
 
