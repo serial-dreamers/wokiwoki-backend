@@ -33,4 +33,8 @@
     <ProjectReference Include="..\Wokiwoki.Application\Wokiwoki.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Configurations\" />
+  </ItemGroup>
+
 </Project>
