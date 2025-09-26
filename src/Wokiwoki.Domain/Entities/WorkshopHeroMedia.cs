@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Wokiwoki.Domain.Entities
+﻿namespace Wokiwoki.Domain.Entities
 {
-	[Table("WorkshopHeroMedia")]
+	[Table("workshop_hero_media")]
 	public class WorkshopHeroMedia : BaseAuditableEntity
 	{
 		public HeroMediaType HeroType { get; set; }  
@@ -14,6 +8,8 @@ namespace Wokiwoki.Domain.Entities
 		public Guid? GalleryId { get; set; }
 
 		public Guid WorkshopId { get; set; }
+
+		public bool IsActive { get; set; } = true;
 
 		public Workshop Workshop { get; set; } = null!;
 

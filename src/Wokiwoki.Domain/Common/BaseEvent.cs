@@ -1,7 +1,9 @@
-﻿namespace Wokiwoki.Domain.Common
+﻿using MediatR;
+
+namespace Wokiwoki.Domain.Common
 {
-	public abstract class BaseEvent 
+	public abstract class BaseEvent : INotification
 	{
-		public DateTime OccurredOn { get; protected set; } = DateTime.UtcNow;
+		 
 	}
 }

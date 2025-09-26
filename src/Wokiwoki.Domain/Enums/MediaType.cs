@@ -1,6 +1,6 @@
 ﻿namespace Wokiwoki.Domain.Enums
 {
-	public enum GalleryType
+	public enum MediaType
 	{
 		Image,
 		Video

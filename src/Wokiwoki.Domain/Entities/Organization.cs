@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Wokiwoki.Domain.Entities
+﻿namespace Wokiwoki.Domain.Entities
 {
-	[Table("Organization")]
+	[Table("organization")]
 	public class Organization : BaseAuditableEntity
 	{
 		public string Name { get; set; } = null!;
@@ -26,6 +20,8 @@ namespace Wokiwoki.Domain.Entities
 		public string? District { get; set; }
 
 		public string? Province { get; set; }
+
+		public bool IsActive { get; set; } = true;
 
 		public virtual ICollection<OrganizationMember> OrganizationMembers { get; set; } = new List<OrganizationMember>();
 	}

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Wokiwoki.Domain.Entities
+﻿namespace Wokiwoki.Domain.Entities
 {
-	[Table("UserWorkshopLike")]
+	[Table("user_workshop_like")]
 	public class UserWorkshopLike : BaseAuditableEntity
 	{
 		public Guid UserId { get; set; }

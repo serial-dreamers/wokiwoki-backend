@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Wokiwoki.Domain.Entities
+﻿namespace Wokiwoki.Domain.Entities
 {
-	[Table("Workshops")]
+	[Table("workshop")]
 	public class Workshop : BaseAuditableEntity
 	{
 		public string Title { get; set; } = null!;
@@ -27,13 +21,15 @@ namespace Wokiwoki.Domain.Entities
 
 		public Organization Organization { get; set; } = null!;
 
-		public Guid WorkshopCategoryId { get; set; }
+		public Guid CategoryId { get; set; }
 
-		public WorkshopCategory WorkshopCategory { get; set; } = null!;
+		public bool IsActive { get; set; } = true;
+
+		public Category Category { get; set; } = null!;
 
 		public virtual ICollection<WorkshopSession> WorkshopSessions { get; set; } = new List<WorkshopSession>();
 
-		public virtual ICollection<WorkshopTag> WorkshopTags { get; set; } = new List<WorkshopTag>();
+		public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
 
 		public ICollection<WorkshopMedia> WorkshopMedias { get; set; } = new List<WorkshopMedia>();
 

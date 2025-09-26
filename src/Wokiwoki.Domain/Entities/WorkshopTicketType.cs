@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Wokiwoki.Domain.Entities
+﻿namespace Wokiwoki.Domain.Entities
 {
-	[Table("WorkshopTicketType")]
+	[Table("workshop_ticket_type")]
 	public class WorkshopTicketType : BaseAuditableEntity
 	{
-		public string Name { get; set; }= null!;
+		public string Name { get; set; } = null!;
 
 		public string? Description { get; set; }
 
@@ -25,6 +19,8 @@ namespace Wokiwoki.Domain.Entities
 
 		public Guid WorkshopSessionId { get; set; }
 
-		public WorkshopSession Session { get; set; } = null!;
+		public bool IsActive { get; set; } = true;
+
+		public WorkshopSession WorkshopSession { get; set; } = null!;
 	}
 }

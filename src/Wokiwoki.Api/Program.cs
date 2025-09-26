@@ -1,17 +1,21 @@
 using dotenv.net;
+using Wokiwoki.Api;
 
 var builder = WebApplication.CreateBuilder(args);
- 
-//DI Web API Services
-builder.AddWebAPIServices();
 
 //DI Application Services
 builder.AddApplicationServices();
  
 //DI Infrastructure Services
 builder.AddInfrastructureServices();
+ 
+//DI Web API Services
+builder.AddWebAPIServices();
 
 var app = builder.Build();
+
+// Middlewares
+app.UseWebAPIMiddlewares();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

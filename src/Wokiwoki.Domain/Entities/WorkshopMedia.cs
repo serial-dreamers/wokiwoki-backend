@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Wokiwoki.Domain.Entities
+﻿namespace Wokiwoki.Domain.Entities
 {
-	[Table("WorkshopGallery")]
+	[Table("workshop_media")]
 	public class WorkshopMedia : BaseAuditableEntity
 	{
 		public string? ImageUrl { get; set; }
 
-		public GalleryType MediaType { get; set; }
+		public MediaType MediaType { get; set; }
 
 		public DateTime UploadedAt { get; set; }
 
@@ -19,6 +13,8 @@ namespace Wokiwoki.Domain.Entities
 
 		public Guid WorkshopId { get; set; }
 
-		public Workshop Workshop { get; set; }
+		public bool IsActive { get; set; } = true;
+
+		public Workshop Workshop { get; set; } = null!;
 	}
 }

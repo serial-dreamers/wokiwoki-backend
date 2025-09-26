@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Wokiwoki.Domain.Entities
+﻿namespace Wokiwoki.Domain.Entities
 {
-	[Table("WorkshopSession")]
-	public class WorkshopSession
+	[Table("workshop_session")]
+	public class WorkshopSession : BaseAuditableEntity
 	{
 		public string Title { get; set; } = null!;
 
@@ -19,14 +13,14 @@ namespace Wokiwoki.Domain.Entities
 
 		public string? Location { get; set; }
 
-		public int Capacity { get; set; }
-
-		public decimal Price { get; set; }
+		public int Capacity { get; set; } 
 
 		public Guid WorkshopId { get; set; }
-			
+
 		public Workshop Workshop { get; set; } = null!;
 
-		public virtual ICollection<WorkshopTicketType> WorkshopTickets { get; set; } = new List<WorkshopTicketType>();
+		public bool IsActive { get; set; } = true;
+
+		public virtual ICollection<WorkshopTicketType> WorkshopTicketTypes { get; set; } = new List<WorkshopTicketType>();
 	}
 }
