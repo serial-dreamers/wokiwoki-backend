@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Wokiwoki.Application.Features.Categories.Queries.GetCategories;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
 using Wokiwoki.Domain.Entities;
 
@@ -10,6 +11,10 @@ namespace Wokiwoki.Application.Common.Mappings
 		{
 			// Workshop
 			CreateMap<CreateWorkshopCommand, Workshop>();
+
+			
+			//Category
+			CreateMap<Category, CategoryDto>();
 		}
 	}
 }

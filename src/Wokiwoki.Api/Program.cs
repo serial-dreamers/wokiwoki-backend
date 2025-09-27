@@ -1,5 +1,9 @@
 using dotenv.net;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Wokiwoki.Api;
+using Wokiwoki.Infrastructure.Data;
+using Wokiwoki.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +25,11 @@ app.UseWebAPIMiddlewares();
 if (app.Environment.IsDevelopment())
 {
 	DotEnv.Load();
+
+	using var scope = app.Services.CreateScope();
+	var dbContext = scope.ServiceProvider.GetRequiredService<WokiwokiDbContext>(); 
+
+	await ApplicationCategorySeeder.SeedAsync(dbContext);
 
 	app.UseSwagger();
 	app.UseSwaggerUI();

@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Workshops\EventHandlers\" />
+    <Folder Include="Features\Categories\EnventHandlers\" />
     <Folder Include="Features\Workshops\Queries\" />
   </ItemGroup>
 

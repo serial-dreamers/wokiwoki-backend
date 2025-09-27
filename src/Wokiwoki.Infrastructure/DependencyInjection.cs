@@ -42,9 +42,14 @@ public static class DependencyInjection
 
 
 		// Repositories
-		builder.Services.AddScoped<IWorkshopRepository, WorkshopRepository>();
+		builder.Services.AddScoped<IWorkshopRepository, WorkshopRepository>(); 
+		builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+		builder.Services.AddScoped<ITagRepository, TagRepository>();
+
 
 		// Services
-		builder.Services.AddScoped<IGuidGenerator, Uuid7GuidGenerator>();
+		builder.Services.AddScoped<IUuidService, UuidService>();
+
+		builder.Services.AddTransient<IIdentityService, IdentityService>();
 	}
 }
