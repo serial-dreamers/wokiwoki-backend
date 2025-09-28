@@ -1,0 +1,121 @@
+﻿@model Wokiwoki.Application.Common.Models.EmailVerificationResponse
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Your Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .header{
+          height: 5px;
+          background-color: #ff6600;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+        .logo{
+          text-align: left;
+        }
+        .logo img {
+            width: 120px;
+            height: auto;
+        }
+        h1 {
+            font-size: 20px;
+            color: #000;
+            margin: 0 0 20px;
+            text-align: left;
+        }
+        p {
+            font-size: 14px;
+            color: #666;
+            margin: 4px 0 10px;
+            text-align: left;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .fallback {
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #e0e0e0;
+            margin: 20px 0;
+        }
+        .help {
+            font-size: 14px;
+            color: #666;
+        }
+        .help a {
+            color: #007bff;
+            text-decoration: underline;
+        }
+        .footer {
+            font-size: 12px;
+            color: #999;
+            margin-top: 20px;
+        } 
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header"></div>
+        <div class="content">
+            <div class="logo">
+                <img src="https://wokiwokistorageea.blob.core.windows.net/qrticket-image/logomordern.png" alt="Logo">
+            </div>
+            <h1>Vui lòng xác nhận email của bạn</h1>
+            <p>Xin chào @Model.Email,</p>
+            <p>
+                Để xác thực địa chỉ email của bạn trên <strong>Wokiwoki</strong>.
+                vui lòng nhập mã bên dưới:
+            </p>
+            <h2 style="font-size: 28px; letter-spacing: 5px; text-align: center; margin: 20px 0;">
+                @Model.VerificationCode
+            </h2>
+            <p>
+                Mã này có hiệu lực trong vòng <strong>5 phút</strong>.
+                Vui lòng không chia sẻ mã cho bất kỳ ai.
+            </p>
+
+            <hr>
+            <div class="help">
+                <strong>Cần hỗ trợ?</strong><br>
+                Liên hệ chúng tôi qua email:
+                <a href="mailto:info@example.com">support@wokiwoki.com</a>
+            </div>
+
+            <div class="footer" style="margin-top:20px; font-size: 12px; color: #888;">
+                &copy; 2025 Wokiwoki. Mọi quyền được bảo lưu.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

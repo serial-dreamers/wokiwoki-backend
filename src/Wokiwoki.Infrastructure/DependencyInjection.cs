@@ -1,16 +1,13 @@
-﻿using dotenv.net;
+﻿using Azure.Messaging.ServiceBus; 
+using FluentEmail.MailKitSmtp;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Wokiwoki.Application.Common.Interfaces.Messaging;
 using Wokiwoki.Application.Common.Interfaces.Repositories;
-using Wokiwoki.Application.Common.Interfaces.Services;
-using Wokiwoki.Infrastructure.Data;
+using Wokiwoki.Application.Common.Interfaces.Services; 
+using Wokiwoki.Infrastructure.Data.Messaging;
 using Wokiwoki.Infrastructure.Repositories;
 using Wokiwoki.Infrastructure.Services;
 
@@ -40,6 +37,30 @@ public static class DependencyInjection
 		.AddSignInManager()
 		.AddDefaultTokenProviders();
 
+		builder.Services.AddSingleton<ServiceBusClient>(sp =>
+		{
+			var  connectionStringServiceBus = config["AzureServiceBus:ConnectionString"];
+			return new ServiceBusClient(connectionStringServiceBus);
+		});
+
+		builder.Services.AddFluentEmail(config["Smtp:From"])
+			.AddRazorRenderer()
+			.AddMailKitSender(new SmtpClientOptions
+			{
+				Server = config["Smtp:SmtpServer"],
+				Port = int.Parse(config["Smtp:Port"]),
+				User = config["Smtp:UserName"],
+				Password = config["Smtp:Password"],
+				UseSsl = false,
+				RequiresAuthentication = true,
+				SocketOptions = config["Smtp:SecureSocketOptions"] switch
+				{
+					"StartTls" => MailKit.Security.SecureSocketOptions.StartTls,
+					"SslOnConnect" => MailKit.Security.SecureSocketOptions.SslOnConnect,
+					_ => MailKit.Security.SecureSocketOptions.Auto
+				}
+			});
+
 
 		// Repositories
 		builder.Services.AddScoped<IWorkshopRepository, WorkshopRepository>(); 
@@ -48,8 +69,13 @@ public static class DependencyInjection
 
 
 		// Services
-		builder.Services.AddScoped<IUuidService, UuidService>();
+		builder.Services.AddHostedService<EmailConsumerHosted>();
 
+		builder.Services.AddSingleton<IMessagePublisher, AzureServiceBusPublisher>();
+		builder.Services.AddSingleton<IMessageSubscriber, AzureServiceBusSubscriber>(); 
+		builder.Services.AddTransient<IUuidService, UuidService>();
+		builder.Services.AddScoped<IEmailService, EmailService>();
 		builder.Services.AddTransient<IIdentityService, IdentityService>();
+
 	}
 }

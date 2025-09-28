@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -61,7 +62,7 @@ namespace Wokiwoki.Infrastructure.Data
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			base.OnModelCreating(modelBuilder);
+			base.OnModelCreating(modelBuilder); 
 
 			foreach (var entityType in modelBuilder.Model.GetEntityTypes())
 			{
@@ -207,8 +208,21 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.HasIndex(e => new { e.UserId, e.WorkshopId }).IsUnique();
 
 				entity.HasOne(e => e.Workshop)
-					.WithMany()
+					.WithMany(e=>e.Likes)
 					.HasForeignKey(e => e.WorkshopId)
+					.OnDelete(DeleteBehavior.Cascade);
+			});
+
+
+			// USER ORGANIZATION FOLLOW
+			modelBuilder.Entity<UserOrganizationFollow>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.HasIndex(e => new { e.UserId, e.OrganizationId }).IsUnique();
+
+				entity.HasOne(e => e.Organization)
+					.WithMany(e => e.Followers)
+					.HasForeignKey(e => e.OrganizationId)
 					.OnDelete(DeleteBehavior.Cascade);
 			});
 

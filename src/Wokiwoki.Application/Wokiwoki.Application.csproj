@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Features\Categories\EnventHandlers\" />
+    <Folder Include="Features\Users\Commands\GoogleLogin\" />
     <Folder Include="Features\Workshops\Queries\" />
   </ItemGroup>
 

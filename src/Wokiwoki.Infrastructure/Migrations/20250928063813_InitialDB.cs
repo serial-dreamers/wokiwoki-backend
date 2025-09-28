@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Wokiwoki.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitilDB : Migration
+    public partial class InitialDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,31 +24,6 @@ namespace Wokiwoki.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_aspnetroles", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "aspnetusers",
-                columns: table => new
-                {
-                    id = table.Column<string>(type: "text", nullable: false),
-                    username = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    normalizedusername = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    normalizedemail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    emailconfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    passwordhash = table.Column<string>(type: "text", nullable: true),
-                    securitystamp = table.Column<string>(type: "text", nullable: true),
-                    concurrencystamp = table.Column<string>(type: "text", nullable: true),
-                    phonenumber = table.Column<string>(type: "text", nullable: true),
-                    phonenumberconfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    twofactorenabled = table.Column<bool>(type: "boolean", nullable: false),
-                    lockoutend = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    lockoutenabled = table.Column<bool>(type: "boolean", nullable: false),
-                    accessfailedcount = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_aspnetusers", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -100,6 +75,7 @@ namespace Wokiwoki.Infrastructure.Migrations
                     name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
                     logourl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    followercount = table.Column<int>(type: "integer", nullable: false),
                     contactemail = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     contactphone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
                     street = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
@@ -193,6 +169,128 @@ namespace Wokiwoki.Infrastructure.Migrations
                         principalTable: "aspnetroles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "aspnetusers",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "text", nullable: false),
+                    ownedorganizationid = table.Column<Guid>(type: "uuid", nullable: true),
+                    username = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    normalizedusername = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    normalizedemail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    emailconfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    passwordhash = table.Column<string>(type: "text", nullable: true),
+                    securitystamp = table.Column<string>(type: "text", nullable: true),
+                    concurrencystamp = table.Column<string>(type: "text", nullable: true),
+                    phonenumber = table.Column<string>(type: "text", nullable: true),
+                    phonenumberconfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    twofactorenabled = table.Column<bool>(type: "boolean", nullable: false),
+                    lockoutend = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    lockoutenabled = table.Column<bool>(type: "boolean", nullable: false),
+                    accessfailedcount = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_aspnetusers", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_aspnetusers_organization_ownedorganizationid",
+                        column: x => x.ownedorganizationid,
+                        principalTable: "organization",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "user_organization_follow",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    userid = table.Column<Guid>(type: "uuid", nullable: false),
+                    organizationid = table.Column<Guid>(type: "uuid", nullable: false),
+                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_user_organization_follow", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_user_organization_follow_organization_organizationid",
+                        column: x => x.organizationid,
+                        principalTable: "organization",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "category_tag",
+                columns: table => new
+                {
+                    CategoriesId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TagsId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_category_tag", x => new { x.CategoriesId, x.TagsId });
+                    table.ForeignKey(
+                        name: "FK_category_tag_category_CategoriesId",
+                        column: x => x.CategoriesId,
+                        principalTable: "category",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_category_tag_tag_TagsId",
+                        column: x => x.TagsId,
+                        principalTable: "tag",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "workshop",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    shortdescription = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    imageurl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    likecount = table.Column<int>(type: "integer", nullable: false),
+                    starttime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    endtime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    capacity = table.Column<int>(type: "integer", nullable: false),
+                    organizationid = table.Column<Guid>(type: "uuid", nullable: false),
+                    categoryid = table.Column<Guid>(type: "uuid", nullable: false),
+                    isactive = table.Column<bool>(type: "boolean", nullable: false),
+                    workshoptypeid = table.Column<Guid>(type: "uuid", nullable: true),
+                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_workshop", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_workshop_category_categoryid",
+                        column: x => x.categoryid,
+                        principalTable: "category",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_workshop_organization_organizationid",
+                        column: x => x.organizationid,
+                        principalTable: "organization",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_workshop_workshop_type_workshoptypeid",
+                        column: x => x.workshoptypeid,
+                        principalTable: "workshop_type",
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -290,6 +388,7 @@ namespace Wokiwoki.Infrastructure.Migrations
                     joinedat = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     organizationid = table.Column<Guid>(type: "uuid", nullable: false),
+                    applicationuserid = table.Column<string>(type: "text", nullable: true),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     createdby = table.Column<Guid>(type: "uuid", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -299,33 +398,14 @@ namespace Wokiwoki.Infrastructure.Migrations
                 {
                     table.PrimaryKey("pk_organization_member", x => x.id);
                     table.ForeignKey(
+                        name: "fk_organization_member_aspnetusers_applicationuserid",
+                        column: x => x.applicationuserid,
+                        principalTable: "aspnetusers",
+                        principalColumn: "id");
+                    table.ForeignKey(
                         name: "fk_organization_member_organization_organizationid",
                         column: x => x.organizationid,
                         principalTable: "organization",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "category_tag",
-                columns: table => new
-                {
-                    CategoriesId = table.Column<Guid>(type: "uuid", nullable: false),
-                    TagsId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_category_tag", x => new { x.CategoriesId, x.TagsId });
-                    table.ForeignKey(
-                        name: "FK_category_tag_category_CategoriesId",
-                        column: x => x.CategoriesId,
-                        principalTable: "category",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_category_tag_tag_TagsId",
-                        column: x => x.TagsId,
-                        principalTable: "tag",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -367,49 +447,6 @@ namespace Wokiwoki.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "workshop",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    shortdescription = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    description = table.Column<string>(type: "text", nullable: false),
-                    imageurl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    starttime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    endtime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    capacity = table.Column<int>(type: "integer", nullable: false),
-                    organizationid = table.Column<Guid>(type: "uuid", nullable: false),
-                    categoryid = table.Column<Guid>(type: "uuid", nullable: false),
-                    isactive = table.Column<bool>(type: "boolean", nullable: false),
-                    workshoptypeid = table.Column<Guid>(type: "uuid", nullable: true),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
-                    lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_workshop", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_workshop_category_categoryid",
-                        column: x => x.categoryid,
-                        principalTable: "category",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_workshop_organization_organizationid",
-                        column: x => x.organizationid,
-                        principalTable: "organization",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_workshop_workshop_type_workshoptypeid",
-                        column: x => x.workshoptypeid,
-                        principalTable: "workshop_type",
-                        principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "booking",
                 columns: table => new
                 {
@@ -442,7 +479,6 @@ namespace Wokiwoki.Infrastructure.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     userid = table.Column<Guid>(type: "uuid", nullable: false),
                     workshopid = table.Column<Guid>(type: "uuid", nullable: false),
-                    likedat = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     createdby = table.Column<Guid>(type: "uuid", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -665,6 +701,11 @@ namespace Wokiwoki.Infrastructure.Migrations
                 column: "normalizedemail");
 
             migrationBuilder.CreateIndex(
+                name: "ix_aspnetusers_ownedorganizationid",
+                table: "aspnetusers",
+                column: "ownedorganizationid");
+
+            migrationBuilder.CreateIndex(
                 name: "usernameindex",
                 table: "aspnetusers",
                 column: "normalizedusername",
@@ -684,6 +725,11 @@ namespace Wokiwoki.Infrastructure.Migrations
                 name: "IX_category_tag_TagsId",
                 table: "category_tag",
                 column: "TagsId");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_organization_member_applicationuserid",
+                table: "organization_member",
+                column: "applicationuserid");
 
             migrationBuilder.CreateIndex(
                 name: "ix_organization_member_organizationid",
@@ -709,6 +755,17 @@ namespace Wokiwoki.Infrastructure.Migrations
                 name: "ix_ticket_tickettypeid",
                 table: "ticket",
                 column: "tickettypeid");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_user_organization_follow_organizationid",
+                table: "user_organization_follow",
+                column: "organizationid");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_user_organization_follow_userid_organizationid",
+                table: "user_organization_follow",
+                columns: new[] { "userid", "organizationid" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_tag_preference_applicationuserid",
@@ -825,6 +882,9 @@ namespace Wokiwoki.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "ticket");
+
+            migrationBuilder.DropTable(
+                name: "user_organization_follow");
 
             migrationBuilder.DropTable(
                 name: "user_tag_preference");

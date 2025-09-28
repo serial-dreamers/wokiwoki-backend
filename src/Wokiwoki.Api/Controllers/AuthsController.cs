@@ -1,0 +1,23 @@
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Wokiwoki.Application.Features.Users.Commands.EmailRegistration.SendEmailVerificationCode;
+
+namespace Wokiwoki.Api.Controllers
+{
+	[Route("api/auths")]
+	[ApiController]
+	public class AuthsController : ControllerBase
+	{
+		private readonly IMediator _mediator;
+
+		public AuthsController(IMediator mediator)
+		{
+			_mediator = mediator;
+		}
+
+		[HttpPost("send-email-code")]
+		public async Task<IActionResult> SendEmailCode([FromBody] SendEmailVerificationCodeCommand command)
+		=> Ok(await _mediator.Send(command));
+	}
+}

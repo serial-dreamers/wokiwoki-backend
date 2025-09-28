@@ -12,8 +12,8 @@ using Wokiwoki.Infrastructure.Data;
 namespace Wokiwoki.Infrastructure.Migrations
 {
     [DbContext(typeof(WokiwokiDbContext))]
-    [Migration("20250926143305_InitilDB")]
-    partial class InitilDB
+    [Migration("20250928063813_InitialDB")]
+    partial class InitialDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -387,6 +387,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("district");
 
+                    b.Property<int>("FollowerCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("followercount");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("isactive");
@@ -438,6 +442,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("text")
+                        .HasColumnName("applicationuserid");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
@@ -478,6 +486,9 @@ namespace Wokiwoki.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_organization_member");
+
+                    b.HasIndex("ApplicationUserId")
+                        .HasDatabaseName("ix_organization_member_applicationuserid");
 
                     b.HasIndex("OrganizationId")
                         .HasDatabaseName("ix_organization_member_organizationid");
@@ -642,6 +653,49 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.ToTable("ticket");
                 });
 
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.UserOrganizationFollow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("createdby");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lastmodified");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lastmodifiedby");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organizationid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("userid");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_organization_follow");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("ix_user_organization_follow_organizationid");
+
+                    b.HasIndex("UserId", "OrganizationId")
+                        .IsUnique();
+
+                    b.ToTable("user_organization_follow");
+                });
+
             modelBuilder.Entity("Wokiwoki.Domain.Entities.UserTagPreference", b =>
                 {
                     b.Property<Guid>("Id")
@@ -722,10 +776,6 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("lastmodifiedby");
 
-                    b.Property<DateTime>("LikedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("likedat");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("userid");
@@ -795,6 +845,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("lastmodifiedby");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("likecount");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid")
@@ -1178,6 +1232,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("character varying(256)")
                         .HasColumnName("normalizedusername");
 
+                    b.Property<Guid?>("OwnedOrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ownedorganizationid");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text")
                         .HasColumnName("passwordhash");
@@ -1212,6 +1270,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("usernameindex");
+
+                    b.HasIndex("OwnedOrganizationId")
+                        .HasDatabaseName("ix_aspnetusers_ownedorganizationid");
 
                     b.ToTable("aspnetusers", (string)null);
                 });
@@ -1317,6 +1378,11 @@ namespace Wokiwoki.Infrastructure.Migrations
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.OrganizationMember", b =>
                 {
+                    b.HasOne("Wokiwoki.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany("OrganizationMembers")
+                        .HasForeignKey("ApplicationUserId")
+                        .HasConstraintName("fk_organization_member_aspnetusers_applicationuserid");
+
                     b.HasOne("Wokiwoki.Domain.Entities.Organization", "Organization")
                         .WithMany("OrganizationMembers")
                         .HasForeignKey("OrganizationId")
@@ -1348,6 +1414,18 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Navigation("TicketType");
                 });
 
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.UserOrganizationFollow", b =>
+                {
+                    b.HasOne("Wokiwoki.Domain.Entities.Organization", "Organization")
+                        .WithMany("Followers")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_organization_follow_organization_organizationid");
+
+                    b.Navigation("Organization");
+                });
+
             modelBuilder.Entity("Wokiwoki.Domain.Entities.UserTagPreference", b =>
                 {
                     b.HasOne("Wokiwoki.Infrastructure.Identity.ApplicationUser", null)
@@ -1377,7 +1455,7 @@ namespace Wokiwoki.Infrastructure.Migrations
             modelBuilder.Entity("Wokiwoki.Domain.Entities.UserWorkshopLike", b =>
                 {
                     b.HasOne("Wokiwoki.Domain.Entities.Workshop", "Workshop")
-                        .WithMany()
+                        .WithMany("Likes")
                         .HasForeignKey("WorkshopId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -1468,6 +1546,16 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Navigation("WorkshopSession");
                 });
 
+            modelBuilder.Entity("Wokiwoki.Infrastructure.Identity.ApplicationUser", b =>
+                {
+                    b.HasOne("Wokiwoki.Domain.Entities.Organization", "OwnedOrganization")
+                        .WithMany()
+                        .HasForeignKey("OwnedOrganizationId")
+                        .HasConstraintName("fk_aspnetusers_organization_ownedorganizationid");
+
+                    b.Navigation("OwnedOrganization");
+                });
+
             modelBuilder.Entity("category_tag", b =>
                 {
                     b.HasOne("Wokiwoki.Domain.Entities.Category", null)
@@ -1507,6 +1595,8 @@ namespace Wokiwoki.Infrastructure.Migrations
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Organization", b =>
                 {
+                    b.Navigation("Followers");
+
                     b.Navigation("OrganizationMembers");
                 });
 
@@ -1517,6 +1607,8 @@ namespace Wokiwoki.Infrastructure.Migrations
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Workshop", b =>
                 {
+                    b.Navigation("Likes");
+
                     b.Navigation("WorkshopHeroMedias");
 
                     b.Navigation("WorkshopMedias");
@@ -1536,6 +1628,8 @@ namespace Wokiwoki.Infrastructure.Migrations
 
             modelBuilder.Entity("Wokiwoki.Infrastructure.Identity.ApplicationUser", b =>
                 {
+                    b.Navigation("OrganizationMembers");
+
                     b.Navigation("TagPreferences");
                 });
 #pragma warning restore 612, 618
