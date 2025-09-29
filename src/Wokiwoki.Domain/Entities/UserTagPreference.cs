@@ -3,7 +3,7 @@
 	[Table("user_tag_preference")]
 	public class UserTagPreference : BaseAuditableEntity
 	{
-		public Guid UserId { get; set; }
+		public string UserId { get; set; } = null!;
 
 		public Guid TagId { get; set; }
 

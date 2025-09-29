@@ -10,10 +10,10 @@ namespace Wokiwoki.Domain.Common
 	{
 		public DateTime Created { get; set; }
 
-		public Guid? CreatedBy { get; set; }
+		public string? CreatedBy { get; set; }
 
 		public DateTime LastModified { get; set; }
 
-		public Guid? LastModifiedBy { get; set; }
+		public string? LastModifiedBy { get; set; }
 	}
 }

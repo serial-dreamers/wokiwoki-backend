@@ -4,6 +4,8 @@ namespace Wokiwoki.Infrastructure.Identity
 {
 	public class ApplicationUser : IdentityUser
 	{
+		public string? FullName { get; set; }
+
 		public Guid? OwnedOrganizationId { get; set; }
 		public Organization? OwnedOrganization { get; set; }
 

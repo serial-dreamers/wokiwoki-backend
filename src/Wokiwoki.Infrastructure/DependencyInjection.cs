@@ -33,12 +33,12 @@ public static class DependencyInjection
 		builder.Services.AddDataProtection();
 		builder.Services.AddIdentityCore<ApplicationUser>(options =>
 		{
-
 		})
-		.AddRoles<IdentityRole>()
+		.AddRoles<IdentityRole>() 
 		.AddEntityFrameworkStores<WokiwokiDbContext>()
 		.AddSignInManager()
 		.AddDefaultTokenProviders();
+
 
 		builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 		{
@@ -97,6 +97,7 @@ public static class DependencyInjection
 		builder.Services.AddScoped<IWorkshopRepository, WorkshopRepository>(); 
 		builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 		builder.Services.AddScoped<ITagRepository, TagRepository>();
+		builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 
 		// Services
@@ -109,6 +110,11 @@ public static class DependencyInjection
 		builder.Services.AddTransient<IIdentityService, IdentityService>();
 
 		builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
+
+		builder.Services.AddTransient<IRefreshTokenService, RefreshTokenService>();
+		builder.Services.AddTransient<ITokenService, TokenService>();
+
+
 
 	}
 }

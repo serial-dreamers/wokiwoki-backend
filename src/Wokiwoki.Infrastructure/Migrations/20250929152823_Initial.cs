@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Wokiwoki.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDB : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -38,9 +38,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     newvalue = table.Column<string>(type: "text", nullable: true),
                     performedat = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -58,9 +58,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     imageurl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -84,9 +84,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     province = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -98,14 +98,14 @@ namespace Wokiwoki.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    userid = table.Column<Guid>(type: "uuid", nullable: false),
+                    userid = table.Column<string>(type: "text", nullable: false),
                     token = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     expiresat = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     revoked = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -122,9 +122,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     iconurl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -141,9 +141,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     iconurl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -176,6 +176,7 @@ namespace Wokiwoki.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<string>(type: "text", nullable: false),
+                    fullname = table.Column<string>(type: "text", nullable: true),
                     ownedorganizationid = table.Column<Guid>(type: "uuid", nullable: true),
                     username = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     normalizedusername = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -207,12 +208,12 @@ namespace Wokiwoki.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    userid = table.Column<Guid>(type: "uuid", nullable: false),
+                    userid = table.Column<string>(type: "text", nullable: false),
                     organizationid = table.Column<Guid>(type: "uuid", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -267,9 +268,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     workshoptypeid = table.Column<Guid>(type: "uuid", nullable: true),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -383,16 +384,16 @@ namespace Wokiwoki.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    userid = table.Column<Guid>(type: "uuid", nullable: false),
+                    userid = table.Column<string>(type: "text", nullable: false),
                     role = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     joinedat = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     organizationid = table.Column<Guid>(type: "uuid", nullable: false),
                     applicationuserid = table.Column<string>(type: "text", nullable: true),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -415,14 +416,14 @@ namespace Wokiwoki.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    userid = table.Column<Guid>(type: "uuid", nullable: false),
+                    userid = table.Column<string>(type: "text", nullable: false),
                     tagid = table.Column<Guid>(type: "uuid", nullable: false),
                     categoryid = table.Column<Guid>(type: "uuid", nullable: false),
                     applicationuserid = table.Column<string>(type: "text", nullable: true),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -457,9 +458,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     status = table.Column<int>(type: "integer", nullable: false),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -477,12 +478,12 @@ namespace Wokiwoki.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    userid = table.Column<Guid>(type: "uuid", nullable: false),
+                    userid = table.Column<string>(type: "text", nullable: false),
                     workshopid = table.Column<Guid>(type: "uuid", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -502,14 +503,13 @@ namespace Wokiwoki.Infrastructure.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     imageurl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     mediatype = table.Column<int>(type: "integer", nullable: false),
-                    uploadedat = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     uploadedbyuserid = table.Column<Guid>(type: "uuid", nullable: false),
                     workshopid = table.Column<Guid>(type: "uuid", nullable: false),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -536,9 +536,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     workshopid = table.Column<Guid>(type: "uuid", nullable: false),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -585,9 +585,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     workshopid = table.Column<Guid>(type: "uuid", nullable: false),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -621,9 +621,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     workshopsessionid = table.Column<Guid>(type: "uuid", nullable: false),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -648,9 +648,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                     price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     isactive = table.Column<bool>(type: "boolean", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    createdby = table.Column<Guid>(type: "uuid", nullable: true),
+                    createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastmodifiedby = table.Column<Guid>(type: "uuid", nullable: true)
+                    lastmodifiedby = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

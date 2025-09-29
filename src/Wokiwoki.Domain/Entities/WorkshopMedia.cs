@@ -5,9 +5,7 @@
 	{
 		public string? ImageUrl { get; set; }
 
-		public MediaType MediaType { get; set; }
-
-		public DateTime UploadedAt { get; set; }
+		public MediaType MediaType { get; set; } 
 
 		public Guid UploadedByUserId { get; set; }
 

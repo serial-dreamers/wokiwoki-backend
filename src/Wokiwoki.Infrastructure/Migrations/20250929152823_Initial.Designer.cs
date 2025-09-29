@@ -12,8 +12,8 @@ using Wokiwoki.Infrastructure.Data;
 namespace Wokiwoki.Infrastructure.Migrations
 {
     [DbContext(typeof(WokiwokiDbContext))]
-    [Migration("20250928063813_InitialDB")]
-    partial class InitialDB
+    [Migration("20250929152823_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -205,8 +205,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<Guid?>("EntityId")
@@ -222,8 +222,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<string>("NewValue")
@@ -255,8 +255,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<bool>("IsActive")
@@ -267,8 +267,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<int>("Status")
@@ -310,8 +310,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<string>("Description")
@@ -337,8 +337,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<string>("Name")
@@ -374,8 +374,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<string>("Description")
@@ -399,8 +399,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<string>("LogoUrl")
@@ -450,8 +450,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<bool>("IsActive")
@@ -466,8 +466,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<Guid>("OrganizationId")
@@ -480,8 +480,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("role");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("userid");
 
                     b.HasKey("Id")
@@ -507,8 +508,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<DateTime>("ExpiresAt")
@@ -519,8 +520,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<bool>("Revoked")
@@ -533,8 +534,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("token");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("userid");
 
                     b.HasKey("Id")
@@ -560,8 +562,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<string>("Description")
@@ -582,8 +584,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<string>("Name")
@@ -612,8 +614,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<bool>("IsActive")
@@ -624,8 +626,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<decimal>("Price")
@@ -664,24 +666,25 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<DateTime>("LastModified")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid")
                         .HasColumnName("organizationid");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("userid");
 
                     b.HasKey("Id")
@@ -715,24 +718,25 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<DateTime>("LastModified")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<Guid>("TagId")
                         .HasColumnType("uuid")
                         .HasColumnName("tagid");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("userid");
 
                     b.HasKey("Id")
@@ -764,20 +768,21 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<DateTime>("LastModified")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("userid");
 
                     b.Property<Guid>("WorkshopId")
@@ -815,8 +820,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<string>("Description")
@@ -842,8 +847,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<int>("LikeCount")
@@ -902,8 +907,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<Guid?>("GalleryId")
@@ -922,8 +927,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<Guid>("WorkshopId")
@@ -953,8 +958,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<string>("ImageUrl")
@@ -970,17 +975,13 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<int>("MediaType")
                         .HasColumnType("integer")
                         .HasColumnName("mediatype");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("uploadedat");
 
                     b.Property<Guid>("UploadedByUserId")
                         .HasColumnType("uuid")
@@ -1014,8 +1015,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<string>("Description")
@@ -1035,8 +1036,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<string>("Location")
@@ -1078,8 +1079,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<string>("Description")
@@ -1095,8 +1096,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<string>("Name")
@@ -1152,8 +1153,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
 
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
                         .HasColumnName("createdby");
 
                     b.Property<string>("Description")
@@ -1174,8 +1175,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastmodified");
 
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid")
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<string>("Name")
@@ -1213,6 +1214,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean")
                         .HasColumnName("emailconfirmed");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("text")
+                        .HasColumnName("fullname");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")

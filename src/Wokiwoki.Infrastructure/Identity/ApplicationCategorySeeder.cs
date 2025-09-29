@@ -1,18 +1,12 @@
 ﻿using Medo;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using Microsoft.EntityFrameworkCore; 
 namespace Wokiwoki.Infrastructure.Identity
 {
 	public class ApplicationCategorySeeder
 	{
 		public static async Task SeedAsync(WokiwokiDbContext context)
 		{
-			var systemUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+			var systemUserId =  "00000000-0000-0000-0000-000000000001";
 			DateTime now = DateTime.UtcNow;
 			var categories = new List<Category>
 			{

@@ -29,8 +29,10 @@ if (app.Environment.IsDevelopment() || swaggerEnabled)
 	DotEnv.Load();
 
 	using var scope = app.Services.CreateScope();
-	var dbContext = scope.ServiceProvider.GetRequiredService<WokiwokiDbContext>(); 
+	var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+	var dbContext = scope.ServiceProvider.GetRequiredService<WokiwokiDbContext>();
 
+	//await ApplicationRoleSeeder.SeedAsync(roleManager);
 	//await ApplicationCategorySeeder.SeedAsync(dbContext);
 
 	app.UseSwagger();

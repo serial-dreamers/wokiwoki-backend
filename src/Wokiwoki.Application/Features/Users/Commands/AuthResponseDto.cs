@@ -1,8 +1,8 @@
-﻿namespace Wokiwoki.Application.Common.Models
+﻿namespace Wokiwoki.Application.Features.Users.Commands
 {
 	public class AuthResponseDto
 	{
-		public Guid UserId { get; set; } = default!;
+		public string UserId { get; set; } = default!;
 
 		public string Name { get; set; } = default!;
 

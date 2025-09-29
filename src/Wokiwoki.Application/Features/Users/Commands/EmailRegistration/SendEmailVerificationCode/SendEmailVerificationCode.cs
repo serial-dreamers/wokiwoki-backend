@@ -25,7 +25,7 @@ namespace Wokiwoki.Application.Features.Users.Commands.EmailRegistration.SendEma
 
 			var code = new Random().Next(100000, 999999).ToString();
 
-			await _redisCacheService.SetAsync($"{request.Email}", code, TimeSpan.FromMinutes(5));
+			await _redisCacheService.SetAsync($"verify:{request.Email}", code, TimeSpan.FromMinutes(5));
 
 			var emailRequest = new EmailVerificationRequest
 			{

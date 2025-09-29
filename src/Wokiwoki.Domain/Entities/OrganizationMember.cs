@@ -3,7 +3,7 @@
 	[Table("organization_member")]
 	public class OrganizationMember : BaseAuditableEntity
 	{
-		public Guid UserId { get; set; }
+		public string UserId { get; set; } = null!;
 
 		public string Role { get; set; } = null!;
 

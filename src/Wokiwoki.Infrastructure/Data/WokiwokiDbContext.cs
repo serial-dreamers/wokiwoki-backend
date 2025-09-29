@@ -34,31 +34,18 @@ namespace Wokiwoki.Infrastructure.Data
 		public DbSet<WorkshopTicketType> WorkshopTicketTypes { get; set; }
 		public DbSet<WorkshopType> WorkshopTypes { get; set; }
 
-		private readonly Guid _currentUser;
+		private readonly string _currentUser;
 
 		public WokiwokiDbContext()
-		{			
-		}
-
-		public WokiwokiDbContext(DbContextOptions<WokiwokiDbContext> options) : base(options)
 		{
-			_currentUser = Guid.Empty;
+			
 		}
 
-		public WokiwokiDbContext(DbContextOptions<WokiwokiDbContext> options,
-						 IHttpContextAccessor httpContextAccessor): base(options)
+		public WokiwokiDbContext(DbContextOptions<WokiwokiDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
 		{
-			var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-			if (Guid.TryParse(userId, out var parsedUserId))
-			{
-				_currentUser = parsedUserId;
-			}
-			else
-			{
-				_currentUser = Guid.Empty;
-			}
+			_currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name ?? "System";
 		}
+		 
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
