@@ -28,7 +28,7 @@ public static class DependencyInjection
 		builder.Services.AddSingleton(TimeProvider.System);
 
 		builder.Services.AddDbContext<WokiwokiDbContext>(options =>
-			options.UseNpgsql(config.GetConnectionString("DefaultConnection")));
+			options.UseNpgsql(config["ConnectionStrings:DefaultConnection"]));
 
 		builder.Services.AddDataProtection();
 		builder.Services.AddIdentityCore<ApplicationUser>(options =>
