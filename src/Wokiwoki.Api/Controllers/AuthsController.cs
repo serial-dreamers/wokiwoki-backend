@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Wokiwoki.Application.Features.Users.Commands.EmailRegistration.SendEmailVerificationCode;
+using Wokiwoki.Application.Features.Users.Commands.EmailRegistration.VerifyEmailCode;
 
 namespace Wokiwoki.Api.Controllers
 {
@@ -18,6 +19,10 @@ namespace Wokiwoki.Api.Controllers
 
 		[HttpPost("send-email-code")]
 		public async Task<IActionResult> SendEmailCode([FromBody] SendEmailVerificationCodeCommand command)
+		=> Ok(await _mediator.Send(command));
+
+		[HttpPost("verify-email-code")]
+		public async Task<IActionResult> VerifyEmailCode([FromBody] VerifyEmailCodeCommand command)
 		=> Ok(await _mediator.Send(command));
 	}
 }

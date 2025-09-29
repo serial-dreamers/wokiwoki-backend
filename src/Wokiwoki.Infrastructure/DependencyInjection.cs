@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 using Wokiwoki.Application.Common.Interfaces.Messaging;
 using Wokiwoki.Application.Common.Interfaces.Repositories;
 using Wokiwoki.Application.Common.Interfaces.Services; 
@@ -36,6 +39,34 @@ public static class DependencyInjection
 		.AddEntityFrameworkStores<WokiwokiDbContext>()
 		.AddSignInManager()
 		.AddDefaultTokenProviders();
+
+		builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+		{
+			 
+			var redisEndpoint = config["Redis:Endpoint"];
+			var redisPassword = config["Redis:Password"];
+
+			// Validate config
+			if (string.IsNullOrEmpty(redisEndpoint))
+			{
+				throw new InvalidOperationException("Redis:Endpoint is not configured in appsettings.json");
+			}
+
+			if (string.IsNullOrEmpty(redisPassword))
+			{
+				throw new InvalidOperationException("Redis:Password is not configured in appsettings.json");
+			}
+
+			var options = new ConfigurationOptions
+			{
+				EndPoints = { { redisEndpoint, 10096 } },
+				User = "default",
+				Password = redisPassword, 
+				AbortOnConnectFail = false 
+			};
+			
+				return ConnectionMultiplexer.Connect(options);
+		});
 
 		builder.Services.AddSingleton<ServiceBusClient>(sp =>
 		{
@@ -76,6 +107,8 @@ public static class DependencyInjection
 		builder.Services.AddTransient<IUuidService, UuidService>();
 		builder.Services.AddScoped<IEmailService, EmailService>();
 		builder.Services.AddTransient<IIdentityService, IdentityService>();
+
+		builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 
 	}
 }

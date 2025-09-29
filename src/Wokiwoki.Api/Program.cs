@@ -21,15 +21,17 @@ var app = builder.Build();
 // Middlewares
 app.UseWebAPIMiddlewares();
 
+var swaggerEnabled = app.Configuration.GetValue<bool>("Swagger:Enabled");
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || swaggerEnabled)
 {
 	DotEnv.Load();
 
 	using var scope = app.Services.CreateScope();
 	var dbContext = scope.ServiceProvider.GetRequiredService<WokiwokiDbContext>(); 
 
-	await ApplicationCategorySeeder.SeedAsync(dbContext);
+	//await ApplicationCategorySeeder.SeedAsync(dbContext);
 
 	app.UseSwagger();
 	app.UseSwaggerUI();
