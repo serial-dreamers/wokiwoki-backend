@@ -1,0 +1,10 @@
+﻿namespace Wokiwoki.Application.Features.Tags.Queries
+{
+	public class TagDto
+	{
+		public Guid Id { get; set; }
+		public string Name { get; set; } = default!;
+		public string? Description { get; set; }
+		public string? IconUrl { get; set; }
+	}
+}

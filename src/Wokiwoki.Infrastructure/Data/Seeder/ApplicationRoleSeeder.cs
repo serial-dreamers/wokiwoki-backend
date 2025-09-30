@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Wokiwoki.Infrastructure.Identity
+namespace Wokiwoki.Infrastructure.Data.Seeder
 {
 	public static class ApplicationRoleSeeder
 	{

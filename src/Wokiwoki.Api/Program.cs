@@ -1,9 +1,5 @@
-using dotenv.net;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Wokiwoki.Api;
-using Wokiwoki.Infrastructure.Data;
-using Wokiwoki.Infrastructure.Identity;
+using dotenv.net; 
+using Wokiwoki.Api; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +30,7 @@ if (app.Environment.IsDevelopment() || swaggerEnabled)
 
 	//await ApplicationRoleSeeder.SeedAsync(roleManager);
 	//await ApplicationCategorySeeder.SeedAsync(dbContext);
+	//await ApplicationTagSeeder.SeedAsync(dbContext);
 
 	app.UseSwagger();
 	app.UseSwaggerUI();

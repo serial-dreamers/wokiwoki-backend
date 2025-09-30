@@ -5,7 +5,7 @@ using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
 
 namespace Wokiwoki.Api.Controllers
 {
-	[Route("api/workshops")]
+	[Route("api/[controller]")]
 	[ApiController]
 	public class WorkshopsController : ControllerBase
 	{

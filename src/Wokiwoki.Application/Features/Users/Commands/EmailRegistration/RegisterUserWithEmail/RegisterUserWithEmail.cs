@@ -30,12 +30,12 @@ namespace Wokiwoki.Application.Features.Users.Commands.EmailRegistration.Registe
 
 		public async Task<AuthResponseDto> Handle(RegisterUserWithEmailCommand request, CancellationToken cancellationToken)
 		{
-			//var cachedCode = await _redisCacheService.GetAsync($"verify:{request.Email}");
+			var cachedCode = await _redisCacheService.GetAsync($"verify:{request.Email}");
 
-			//if (cachedCode != request.VerificationCode)
-			//	throw new Exception("Email not verified or code expired");
+			if (cachedCode != request.VerificationCode)
+				throw new Exception("Email not verified or code expired");
 
-			//await _redisCacheService.RemoveAsync($"verify:{request.Email}");
+			await _redisCacheService.RemoveAsync($"verify:{request.Email}");
 
 			var (result, userId) = await _identityService.CreateUserAsync(
 				request.Email,

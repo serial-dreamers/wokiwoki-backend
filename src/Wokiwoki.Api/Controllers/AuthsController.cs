@@ -8,7 +8,7 @@ using Wokiwoki.Application.Features.Users.Commands.UsernameLogin;
 
 namespace Wokiwoki.Api.Controllers
 {
-	[Route("api/auths")]
+	[Route("api/[controller]")]
 	[ApiController]
 	public class AuthsController : ControllerBase
 	{

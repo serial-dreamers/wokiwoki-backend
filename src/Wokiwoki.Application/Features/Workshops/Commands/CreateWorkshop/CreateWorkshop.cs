@@ -47,12 +47,13 @@ namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
 			var workshop = _mapper.Map<Workshop>(request);
 			workshop.Id = id;
 
-			if(request.TagIds != null && request.TagIds.Any())
+			if (request.TagIds != null && request.TagIds.Any())
 			{
-				var tags = await _tagRepository.GetTagsByIdsAsync(request.TagIds);
-				foreach(var tag in tags)
+				var tags = await _tagRepository.GetTagsByCategory(request.CategoryId, cancellationToken);
+				var validTags = tags.Where(t => request.TagIds.Contains(t.Id)).ToList();
+				foreach (var item in validTags)
 				{
-					workshop.Tags.Add(tag);
+					workshop.Tags.Add(item);
 				}
 			}
 
