@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Wokiwoki.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,7 +36,6 @@ namespace Wokiwoki.Infrastructure.Migrations
                     entityid = table.Column<Guid>(type: "uuid", nullable: true),
                     originalvalue = table.Column<string>(type: "text", nullable: true),
                     newvalue = table.Column<string>(type: "text", nullable: true),
-                    performedat = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     createdby = table.Column<string>(type: "text", nullable: true),
                     lastmodified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -710,6 +709,16 @@ namespace Wokiwoki.Infrastructure.Migrations
                 table: "aspnetusers",
                 column: "normalizedusername",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLog_Entity_Created",
+                table: "auditlog",
+                columns: new[] { "entityname", "created" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLog_ModifiedBy",
+                table: "auditlog",
+                column: "lastmodifiedby");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Booking_UserId",

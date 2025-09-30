@@ -33,19 +33,21 @@ namespace Wokiwoki.Infrastructure.Data
 		public DbSet<WorkshopSession> WorkshopSessions { get; set; }
 		public DbSet<WorkshopTicketType> WorkshopTicketTypes { get; set; }
 		public DbSet<WorkshopType> WorkshopTypes { get; set; }
+		public DbSet<UserOrganizationFollow> UserOrganizationFollows { get; set; }
+
 
 		private readonly string _currentUser;
 
 		public WokiwokiDbContext()
 		{
-			
+		 
 		}
 
 		public WokiwokiDbContext(DbContextOptions<WokiwokiDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
 		{
 			_currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name ?? "System";
 		}
-		 
+
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -90,6 +92,9 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.Property(e => e.EntityName).HasMaxLength(100);
 				entity.Property(e => e.OriginalValue).HasColumnType("text");
 				entity.Property(e => e.NewValue).HasColumnType("text");
+
+				entity.HasIndex(e => new { e.EntityName, e.Created }).HasDatabaseName("IX_AuditLog_Entity_Created");
+				entity.HasIndex(e => e.LastModifiedBy).HasDatabaseName("IX_AuditLog_ModifiedBy");
 			});
 
 			// BOOKING
@@ -337,7 +342,6 @@ namespace Wokiwoki.Infrastructure.Data
 
 		public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 		{
-			// Lấy các thay đổi đang theo dõi
 			var modifiedEntries = ChangeTracker.Entries()
 				.Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
 				.ToList();
@@ -350,7 +354,8 @@ namespace Wokiwoki.Infrastructure.Data
 				{
 					EntityName = entry.Entity.GetType().Name,
 					LastModifiedBy = _currentUser,
-					PerformedAt = DateTime.UtcNow,
+					Created = DateTime.UtcNow,
+					LastModified= DateTime.UtcNow,
 					Action = entry.State.ToString()
 				};
 
@@ -376,24 +381,30 @@ namespace Wokiwoki.Infrastructure.Data
 				}
 				else if (entry.State == EntityState.Added)
 				{
-					audit.NewValue = JsonSerializer.Serialize(entry.CurrentValues.ToObject());
+					// chỉ log các field quan trọng thay vì full entity
+					var values = entry.CurrentValues.Properties.ToDictionary(p => p.Name, p => entry.CurrentValues[p]?.ToString());
+					audit.NewValue = JsonSerializer.Serialize(values);
 				}
 				else if (entry.State == EntityState.Deleted)
 				{
-					audit.OriginalValue = JsonSerializer.Serialize(entry.OriginalValues.ToObject());
+					var values = entry.OriginalValues.Properties.ToDictionary(p => p.Name, p => entry.OriginalValues[p]?.ToString());
+					audit.OriginalValue = JsonSerializer.Serialize(values);
 				}
 
 				auditLogs.Add(audit);
 			}
-
-			// Thêm audit logs vào DbSet nếu có
+			 
+			var result = await base.SaveChangesAsync(cancellationToken);
+			 
 			if (auditLogs.Any())
 			{
 				AuditLogs.AddRange(auditLogs);
+				await base.SaveChangesAsync(cancellationToken);
 			}
 
-			return await base.SaveChangesAsync(cancellationToken);
+			return result;
 		}
+
 	}
-	 
+
 }

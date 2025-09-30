@@ -30,12 +30,12 @@ namespace Wokiwoki.Application.Features.Users.Commands.EmailRegistration.Registe
 
 		public async Task<AuthResponseDto> Handle(RegisterUserWithEmailCommand request, CancellationToken cancellationToken)
 		{
-			var cachedCode = await _redisCacheService.GetAsync($"verify:{request.Email}");
+			//var cachedCode = await _redisCacheService.GetAsync($"verify:{request.Email}");
 
-			if (cachedCode != request.VerificationCode)
-				throw new Exception("Email not verified or code expired");
+			//if (cachedCode != request.VerificationCode)
+			//	throw new Exception("Email not verified or code expired");
 
-			await _redisCacheService.RemoveAsync($"verify:{request.Email}");
+			//await _redisCacheService.RemoveAsync($"verify:{request.Email}");
 
 			var (result, userId) = await _identityService.CreateUserAsync(
 				request.Email,
@@ -45,16 +45,28 @@ namespace Wokiwoki.Application.Features.Users.Commands.EmailRegistration.Registe
 			); 
 
 			var roles = await _identityService.GetRolesByUserIdAsync(userId);
-			var accessToken = _tokenService.GenerateToken(userId, request.Username, roles);
+			var role = roles.FirstOrDefault() ?? "Customer";
+			var accessToken = _tokenService.GenerateToken(userId, request.Username, role);
 			var refreshToken = await _refreshTokenService.GenerateRefreshTokenAsync(userId);
+
+			var data = new Data
+			{
+				AccessToken = accessToken,
+				RefreshToken = refreshToken,
+				User =
+				{
+					Id = userId,
+					Name = request.FullName,
+					Email = request.Email,
+					Role = role
+				}
+			};
 
 			var auth = new AuthResponseDto
 			{
-				UserId = userId,
-				Name = request.FullName,
-				Role = string.Join(",", roles),
-				AccessToken = accessToken,
-				RefreshToken = refreshToken, 
+				Result = result,
+				Message = "Register Successs",
+				Data = data 
 			};
 
 			return auth; 

@@ -1,6 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus; 
 using FluentEmail.MailKitSmtp;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -29,6 +30,7 @@ public static class DependencyInjection
 
 		builder.Services.AddDbContext<WokiwokiDbContext>(options =>
 			options.UseNpgsql(config["ConnectionStrings:DefaultConnection"]));
+
 
 		builder.Services.AddDataProtection();
 		builder.Services.AddIdentityCore<ApplicationUser>(options =>

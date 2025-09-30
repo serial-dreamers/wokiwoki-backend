@@ -11,8 +11,6 @@
 
 		public string? OriginalValue { get; set; }
 
-		public string? NewValue { get; set; } 
-
-		public DateTime PerformedAt { get; set; }
+		public string? NewValue { get; set; }  
 	}
 }

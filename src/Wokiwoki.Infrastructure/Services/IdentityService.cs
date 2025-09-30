@@ -1,16 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Wokiwoki.Application.Common.Interfaces.Services;
-using Wokiwoki.Application.Common.Models; 
+using Wokiwoki.Application.Common.Models;
+using Wokiwoki.Application.Features.Users.Commands;
 
 namespace Wokiwoki.Infrastructure.Services
 {
 	public class IdentityService : IIdentityService
 	{
-		private readonly UserManager<ApplicationUser> _userManager;
+		private readonly UserManager<ApplicationUser> _userManager; 
 
-		public IdentityService(UserManager<ApplicationUser> userManager)
+		public IdentityService(UserManager<ApplicationUser> userManager )
 		{
-			_userManager = userManager;
+			_userManager = userManager;  
 		}
 
 		public async Task<string?> GetUserNameAsync(string userId)
@@ -53,6 +55,40 @@ namespace Wokiwoki.Infrastructure.Services
 			 
 			var roles = await _userManager.GetRolesAsync(user);
 			return roles;
+		}
+
+		public async Task<AuthResponseDto> LoginAsync(string username, string password)
+		{
+			var user = await _userManager.FindByNameAsync(username);
+			if (user == null || !await _userManager.CheckPasswordAsync(user, password))
+			{
+				return new AuthResponseDto
+				{ 
+					Result = Result.Failure(new[] { "Invalid username or password." }),  
+					Message = "Login Failed"
+				}; 
+			}
+
+			var roles = await _userManager.GetRolesAsync(user); 
+			var role = roles.FirstOrDefault() ?? "Customer";
+
+			var authResponse = new AuthResponseDto
+			{
+				Result = Result.Success(),
+				Message = "Login Successfully",
+				Data = 
+				{
+					User = 
+					{
+						Id = user.Id, 
+						Email = user.Email,
+						Name = user.FullName, 
+						Role = role
+					}
+				}
+			};
+
+			return (authResponse);
 		}
 	}
 }

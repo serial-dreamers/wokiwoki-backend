@@ -12,8 +12,8 @@ using Wokiwoki.Infrastructure.Data;
 namespace Wokiwoki.Infrastructure.Migrations
 {
     [DbContext(typeof(WokiwokiDbContext))]
-    [Migration("20250929152823_Initial")]
-    partial class Initial
+    [Migration("20250930064745_InitialDB")]
+    partial class InitialDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -234,12 +234,14 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("originalvalue");
 
-                    b.Property<DateTime>("PerformedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("performedat");
-
                     b.HasKey("Id")
                         .HasName("pk_auditlog");
+
+                    b.HasIndex("LastModifiedBy")
+                        .HasDatabaseName("IX_AuditLog_ModifiedBy");
+
+                    b.HasIndex("EntityName", "Created")
+                        .HasDatabaseName("IX_AuditLog_Entity_Created");
 
                     b.ToTable("auditlog");
                 });

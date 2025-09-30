@@ -231,12 +231,14 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("originalvalue");
 
-                    b.Property<DateTime>("PerformedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("performedat");
-
                     b.HasKey("Id")
                         .HasName("pk_auditlog");
+
+                    b.HasIndex("LastModifiedBy")
+                        .HasDatabaseName("IX_AuditLog_ModifiedBy");
+
+                    b.HasIndex("EntityName", "Created")
+                        .HasDatabaseName("IX_AuditLog_Entity_Created");
 
                     b.ToTable("auditlog");
                 });
