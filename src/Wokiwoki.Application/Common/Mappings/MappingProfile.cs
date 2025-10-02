@@ -19,6 +19,7 @@ namespace Wokiwoki.Application.Common.Mappings
 
 			//Tag 
 			CreateMap<Tag, TagDto>();
+
 		}
 	}
 }
