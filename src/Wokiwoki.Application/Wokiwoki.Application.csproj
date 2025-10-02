@@ -13,11 +13,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Wokiwoki.Domain\Wokiwoki.Domain.csproj" />
+    <Folder Include="Features\Categories\EnventHandlers\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Categories\EnventHandlers\" />
+    <ProjectReference Include="..\Wokiwoki.Domain\Wokiwoki.Domain.csproj" />
   </ItemGroup>
 
 </Project>

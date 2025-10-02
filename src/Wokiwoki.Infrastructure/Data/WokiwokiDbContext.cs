@@ -34,6 +34,7 @@ namespace Wokiwoki.Infrastructure.Data
 		public DbSet<WorkshopTicketType> WorkshopTicketTypes { get; set; }
 		public DbSet<WorkshopType> WorkshopTypes { get; set; }
 		public DbSet<UserOrganizationFollow> UserOrganizationFollows { get; set; }
+		public DbSet<Review> Reviews { get; set; }
 
 
 		private readonly string _currentUser;
@@ -225,7 +226,10 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.Property(e => e.Title).HasMaxLength(255).IsRequired();
 				entity.Property(e => e.ShortDescription).HasMaxLength(500);
 				entity.Property(e => e.Description).HasColumnType("text").IsRequired();
-				entity.Property(e => e.ImageUrl).HasMaxLength(500); 
+				entity.Property(e => e.ImageUrl).HasMaxLength(500);
+
+				entity.Property(e => e.DisplayLocation).HasMaxLength(255);
+
 
 				entity.HasOne(e => e.Organization)
 					.WithMany()
@@ -286,7 +290,10 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.HasKey(e => e.Id);
 				entity.Property(e => e.Title).HasMaxLength(255).IsRequired();
 				entity.Property(e => e.Description).HasColumnType("text").IsRequired();
-				entity.Property(e => e.Location).HasMaxLength(255); 
+				entity.Property(e => e.Province).HasMaxLength(100);
+				entity.Property(e => e.District).HasMaxLength(100);
+				entity.Property(e => e.Ward).HasMaxLength(100);
+				entity.Property(e => e.AddressDetail).HasMaxLength(255); 
 
 				entity.HasOne(e => e.Workshop)
 					.WithMany(e => e.WorkshopSessions)
@@ -337,6 +344,20 @@ namespace Wokiwoki.Infrastructure.Data
 				.HasMany(e => e.Workshops)
 				.WithMany(e => e.Tags)
 				.UsingEntity("workshop_tag");
+
+			modelBuilder.Entity<Review>(entity =>
+			{
+				entity.HasKey(r => r.Id);
+
+				entity.HasIndex(r => new { r.WorkshopId, r.UserId }).IsUnique();
+
+				entity.Property(r => r.Rating)
+					  .IsRequired();
+
+				entity.HasOne(r => r.Workshop)
+					  .WithMany(w => w.Reviews)
+					  .HasForeignKey(r => r.WorkshopId); 
+			});
 
 		}
 

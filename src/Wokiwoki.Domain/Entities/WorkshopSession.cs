@@ -9,9 +9,15 @@
 
 		public DateTime StartTime { get; set; }
 
-		public DateTime EndTime { get; set; }
+		public DateTime EndTime { get; set; } 
 
-		public string? Location { get; set; }
+		public string Province { get; set; } = null!;
+
+		public string District { get; set; } = null!;
+
+		public string Ward { get; set; } = null!;
+
+		public string AddressDetail { get; set; } = null!;
 
 		public int Capacity { get; set; } 
 

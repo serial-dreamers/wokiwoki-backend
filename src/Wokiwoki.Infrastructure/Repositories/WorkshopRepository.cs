@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Wokiwoki.Application.Common.Interfaces.Repositories;
-using Wokiwoki.Application.Common.Models;
-using Wokiwoki.Application.Features.Workshops.Queries.SearchWorkshop;
+using Wokiwoki.Application.Common.Interfaces.Repositories; 
 using Wokiwoki.Infrastructure.Data.Extensions;
 
 namespace Wokiwoki.Infrastructure.Repositories

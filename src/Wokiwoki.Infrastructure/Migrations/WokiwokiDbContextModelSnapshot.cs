@@ -550,6 +550,56 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.ToTable("refresh_token");
                 });
 
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.Review", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("createdby");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("imageurl");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lastmodified");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("lastmodifiedby");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer")
+                        .HasColumnName("rating");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("userid");
+
+                    b.Property<Guid>("WorkshopId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workshopid");
+
+                    b.HasKey("Id")
+                        .HasName("pk_review");
+
+                    b.HasIndex("WorkshopId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("review");
+                });
+
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Tag", b =>
                 {
                     b.Property<Guid>("Id")
@@ -828,6 +878,15 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<string>("DisplayLocation")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("displaylocation");
+
+                    b.Property<decimal?>("DisplayPrice")
+                        .HasColumnType("numeric")
+                        .HasColumnName("displayprice");
+
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("endtime");
@@ -850,9 +909,17 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("latitude");
+
                     b.Property<int>("LikeCount")
                         .HasColumnType("integer")
                         .HasColumnName("likecount");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("longitude");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid")
@@ -873,7 +940,7 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("title");
 
-                    b.Property<Guid?>("WorkshopTypeId")
+                    b.Property<Guid>("WorkshopTypeId")
                         .HasColumnType("uuid")
                         .HasColumnName("workshoptypeid");
 
@@ -1006,6 +1073,12 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("AddressDetail")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("addressdetail");
+
                     b.Property<int>("Capacity")
                         .HasColumnType("integer")
                         .HasColumnName("capacity");
@@ -1023,6 +1096,12 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("district");
+
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("endtime");
@@ -1039,10 +1118,11 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
-                    b.Property<string>("Location")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("location");
+                    b.Property<string>("Province")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("province");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone")
@@ -1053,6 +1133,12 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("title");
+
+                    b.Property<string>("Ward")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("ward");
 
                     b.Property<Guid>("WorkshopId")
                         .HasColumnType("uuid")
@@ -1397,6 +1483,18 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Navigation("Organization");
                 });
 
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.Review", b =>
+                {
+                    b.HasOne("Wokiwoki.Domain.Entities.Workshop", "Workshop")
+                        .WithMany("Reviews")
+                        .HasForeignKey("WorkshopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_review_workshop_workshopid");
+
+                    b.Navigation("Workshop");
+                });
+
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Ticket", b =>
                 {
                     b.HasOne("Wokiwoki.Domain.Entities.Booking", "Booking")
@@ -1484,14 +1582,18 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_workshop_organization_organizationid");
 
-                    b.HasOne("Wokiwoki.Domain.Entities.WorkshopType", null)
+                    b.HasOne("Wokiwoki.Domain.Entities.WorkshopType", "WorkshopType")
                         .WithMany("Workshops")
                         .HasForeignKey("WorkshopTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
                         .HasConstraintName("fk_workshop_workshop_type_workshoptypeid");
 
                     b.Navigation("Category");
 
                     b.Navigation("Organization");
+
+                    b.Navigation("WorkshopType");
                 });
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopHeroMedia", b =>
@@ -1612,6 +1714,8 @@ namespace Wokiwoki.Infrastructure.Migrations
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Workshop", b =>
                 {
                     b.Navigation("Likes");
+
+                    b.Navigation("Reviews");
 
                     b.Navigation("WorkshopHeroMedias");
 

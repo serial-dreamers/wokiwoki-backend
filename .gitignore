@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd 
 /src/Wokiwoki.Api/.env
+
+/src/Wokiwoki.Infrastructure/Migrations
+
