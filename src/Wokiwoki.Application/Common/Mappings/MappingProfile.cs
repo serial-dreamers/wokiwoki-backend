@@ -2,6 +2,7 @@
 using Wokiwoki.Application.Features.Categories.Queries.GetCategories;
 using Wokiwoki.Application.Features.Tags.Queries;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
+using Wokiwoki.Application.Features.Workshops.Queries.SearchWorkshop;
 using Wokiwoki.Domain.Entities;
 
 namespace Wokiwoki.Application.Common.Mappings
@@ -12,7 +13,7 @@ namespace Wokiwoki.Application.Common.Mappings
 		{
 			// Workshop
 			CreateMap<CreateWorkshopCommand, Workshop>();
-
+			CreateMap<Workshop, SearchWorkshopDto>();
 			
 			//Category
 			CreateMap<Category, CategoryDto>();

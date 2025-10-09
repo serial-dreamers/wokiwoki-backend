@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.Intrinsics.X86;
+using Wokiwoki.Application.Features.Users.Commands;
 using Wokiwoki.Application.Features.Users.Commands.EmailRegistration.RegisterUserWithEmail;
 using Wokiwoki.Application.Features.Users.Commands.EmailRegistration.SendEmailVerificationCode;
 using Wokiwoki.Application.Features.Users.Commands.EmailRegistration.VerifyEmailCode;
@@ -43,3 +45,6 @@ namespace Wokiwoki.Api.Controllers
 		}
 	}
 }
+//User Id = postgres.xofwjbyptdhgubfcyjmy; Password = Khanh@123Woki; Server = aws - 1 - ap - southeast - 1.pooler.supabase.com; Port = 6543; Database = postgres
+//Host = db.xofwjbyptdhgubfcyjmy.supabase.co; Database = postgres; Username = postgres; Password = Khanh@123Woki; SSL Mode = Require; Trust Server Certificate=true
+ 

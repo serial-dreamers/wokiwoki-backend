@@ -11,5 +11,6 @@ namespace Wokiwoki.Application.Features.Workshops.Queries.SearchWorkshop
 		public DateTime StartTime { get; set; } 
 		public DateTime EndTime { get; set; } 
 		public WorkshopSession Session { get; set; }
+		public WorkshopType WorkshopType { get; set; }
 	}
 }

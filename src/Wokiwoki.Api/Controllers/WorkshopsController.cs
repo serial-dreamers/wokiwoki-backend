@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
+using Wokiwoki.Application.Features.Workshops.Queries.GetWorkshop;
+using Wokiwoki.Application.Features.Workshops.Queries.SearchWorkshop;
 
 namespace Wokiwoki.Api.Controllers
 {
@@ -10,6 +12,7 @@ namespace Wokiwoki.Api.Controllers
 	public class WorkshopsController : ControllerBase
 	{
 		private readonly IMediator _mediator;
+		
 
 		public WorkshopsController(IMediator mediator)
 		{
@@ -22,6 +25,20 @@ namespace Wokiwoki.Api.Controllers
 			var id = await _mediator.Send(command);
 			//return CreatedAtAction(nameof(Get), new { id }, null); // nao co get thi de 
 			return Created($"/api/workshops/{id}", new { id });
+		}
+		[HttpPost]
+		[Route("/Search")]
+		public async Task<IActionResult> Search([FromForm] SearchWorkshopQuery request)
+		{
+			var result = await _mediator.Send(request);
+			return Ok(result);
+		}
+		[HttpGet]
+		public async Task<IActionResult> GetAll([FromQuery] GetAllWorkshopQuery request)
+		{
+			
+			var result = await _mediator.Send(request);
+			return Ok(result);
 		}
 	}
 }
