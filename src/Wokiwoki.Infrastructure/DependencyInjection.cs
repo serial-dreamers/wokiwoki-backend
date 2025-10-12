@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
-using FluentEmail.MailKitSmtp;
+using FluentEmail.MailKitSmtp; 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using StackExchange.Redis;
+using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis; 
+using System.Text;
 using Wokiwoki.Application.Common.Interfaces.Messaging;
 using Wokiwoki.Application.Common.Interfaces.Repositories;
 using Wokiwoki.Application.Common.Interfaces.Services;
@@ -19,19 +22,16 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
-    {
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: true)
-            .AddEnvironmentVariables()
-            .Build();
-
+    { 
         // ko co la toan
         builder.Services.AddSingleton(TimeProvider.System);
 
-        builder.Services.AddDbContext<WokiwokiDbContext>(options =>
+		builder.Services.AddHttpClient();
+
+		builder.Services.AddDbContext<WokiwokiDbContext>(options =>
         {
             options.UseNpgsql(
-                config["ConnectionStrings:DefaultConnection"]
+				builder.Configuration["ConnectionStrings:DefaultConnection"]
             )
        .EnableSensitiveDataLogging()
        .EnableDetailedErrors();
@@ -54,8 +54,8 @@ public static class DependencyInjection
         builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
         {
 
-            var redisEndpoint = config["Redis:Endpoint"];
-            var redisPassword = config["Redis:Password"];
+            var redisEndpoint = builder.Configuration["Redis:Endpoint"];
+            var redisPassword = builder.Configuration["Redis:Password"];
 
             // Validate config
             if (string.IsNullOrEmpty(redisEndpoint))
@@ -81,21 +81,21 @@ public static class DependencyInjection
 
         builder.Services.AddSingleton<ServiceBusClient>(sp =>
         {
-            var connectionStringServiceBus = config["AzureServiceBus:ConnectionString"];
+            var connectionStringServiceBus = builder.Configuration["AzureServiceBus:ConnectionString"];
             return new ServiceBusClient(connectionStringServiceBus);
         });
 
-        builder.Services.AddFluentEmail(config["Smtp:From"])
+        builder.Services.AddFluentEmail(builder.Configuration["Smtp:From"])
             .AddRazorRenderer()
             .AddMailKitSender(new SmtpClientOptions
             {
-                Server = config["Smtp:SmtpServer"],
-                Port = int.Parse(config["Smtp:Port"]),
-                User = config["Smtp:UserName"],
-                Password = config["Smtp:Password"],
+                Server = builder.Configuration["Smtp:SmtpServer"],
+                Port = int.Parse(builder.Configuration["Smtp:Port"]),
+                User = builder.Configuration["Smtp:UserName"],
+                Password = builder.Configuration["Smtp:Password"],
                 UseSsl = false,
                 RequiresAuthentication = true,
-                SocketOptions = config["Smtp:SecureSocketOptions"] switch
+                SocketOptions = builder.Configuration["Smtp:SecureSocketOptions"] switch
                 {
                     "StartTls" => MailKit.Security.SecureSocketOptions.StartTls,
                     "SslOnConnect" => MailKit.Security.SecureSocketOptions.SslOnConnect,
@@ -103,16 +103,55 @@ public static class DependencyInjection
                 }
             });
 
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.RequireHttpsMetadata = true;
+            options.UseSecurityTokenValidators = true;
 
-        // Repositories
-        builder.Services.AddScoped<IWorkshopRepository, WorkshopRepository>();
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+                ),
+
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+
+                ClockSkew = TimeSpan.Zero
+            };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnAuthenticationFailed = context =>
+                {
+                    Console.WriteLine("Authentication Failed: " + context.Exception.Message);
+                    return Task.CompletedTask;
+                }
+            };
+        });
+
+
+		// Repositories
+		builder.Services.AddScoped<IWorkshopRepository, WorkshopRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<ITagRepository, TagRepository>();
         builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 
-        // Services
-        builder.Services.AddHostedService<EmailConsumerHosted>();
+
+
+		// Services
+		builder.Services.AddHostedService<EmailConsumerHosted>();
 
         builder.Services.AddSingleton<IMessagePublisher, AzureServiceBusPublisher>();
         builder.Services.AddSingleton<IMessageSubscriber, AzureServiceBusSubscriber>();
@@ -125,6 +164,7 @@ public static class DependencyInjection
         builder.Services.AddTransient<IRefreshTokenService, RefreshTokenService>();
         builder.Services.AddTransient<ITokenService, TokenService>();
 
+		builder.Services.AddScoped<IGoogleService, GoogleService>();
 
 
     }

@@ -1,5 +1,7 @@
-using dotenv.net; 
-using Wokiwoki.Api; 
+using dotenv.net;
+//using Microsoft.AspNetCore.Identity;
+using Wokiwoki.Api;
+//using Wokiwoki.Infrastructure.Data.Seeder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,8 @@ var app = builder.Build();
 app.UseWebAPIMiddlewares();
 
 var swaggerEnabled = app.Configuration.GetValue<bool>("Swagger:Enabled");
+
+app.UseCors("AllowFrontend");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || swaggerEnabled)

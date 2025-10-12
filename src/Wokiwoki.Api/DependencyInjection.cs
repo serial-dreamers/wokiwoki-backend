@@ -1,9 +1,11 @@
 ﻿using dotenv.net;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Diagnostics;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using Wokiwoki.Api.Middlewares;
@@ -14,11 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
 {
 	public static void AddWebAPIServices(this IHostApplicationBuilder builder)
-	{ 
-		var config = new ConfigurationBuilder()
-			.AddJsonFile("appsettings.json", optional: true)
-			.AddEnvironmentVariables()
-			.Build();
+	{  
 
 		builder.Configuration.AddEnvironmentVariables();
 
@@ -58,44 +56,20 @@ public static class DependencyInjection
 						new string[] {}
 					}
 				});
+
+			c.EnableAnnotations();
 		});
 
-
-		builder.Services.AddAuthentication(options =>
+		builder.Services.AddCors(options =>
 		{
-			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-		})
-		.AddJwtBearer(options =>
-		{  
-			options.RequireHttpsMetadata = true;  
-			options.UseSecurityTokenValidators = true;
-
-			options.TokenValidationParameters = new TokenValidationParameters
-			{
-				ValidateIssuerSigningKey = true,
-				IssuerSigningKey = new SymmetricSecurityKey(
-				Encoding.UTF8.GetBytes(config["Jwt:Key"]!)
-			),
-
-				ValidateIssuer = true,
-				ValidateAudience = true,
-				ValidateLifetime = true,
-
-				ValidIssuer = config["Jwt:Issuer"],
-				ValidAudience = config["Jwt:Audience"],
-
-				ClockSkew = TimeSpan.Zero // không cho lệch thời gian
-		};
-
-			 options.Events = new JwtBearerEvents
-			 {
-				 OnAuthenticationFailed = context =>
-				 {
-					Console.WriteLine("Authentication Failed: " + context.Exception.Message);
-					return Task.CompletedTask;
-				 }
-			 };
+			options.AddPolicy("AllowFrontend",
+				builder =>
+				{
+					builder.WithOrigins("http://localhost:5173")
+						   .AllowAnyMethod()
+						   .AllowAnyHeader()
+						   .AllowCredentials();
+				});
 		});
 
 		// Midlewares

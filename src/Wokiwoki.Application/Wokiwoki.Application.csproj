@@ -13,10 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Categories\EnventHandlers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Wokiwoki.Domain\Wokiwoki.Domain.csproj" />
   </ItemGroup>
 

@@ -428,72 +428,15 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("ward");
 
-                    b.HasKey("Id")
-                        .HasName("pk_organization");
-
-                    b.ToTable("organization");
-                });
-
-            modelBuilder.Entity("Wokiwoki.Domain.Entities.OrganizationMember", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("text")
-                        .HasColumnName("applicationuserid");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("createdby");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("isactive");
-
-                    b.Property<DateTime>("JoinedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("joinedat");
-
-                    b.Property<DateTime>("LastModified")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("lastmodified");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("lastmodifiedby");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("organizationid");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("role");
-
-                    b.Property<string>("UserId")
+                    b.Property<string>("userId")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("userid");
 
                     b.HasKey("Id")
-                        .HasName("pk_organization_member");
+                        .HasName("pk_organization");
 
-                    b.HasIndex("ApplicationUserId")
-                        .HasDatabaseName("ix_organization_member_applicationuserid");
-
-                    b.HasIndex("OrganizationId")
-                        .HasDatabaseName("ix_organization_member_organizationid");
-
-                    b.ToTable("organization_member");
+                    b.ToTable("organization");
                 });
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.RefreshToken", b =>
@@ -1466,23 +1409,6 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Navigation("Workshop");
                 });
 
-            modelBuilder.Entity("Wokiwoki.Domain.Entities.OrganizationMember", b =>
-                {
-                    b.HasOne("Wokiwoki.Infrastructure.Identity.ApplicationUser", null)
-                        .WithMany("OrganizationMembers")
-                        .HasForeignKey("ApplicationUserId")
-                        .HasConstraintName("fk_organization_member_aspnetusers_applicationuserid");
-
-                    b.HasOne("Wokiwoki.Domain.Entities.Organization", "Organization")
-                        .WithMany("OrganizationMembers")
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_organization_member_organization_organizationid");
-
-                    b.Navigation("Organization");
-                });
-
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Review", b =>
                 {
                     b.HasOne("Wokiwoki.Domain.Entities.Workshop", "Workshop")
@@ -1702,8 +1628,6 @@ namespace Wokiwoki.Infrastructure.Migrations
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Organization", b =>
                 {
                     b.Navigation("Followers");
-
-                    b.Navigation("OrganizationMembers");
                 });
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Tag", b =>
@@ -1736,8 +1660,6 @@ namespace Wokiwoki.Infrastructure.Migrations
 
             modelBuilder.Entity("Wokiwoki.Infrastructure.Identity.ApplicationUser", b =>
                 {
-                    b.Navigation("OrganizationMembers");
-
                     b.Navigation("TagPreferences");
                 });
 #pragma warning restore 612, 618

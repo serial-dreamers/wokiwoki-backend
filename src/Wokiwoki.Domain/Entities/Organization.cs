@@ -15,18 +15,16 @@
 
 		public string? ContactPhone { get; set; }
 
-		public string? Street { get; set; }
+		public string? Street { get; set; } 
 
-		public string? Ward { get; set; }
-
-		public string? District { get; set; }
+		public string? Commune { get; set; }
 
 		public string? Province { get; set; }
 
+		public string userId { get; set; }
+
 		public bool IsActive { get; set; } = true;
 
-		public ICollection<UserOrganizationFollow> Followers { get; set; } = new List<UserOrganizationFollow>();
-
-		public virtual ICollection<OrganizationMember> OrganizationMembers { get; set; } = new List<OrganizationMember>();
+		public ICollection<UserOrganizationFollow> Followers { get; set; } = new List<UserOrganizationFollow>(); 
 	}
 }
