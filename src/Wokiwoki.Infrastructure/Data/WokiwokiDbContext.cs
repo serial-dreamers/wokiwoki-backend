@@ -20,8 +20,7 @@ namespace Wokiwoki.Infrastructure.Data
 		public DbSet<AuditLog> AuditLogs { get; set; }
 		public DbSet<Booking> Bookings { get; set; }
 		public DbSet<Category> Categories { get; set; }
-		public DbSet<Organization> Organizations { get; set; }
-		public DbSet<OrganizationMember> OrganizationMembers { get; set; }
+		public DbSet<Organization> Organizations { get; set; } 
 		public DbSet<RefreshToken> RefreshTokens { get; set; }
 		public DbSet<Tag> Tags { get; set; }
 		public DbSet<Ticket> Tickets { get; set; }
@@ -34,6 +33,7 @@ namespace Wokiwoki.Infrastructure.Data
 		public DbSet<WorkshopTicketType> WorkshopTicketTypes { get; set; }
 		public DbSet<WorkshopType> WorkshopTypes { get; set; }
 		public DbSet<UserOrganizationFollow> UserOrganizationFollows { get; set; }
+		public DbSet<Review> Reviews { get; set; }
 
 
 		private readonly string _currentUser;
@@ -120,23 +120,10 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.Property(e => e.LogoUrl).HasMaxLength(500);
 				entity.Property(e => e.ContactEmail).HasMaxLength(255);
 				entity.Property(e => e.ContactPhone).HasMaxLength(20);
-				entity.Property(e => e.Street).HasMaxLength(255);
-				entity.Property(e => e.Ward).HasMaxLength(100);
-				entity.Property(e => e.District).HasMaxLength(100);
+				entity.Property(e => e.Street).HasMaxLength(255); 
+				entity.Property(e => e.Commune).HasMaxLength(100);
 				entity.Property(e => e.Province).HasMaxLength(100);
-			});
-
-			// ORGANIZATION MEMBER
-			modelBuilder.Entity<OrganizationMember>(entity =>
-			{
-				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Role).HasMaxLength(100).IsRequired();
-
-				entity.HasOne(e => e.Organization)
-					.WithMany(e => e.OrganizationMembers)
-					.HasForeignKey(e => e.OrganizationId)
-					.OnDelete(DeleteBehavior.Cascade);
-			});
+			}); 
 
 			// REFRESH TOKEN
 			modelBuilder.Entity<RefreshToken>(entity =>
@@ -225,7 +212,10 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.Property(e => e.Title).HasMaxLength(255).IsRequired();
 				entity.Property(e => e.ShortDescription).HasMaxLength(500);
 				entity.Property(e => e.Description).HasColumnType("text").IsRequired();
-				entity.Property(e => e.ImageUrl).HasMaxLength(500); 
+				entity.Property(e => e.ImageUrl).HasMaxLength(500);
+
+				entity.Property(e => e.DisplayLocation).HasMaxLength(255);
+
 
 				entity.HasOne(e => e.Organization)
 					.WithMany()
@@ -286,7 +276,10 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.HasKey(e => e.Id);
 				entity.Property(e => e.Title).HasMaxLength(255).IsRequired();
 				entity.Property(e => e.Description).HasColumnType("text").IsRequired();
-				entity.Property(e => e.Location).HasMaxLength(255); 
+				entity.Property(e => e.Province).HasMaxLength(100);
+				entity.Property(e => e.District).HasMaxLength(100);
+				entity.Property(e => e.Ward).HasMaxLength(100);
+				entity.Property(e => e.AddressDetail).HasMaxLength(255); 
 
 				entity.HasOne(e => e.Workshop)
 					.WithMany(e => e.WorkshopSessions)
@@ -338,72 +331,86 @@ namespace Wokiwoki.Infrastructure.Data
 				.WithMany(e => e.Tags)
 				.UsingEntity("workshop_tag");
 
+			modelBuilder.Entity<Review>(entity =>
+			{
+				entity.HasKey(r => r.Id);
+
+				entity.HasIndex(r => new { r.WorkshopId, r.UserId }).IsUnique();
+
+				entity.Property(r => r.Rating)
+					  .IsRequired();
+
+				entity.HasOne(r => r.Workshop)
+					  .WithMany(w => w.Reviews)
+					  .HasForeignKey(r => r.WorkshopId); 
+			});
+
 		}
 
-		public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-		{
-			var modifiedEntries = ChangeTracker.Entries()
-				.Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
-				.ToList();
+		//public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+		//{
+		//	var modifiedEntries = ChangeTracker.Entries()
+		//		.Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
+		//		.ToList();
 
-			var auditLogs = new List<AuditLog>();
+		//	var auditLogs = new List<AuditLog>();
 
-			foreach (var entry in modifiedEntries)
-			{
-				var audit = new AuditLog
-				{
-					EntityName = entry.Entity.GetType().Name,
-					LastModifiedBy = _currentUser,
-					Created = DateTime.UtcNow,
-					LastModified= DateTime.UtcNow,
-					Action = entry.State.ToString()
-				};
+		//	foreach (var entry in modifiedEntries)
+		//	{
+		//		var audit = new AuditLog
+		//		{
+		//			EntityName = entry.Entity.GetType().Name,
+		//			LastModifiedBy = _currentUser,
+		//			Created = DateTime.UtcNow,
+		//			LastModified= DateTime.UtcNow,
+		//			Action = entry.State.ToString()
+		//		};
 
-				if (entry.State == EntityState.Modified)
-				{
-					var original = new Dictionary<string, object>();
-					var current = new Dictionary<string, object>();
+		//		if (entry.State == EntityState.Modified)
+		//		{
+		//			var original = new Dictionary<string, object>();
+		//			var current = new Dictionary<string, object>();
 
-					foreach (var prop in entry.OriginalValues.Properties)
-					{
-						var originalValue = entry.OriginalValues[prop]?.ToString();
-						var currentValue = entry.CurrentValues[prop]?.ToString();
+		//			foreach (var prop in entry.OriginalValues.Properties)
+		//			{
+		//				var originalValue = entry.OriginalValues[prop]?.ToString();
+		//				var currentValue = entry.CurrentValues[prop]?.ToString();
 
-						if (originalValue != currentValue)
-						{
-							original[prop.Name] = originalValue;
-							current[prop.Name] = currentValue;
-						}
-					}
+		//				if (originalValue != currentValue)
+		//				{
+		//					original[prop.Name] = originalValue;
+		//					current[prop.Name] = currentValue;
+		//				}
+		//			}
 
-					audit.OriginalValue = JsonSerializer.Serialize(original);
-					audit.NewValue = JsonSerializer.Serialize(current);
-				}
-				else if (entry.State == EntityState.Added)
-				{
-					// chỉ log các field quan trọng thay vì full entity
-					var values = entry.CurrentValues.Properties.ToDictionary(p => p.Name, p => entry.CurrentValues[p]?.ToString());
-					audit.NewValue = JsonSerializer.Serialize(values);
-				}
-				else if (entry.State == EntityState.Deleted)
-				{
-					var values = entry.OriginalValues.Properties.ToDictionary(p => p.Name, p => entry.OriginalValues[p]?.ToString());
-					audit.OriginalValue = JsonSerializer.Serialize(values);
-				}
+		//			audit.OriginalValue = JsonSerializer.Serialize(original);
+		//			audit.NewValue = JsonSerializer.Serialize(current);
+		//		}
+		//		else if (entry.State == EntityState.Added)
+		//		{
+		//			// chỉ log các field quan trọng thay vì full entity
+		//			var values = entry.CurrentValues.Properties.ToDictionary(p => p.Name, p => entry.CurrentValues[p]?.ToString());
+		//			audit.NewValue = JsonSerializer.Serialize(values);
+		//		}
+		//		else if (entry.State == EntityState.Deleted)
+		//		{
+		//			var values = entry.OriginalValues.Properties.ToDictionary(p => p.Name, p => entry.OriginalValues[p]?.ToString());
+		//			audit.OriginalValue = JsonSerializer.Serialize(values);
+		//		}
 
-				auditLogs.Add(audit);
-			}
+		//		auditLogs.Add(audit);
+		//	}
 			 
-			var result = await base.SaveChangesAsync(cancellationToken);
+		//	var result = await base.SaveChangesAsync(cancellationToken);
 			 
-			if (auditLogs.Any())
-			{
-				AuditLogs.AddRange(auditLogs);
-				await base.SaveChangesAsync(cancellationToken);
-			}
+		//	if (auditLogs.Any())
+		//	{
+		//		AuditLogs.AddRange(auditLogs);
+		//		await base.SaveChangesAsync(cancellationToken);
+		//	}
 
-			return result;
-		}
+		//	return result;
+		//}
 
 	}
 

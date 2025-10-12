@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Wokiwoki.Application.DTOs.Response;
 
 namespace Wokiwoki.Application.Features.Categories.Queries.GetCategories
 {

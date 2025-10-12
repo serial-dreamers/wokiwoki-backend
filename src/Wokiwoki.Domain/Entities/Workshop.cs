@@ -8,8 +8,16 @@
 		public string? ShortDescription { get; set; }  
 
 		public string Description { get; set; } = null!;
-
+		
 		public string ImageUrl { get; set; } = string.Empty;
+
+		public decimal? DisplayPrice { get; set; }
+
+		public string? DisplayLocation { get; set; }
+
+		public double? Latitude { get; set; }
+
+		public double? Longitude { get; set; }
 
 		public int LikeCount { get; set; } 
 
@@ -28,6 +36,12 @@
 		public bool IsActive { get; set; } = true;
 
 		public Category Category { get; set; } = null!;
+
+		public Guid WorkshopTypeId { get; set; }
+
+		public virtual WorkshopType WorkshopType { get; set; } = null!;
+
+		public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
 		public virtual ICollection<UserWorkshopLike> Likes { get; set; } = new List<UserWorkshopLike>();
 

@@ -16,9 +16,4 @@
     <ProjectReference Include="..\Wokiwoki.Domain\Wokiwoki.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Categories\EnventHandlers\" />
-    <Folder Include="Features\Workshops\Queries\" />
-  </ItemGroup>
-
 </Project>

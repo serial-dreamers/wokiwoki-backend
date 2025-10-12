@@ -8,9 +8,11 @@ namespace Wokiwoki.Infrastructure.Data.Seeder
 		{
 			var roles = new List<IdentityRole>
 		{
-			new IdentityRole { Name = "customer", NormalizedName = "CUSTOMER" },
+			new IdentityRole { Name = "Customer", NormalizedName = "CUSTOMER" },
 			new IdentityRole { Name = "Admin", NormalizedName = "ADMIN" },
-			new IdentityRole { Name = "Manager", NormalizedName = "MANAGER" }
+			new IdentityRole { Name = "Manager", NormalizedName = "MANAGER" },
+			new IdentityRole { Name = "Organizer", NormalizedName = "ORGANIZER" },
+
 		};
 
 			foreach (var role in roles)

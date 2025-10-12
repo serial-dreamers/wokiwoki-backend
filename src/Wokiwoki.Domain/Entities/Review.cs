@@ -1,0 +1,17 @@
+﻿namespace Wokiwoki.Domain.Entities
+{
+    [Table("review")]
+    public class Review : BaseAuditableEntity
+    { 
+		public Guid WorkshopId { get; set; }
+
+		public string ImageUrl { get; set; } = null!;
+
+		public string UserId { get; set; } = null!;
+
+		public int Rating { get; set; }
+
+		public Workshop Workshop { get; set; } = null!; 
+
+	}
+}

@@ -15,15 +15,23 @@ namespace Wokiwoki.Infrastructure.Services
 			_configuration = configuration;
 		}
 
-		public string GenerateToken(string userId, string username, string role)
+		public string GenerateToken(string userId, string email, IEnumerable<string> roles)
 		{
 			var claims = new List<Claim>
 			{
 				new Claim(ClaimTypes.NameIdentifier, userId),
-				new Claim(ClaimTypes.Name, username), 
-				new Claim(ClaimTypes.Role, role),
+				new Claim(ClaimTypes.Email, email),  
 				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 			};
+
+			if (roles != null)
+			{
+				foreach (var role in roles)
+				{
+					claims.Add(new Claim(ClaimTypes.Role, role));
+				}
+			}
+
 			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
 			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

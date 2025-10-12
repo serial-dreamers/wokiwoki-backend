@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Wokiwoki.Application.Features.Tags.Queries;
-using Wokiwoki.Application.Features.Tags.Queries.GetTagsByCategory;
+using Swashbuckle.AspNetCore.Annotations;
+using Wokiwoki.Application.DTOs;
+using Wokiwoki.Application.Features.Tags.Queries.GetFilterPagedTagsQuery;
 
 namespace Wokiwoki.Api.Controllers
 {
@@ -16,10 +17,30 @@ namespace Wokiwoki.Api.Controllers
 			_mediator = mediator;
 		}
 
+
+		/// <summary>
+		/// Get tags for a specific category.
+		/// </summary>
+		/// <remarks>
+		/// Provide the categoryId as a query parameter. Returns a list of TagDto associated with the category.
+		/// Example: GET /api/category?categoryId=00000000-0000-0000-0000-000000000000
+		/// </remarks>
 		[HttpGet]
+		[Produces("application/json")]
+		[SwaggerOperation(
+			Summary = "Get tags by category",
+			Description = "Retrieve all tags that belong to the specified category.",
+			Tags = new[] { "Tags" })]
+		[ProducesResponseType(typeof(List<TagDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public async Task<ActionResult<List<TagDto>>> GetTagsByCategory([FromQuery] Guid categoryId)
 		{
-			return await _mediator.Send(new GetTagsByCategoryQuery(categoryId));
+			if (categoryId == Guid.Empty)
+				return BadRequest("Invalid categoryId.");
+
+			var tags = await _mediator.Send(new GetTagsByCategoryQuery(categoryId));
+			return Ok(tags);
 		}
+
 	}
 }
