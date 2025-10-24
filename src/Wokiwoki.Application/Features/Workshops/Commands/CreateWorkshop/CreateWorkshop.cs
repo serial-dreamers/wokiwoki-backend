@@ -14,15 +14,15 @@ using Wokiwoki.Domain.Events;
 namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
 {
 	public record CreateWorkshopCommand(
-		string Title,
-		string? ShortDescription,
-		string Description,
-		string ImageUrl,
-		int Capacity,
-		Guid OrganizationId,
-		Guid CategoryId,
-		List<Guid> TagIds
-	) : IRequest<Guid>;
+        Guid Id,
+        string Description,
+        string ImageUrl,
+        string? OnlineEventUrl,
+        RefundPolicyType RefundPolicy,
+        string? RefundPolicyDescription,
+        int? RegistrationDeadlineHours
+
+    ) : IRequest<Guid>;
 
 
 	public class CreateWorkshopCommandHandler : IRequestHandler<CreateWorkshopCommand, Guid>
@@ -41,32 +41,22 @@ namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
 		}
 		public async Task<Guid> Handle(CreateWorkshopCommand request, CancellationToken cancellationToken)
 		{
-			if (string.IsNullOrEmpty(request.Title))
-				throw new ArgumentException("Title is required");
+            // 1️⃣ Lấy workshop hiện có (draft)
+            var workshop = await _workshopRepository.GetByIdAsync(request.Id);
+            if (workshop == null)
+                throw new Exception("Workshop not found");
 
-			var id = _uuidService.NewGuid();
-			var workshop = _mapper.Map<Workshop>(request);
-			workshop.Id = id; 
-			//workshop.Status = WorkshopStatus.
+            // 2️⃣ Map những field được phép từ request sang entity
+            _mapper.Map(request, workshop);
 
-			if (request.TagIds != null && request.TagIds.Any())
-			{
-				var tags = await _tagRepository.GetTagsByCategory(request.CategoryId, cancellationToken);
-				var validTags = tags.Where(t => request.TagIds.Contains(t.Id)).ToList();
-				foreach (var item in validTags)
-				{
-					workshop.Tags.Add(item);
-				}
-			}
+            // 3️⃣ Cập nhật lại DB
+            var updatedWorkshop = await _workshopRepository.UpdateTAsync(request.Id, workshop, cancellationToken);
 
-			var createdWorkshop = await _workshopRepository.CreateAsync(workshop);
+            if (updatedWorkshop == null)
+                throw new Exception("Update workshop failed");
 
-			if (createdWorkshop == null)
-				throw new Exception("Create workshop failed");
-
-			workshop.AddDomainEvent(new WorkshopCreatedEvent(createdWorkshop));
-
-			return createdWorkshop.Id;
-		}
+            // 4️⃣ Trả về ID
+            return updatedWorkshop.Id;
+        }
 	}
 }

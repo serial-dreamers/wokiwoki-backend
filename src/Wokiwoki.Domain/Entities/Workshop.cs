@@ -26,8 +26,6 @@
 		public int ReviewCount { get; set; }
 		public double AverageRating { get; set; }
 
-		public bool UsesDefaultPricing { get; set; }
-
 		public RefundPolicyType RefundPolicy { get; set; }
 		public int? RegistrationDeadlineHours { get; set; }
 		public string? RefundPolicyDescription { get; set; }
@@ -39,9 +37,6 @@
 		public WorkshopStatus Status { get; set; }
 		public WorkshopDeliveryType DeliveryType { get; set; }  // Online, Offline, Hybrid
 		public WorkshopScheduleType ScheduleType { get; set; }  // Recurring, OneTime 
-
-		public DateTime? StartTime { get; set; }
-		public DateTime? EndTime { get; set; }
 
 		public Guid OrganizationId { get; set; }
 

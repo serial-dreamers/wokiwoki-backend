@@ -23,14 +23,42 @@ namespace Wokiwoki.Api.Controllers
 			_mediator = mediator;
 		}
 
-		/// <summary>
-		/// Create a new workshop.
-		/// </summary>
-		/// <remarks>
-		/// Accepts multipart/form-data (files and fields) and creates a new workshop.
-		/// Returns the created resource id and Location header.
-		/// </remarks>
-		[HttpPost]
+        /// <summary>
+        /// Tạo bản nháp workshop (draft) ban đầu — chỉ cần tiêu đề, category, organization, tag.
+        /// </summary>
+        [HttpPost("draft")]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> CreateDraft([FromBody] CreateWorkshopDraftCommand command)
+        {
+            if (command == null)
+                return BadRequest("Request body cannot be null");
+
+            try
+            {
+                var id = await _mediator.Send(command);
+                //return CreatedAtAction(nameof(GetById), new { id }, new { id });
+				return Ok(id);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch
+            {
+                return StatusCode(500, new { message = "An error occurred while creating workshop draft" });
+            }
+        }
+
+
+        /// <summary>
+        /// Create a new workshop.
+        /// </summary>
+        /// <remarks>
+        /// Accepts multipart/form-data (files and fields) and creates a new workshop.
+        /// Returns the created resource id and Location header.
+        /// </remarks>
+        [HttpPost]
 		[Consumes("multipart/form-data")]
 		[SwaggerOperation(Summary = "Create workshop", Description = "Create a new workshop. Accepts form data and files.")]
 		[SwaggerResponse(StatusCodes.Status201Created, "Workshop created", typeof(object))]
@@ -93,30 +121,6 @@ namespace Wokiwoki.Api.Controllers
 		}
 
 
-		/// <summary>
-		/// Tạo bản nháp workshop (draft) ban đầu — chỉ cần tiêu đề, category, organization, tag.
-		/// </summary>
-		[HttpPost("draft")]
-		[ProducesResponseType(typeof(Guid), (int)HttpStatusCode.Created)]
-		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
-		public async Task<IActionResult> CreateDraft([FromBody] CreateWorkshopDraftCommand command)
-		{
-			if (command == null)
-				return BadRequest("Request body cannot be null");
-
-			try
-			{
-				var id = await _mediator.Send(command);
-				return CreatedAtAction(nameof(GetById), new { id }, new { id });
-			}
-			catch (ArgumentException ex)
-			{ 
-				return BadRequest(new { message = ex.Message });
-			}
-			catch
-			{ 
-				return StatusCode(500, new { message = "An error occurred while creating workshop draft" });
-			}
-		}
+		
 	}
 }

@@ -34,17 +34,17 @@ namespace Wokiwoki.Infrastructure.Repositories
 				query = query.Where(w => w.Tags.Any(t => request.TagIds.Contains(t.Id)));
 
 			// date type
-			if (!string.IsNullOrEmpty(request.DateFilterType))
-			{
-				if (request.DateFilterType.Equals("today", StringComparison.OrdinalIgnoreCase))
-					query = query.Where(w => w.StartTime == vietnamNow.Date);
-				else if (request.DateFilterType.Equals("upcoming", StringComparison.OrdinalIgnoreCase))
-					query = query.Where(w => w.StartTime > vietnamNow);
-			}
+			//if (!string.IsNullOrEmpty(request.DateFilterType))
+			//{
+			//	if (request.DateFilterType.Equals("today", StringComparison.OrdinalIgnoreCase))
+			//		query = query.Where(w => w.StartTime == vietnamNow.Date);
+			//	else if (request.DateFilterType.Equals("upcoming", StringComparison.OrdinalIgnoreCase))
+			//		query = query.Where(w => w.StartTime > vietnamNow);
+			//}
 
-			// date range
-			if (request.StartDate.HasValue && request.EndDate.HasValue)
-				query = query.Where(w => w.StartTime >= request.StartDate && w.EndTime <= request.EndDate);
+			//// date range
+			//if (request.StartDate.HasValue && request.EndDate.HasValue)
+			//	query = query.Where(w => w.StartTime >= request.StartDate && w.EndTime <= request.EndDate);
 
 			// free
 			if (request.IsFree.HasValue)
@@ -62,7 +62,7 @@ namespace Wokiwoki.Infrastructure.Repositories
 
 
 
-			var listWorkshop = await query.OrderByDescending(w => w.StartTime)
+			var listWorkshop = await query.OrderByDescending(w => w.Created)
 							.ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
 
 			return listWorkshop;

@@ -10,8 +10,16 @@ namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
 		string Title, 
 		Guid OrganizationId,
 		Guid CategoryId,
-		List<Guid> TagIds
-	) : IRequest<Guid>;
+		List<Guid> TagIds,
+        decimal? StartingPrice,
+        WorkshopDeliveryType DeliveryType,
+		WorkshopScheduleType ScheduleType,
+        string Summary,
+        int? DurationMinutes,
+        int DefaultCapacity
+
+
+    ) : IRequest<Guid>;
 	public class CreateWorkshopDraftCommandHandler : IRequestHandler<CreateWorkshopDraftCommand, Guid>
 	{
 		private readonly IWorkshopRepository _workshopRepository;
@@ -36,26 +44,22 @@ namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
 			{
 				Id = id,
 				Title = request.Title,
-				Summary = string.Empty,
+				Summary = request.Summary,
 				Description = string.Empty,
 				OrganizationId = request.OrganizationId,
 				CategoryId = request.CategoryId,
 				Status = WorkshopStatus.Draft,
-				DefaultCapacity = 0,
+				DefaultCapacity = request.DefaultCapacity,
 				LikeCount = 0, 
 				TotalBookings = 0 ,
 				ReviewCount = 0,
 				AverageRating = 0.0,
-				UsesDefaultPricing = true,
 				RefundPolicy = RefundPolicyType.NoRefund,
 				DeliveryType = WorkshopDeliveryType.Offline,
 				ScheduleType = WorkshopScheduleType.OneTime,
 				IsActive = true,
 				OnlineEventUrl = string.Empty,
-				CreatedBy = "00000000-0000-0000-0000-000000000001",
 				Created = DateTime.UtcNow,
-				LastModified = DateTime.UtcNow,
-				LastModifiedBy = "00000000-0000-0000-0000-000000000001",
 				ImageUrl = string.Empty,
 				DisplayAddress = string.Empty,  
 			};
