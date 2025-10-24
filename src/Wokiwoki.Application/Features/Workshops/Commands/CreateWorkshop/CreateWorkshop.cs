@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Wokiwoki.Application.Common.Interfaces.Repositories;
 using Wokiwoki.Application.Common.Interfaces.Services;
 using Wokiwoki.Domain.Entities;
+using Wokiwoki.Domain.Enums;
 using Wokiwoki.Domain.Events;
 
 namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
@@ -41,11 +42,12 @@ namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
 		public async Task<Guid> Handle(CreateWorkshopCommand request, CancellationToken cancellationToken)
 		{
 			if (string.IsNullOrEmpty(request.Title))
-				throw new ArgumentException("Name is required");
+				throw new ArgumentException("Title is required");
 
 			var id = _uuidService.NewGuid();
 			var workshop = _mapper.Map<Workshop>(request);
-			workshop.Id = id;
+			workshop.Id = id; 
+			//workshop.Status = WorkshopStatus.
 
 			if (request.TagIds != null && request.TagIds.Any())
 			{

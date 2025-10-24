@@ -33,7 +33,7 @@ namespace Wokiwoki.Application.Features.Users.Commands.GoogleLogin
 			if(googleUser == null)
 				 return new AuthDto { Result = Result.Failure(["Invalid Google token"]) };
 
-			var user = await _identityService.LoginGoogleConfirm(googleUser.ProviderKey, googleUser.Email, googleUser.FullName);
+			var user = await _identityService.LoginGoogleConfirm(googleUser.ProviderKey, googleUser.Email!, googleUser.FullName!);
 
 			if(user == null) return new AuthDto { Result = Result.Failure(["User creation or login failed"]) };
 

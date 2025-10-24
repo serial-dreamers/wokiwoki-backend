@@ -30,8 +30,7 @@ namespace Wokiwoki.Infrastructure.Data
 		public DbSet<WorkshopHeroMedia> WorkshopHeroMedias { get; set; }
 		public DbSet<WorkshopMedia> WorkshopMedias { get; set; }
 		public DbSet<WorkshopSession> WorkshopSessions { get; set; }
-		public DbSet<WorkshopTicketType> WorkshopTicketTypes { get; set; }
-		public DbSet<WorkshopType> WorkshopTypes { get; set; }
+		public DbSet<WorkshopSessionTicket> WorkshopTicketTypes { get; set; } 
 		public DbSet<UserOrganizationFollow> UserOrganizationFollows { get; set; }
 		public DbSet<Review> Reviews { get; set; }
 
@@ -59,8 +58,8 @@ namespace Wokiwoki.Infrastructure.Data
 
 				foreach (var property in entityType.GetProperties())
 				{
-					var columnName = property.GetColumnName(StoreObjectIdentifier.Table(entityType.GetTableName(), entityType.GetSchema()));
-					property.SetColumnName(columnName.ToLower());
+					var columnName = property.GetColumnName(StoreObjectIdentifier.Table(entityType.GetTableName()!, entityType.GetSchema()));
+					property.SetColumnName(columnName!.ToLower());
 
 					if (property.ClrType == typeof(Guid) || property.ClrType == typeof(Guid?))
 					{
@@ -70,17 +69,17 @@ namespace Wokiwoki.Infrastructure.Data
 
 				foreach (var key in entityType.GetKeys())
 				{
-					key.SetName(key.GetName().ToLower());
+					key.SetName(key.GetName()!.ToLower());
 				}
 
 				foreach (var fk in entityType.GetForeignKeys())
 				{
-					fk.SetConstraintName(fk.GetConstraintName().ToLower());
+					fk.SetConstraintName(fk.GetConstraintName()!.ToLower());
 				}
 
 				foreach (var index in entityType.GetIndexes())
 				{
-					index.SetDatabaseName(index.GetDatabaseName().ToLower());
+					index.SetDatabaseName(index.GetDatabaseName()!.ToLower());
 				}
 			}
 
@@ -209,12 +208,14 @@ namespace Wokiwoki.Infrastructure.Data
 			modelBuilder.Entity<Workshop>(entity =>
 			{
 				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Title).HasMaxLength(255).IsRequired();
-				entity.Property(e => e.ShortDescription).HasMaxLength(500);
+				entity.Property(e => e.Title).HasMaxLength(255).IsRequired(); 
 				entity.Property(e => e.Description).HasColumnType("text").IsRequired();
 				entity.Property(e => e.ImageUrl).HasMaxLength(500);
 
-				entity.Property(e => e.DisplayLocation).HasMaxLength(255);
+				entity.Property(e => e.Summary).HasMaxLength(500).IsRequired();
+				entity.Property(e => e.DisplayAddress).HasMaxLength(255); 
+				entity.Property(e => e.Latitude).HasColumnType("numeric(10,7)");
+				entity.Property(e => e.Longitude).HasColumnType("numeric(10,7)");
 
 
 				entity.HasOne(e => e.Organization)
@@ -227,9 +228,31 @@ namespace Wokiwoki.Infrastructure.Data
 					.HasForeignKey(e => e.CategoryId)
 					.OnDelete(DeleteBehavior.Restrict);
 
-				entity.HasIndex(e => e.OrganizationId).HasDatabaseName("IX_Workshop_OrganizationId");
-				entity.HasIndex(e => e.StartTime).HasDatabaseName("IX_Workshop_StartTime");
+				// Online
+				entity.Property(e => e.OnlineEventUrl).HasMaxLength(500);
+				entity.Property(e => e.StartingPrice).HasColumnType("numeric(18,2)");
+				entity.Property(e => e.RefundPolicyDescription).HasMaxLength(1000);
+
+
+				entity.HasIndex(e => e.OrganizationId).HasDatabaseName("IX_Workshop_OrganizationId"); 
 				entity.HasIndex(e => e.CategoryId).HasDatabaseName("IX_Workshop_CategoryId");
+			});
+
+			// WORKSHOP SCHEDULE
+			modelBuilder.Entity<WorkshopSchedule>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+
+				entity.Property(e => e.DaysOfWeek).HasMaxLength(50); // "1,3,5"
+				entity.Property(e => e.DaysOfMonth).HasMaxLength(100); // "1,15,30"
+
+				entity.HasOne(e => e.Workshop)
+					.WithMany(w => w.Schedules)
+					.HasForeignKey(e => e.WorkshopId)
+					.OnDelete(DeleteBehavior.Cascade); 
+
+				entity.HasIndex(e => e.WorkshopId);
+				entity.HasIndex(e => new { e.WorkshopId, e.RecurrenceType });
 			});
 
 			// WORKSHOP CATEGORY
@@ -276,48 +299,77 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.HasKey(e => e.Id);
 				entity.Property(e => e.Title).HasMaxLength(255).IsRequired();
 				entity.Property(e => e.Description).HasColumnType("text").IsRequired();
+				entity.Property(e => e.Street).HasMaxLength(255);
+				entity.Property(e => e.Commune).HasMaxLength(100);
 				entity.Property(e => e.Province).HasMaxLength(100);
-				entity.Property(e => e.District).HasMaxLength(100);
-				entity.Property(e => e.Ward).HasMaxLength(100);
-				entity.Property(e => e.AddressDetail).HasMaxLength(255); 
+				entity.Property(e => e.Latitude).HasColumnType("numeric(10,7)");
+				entity.Property(e => e.Longitude).HasColumnType("numeric(10,7)");
+
+				entity.Property(e => e.ParkingDescription).HasMaxLength(500);
 
 				entity.HasOne(e => e.Workshop)
 					.WithMany(e => e.WorkshopSessions)
 					.HasForeignKey(e => e.WorkshopId)
 					.OnDelete(DeleteBehavior.Cascade);
 
+				entity.HasOne<WorkshopSchedule>()
+					.WithMany(s => s.Sessions)
+					.HasForeignKey(e => e.ScheduleId)
+					.OnDelete(DeleteBehavior.SetNull);
+
 				entity.HasIndex(e => e.WorkshopId).HasDatabaseName("IX_WorkshopSession_WorkshopId");
+				entity.HasIndex(e => e.ScheduleId);
+				entity.HasIndex(e => new { e.StartTime, e.IsActive });
+				entity.HasIndex(e => new { e.WorkshopId, e.StartTime });
+			});
+
+			// WORKSHOP SCHEDULE TICKET
+			modelBuilder.Entity<WorkshopScheduleTicket>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+
+				entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+				entity.Property(e => e.Price).HasColumnType("numeric(18,2)").IsRequired();
+
+				entity.HasOne(e => e.Workshop)
+					.WithMany(w => w.ScheduleTickets)
+					.HasForeignKey(e => e.WorkshopId)
+					.OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(e => e.WorkshopSchedule)
+					.WithMany()
+					.HasForeignKey(e => e.WorkshopScheduleId)
+					.OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasIndex(e => e.WorkshopScheduleId);
+				entity.HasIndex(e => e.WorkshopId);
+				entity.HasIndex(e => new { e.WorkshopId, e.WorkshopScheduleId, e.IsActive });
 			});
 
 			// WORKSHOP TICKET TYPE
-			modelBuilder.Entity<WorkshopTicketType>(entity =>
+			modelBuilder.Entity<WorkshopSessionTicket>(entity =>
 			{
 				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Name).HasMaxLength(255).IsRequired();
-				entity.Property(e => e.Description).HasMaxLength(500);
+				entity.Property(e => e.Name).HasMaxLength(100).IsRequired(); 
 				entity.Property(e => e.Price)
 					.HasColumnType("numeric(18,2)")
 					.HasColumnName("price");
+
 				entity.ToTable(t =>
 				{
 					t.HasCheckConstraint("CK_WorkshopTicketType_Price", "price >= 0");
 				});
 				entity.HasOne(e => e.WorkshopSession)
-					.WithMany(e => e.WorkshopTicketTypes)
+					.WithMany(e => e.WorkshopSessionTickets)
 					.HasForeignKey(e => e.WorkshopSessionId)
 					.OnDelete(DeleteBehavior.Cascade);
+				entity.HasOne(e => e.ScheduleTicket)
+					.WithMany()
+					.HasForeignKey(e => e.ScheduleTicketId)
+					.OnDelete(DeleteBehavior.SetNull);
 
 				entity.HasIndex(e => e.WorkshopSessionId).HasDatabaseName("IX_WorkshopTicketType_WorkshopSessionId");
-			});
-
-			// WORKSHOP TYPE
-			modelBuilder.Entity<WorkshopType>(entity =>
-			{
-				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Name).HasMaxLength(255).IsRequired();
-				entity.Property(e => e.Description).HasMaxLength(500);
-				entity.Property(e => e.IconUrl).HasMaxLength(500);
-			});
+			}); 
 
 			// TAG - CATEGORY (many-to-many)
 			modelBuilder.Entity<Tag>()

@@ -1,26 +1,26 @@
 ﻿using AutoMapper;
-using MediatR; 
+using MediatR;
 using Wokiwoki.Application.Common.Models;
-using Wokiwoki.Application.DTOs;
+using Wokiwoki.Application.DTOs.Response;
 
 namespace Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery
 {
 	public record SearchWorkshopQuery(
-		Guid? cateId,
-		List<Guid>? tagIdList,
-		string? typeDate,
-		DateTime? startDate,
-		DateTime? endDate,
-		bool? isFree,
-		Guid? typeId,
-		int pageNo = 1,
-		int pageSize = 10
+		Guid? CategoryId,
+		List<Guid>? TagIds,
+		string? DateFilterType,
+		DateTime? StartDate,
+		DateTime? EndDate,
+		bool? IsFree,
+		int? WorkshopTypeId,
+		int PageNumber = 1,
+		int PageSize = 10
 		) : IRequest<PaginatedList<SearchWorkshopDto>>;
 
 	public class SearchWorkshopQueryHandler : IRequestHandler<SearchWorkshopQuery, PaginatedList<SearchWorkshopDto>>
 	{
 		private readonly IWorkshopRepository _workshopRepository;
-		private IMapper _mapper;
+		private readonly IMapper _mapper;
 
 		public SearchWorkshopQueryHandler(IWorkshopRepository workshopRepository, IMapper mapper)
 		{
@@ -29,10 +29,7 @@ namespace Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshop
 		}
 
 		public async Task<PaginatedList<SearchWorkshopDto>> Handle(SearchWorkshopQuery request, CancellationToken cancellationToken)
-		{
-			var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-			DateTime vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-
+		{ 
 			var workshops = await _workshopRepository.SearchAsync(request, cancellationToken);
 			var mappedItems = _mapper.Map<IReadOnlyCollection<SearchWorkshopDto>>(workshops.Records);
 
@@ -40,7 +37,7 @@ namespace Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshop
 				mappedItems,
 			    workshops.TotalCount,
 				workshops.PageNumber,
-				request.pageSize
+				request.PageSize
 			);
 		}
 	}

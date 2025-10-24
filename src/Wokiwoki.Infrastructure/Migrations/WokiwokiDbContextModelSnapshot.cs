@@ -359,6 +359,11 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("Commune")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("commune");
+
                     b.Property<string>("ContactEmail")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
@@ -380,11 +385,6 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
-
-                    b.Property<string>("District")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("district");
 
                     b.Property<int>("FollowerCount")
                         .HasColumnType("integer")
@@ -413,25 +413,24 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("name");
 
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ownerid");
+
                     b.Property<string>("Province")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("province");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
                     b.Property<string>("Street")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("street");
-
-                    b.Property<string>("Ward")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("ward");
-
-                    b.Property<string>("userId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("userid");
 
                     b.HasKey("Id")
                         .HasName("pk_organization");
@@ -800,9 +799,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<int>("Capacity")
-                        .HasColumnType("integer")
-                        .HasColumnName("capacity");
+                    b.Property<double>("AverageRating")
+                        .HasColumnType("double precision")
+                        .HasColumnName("averagerating");
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid")
@@ -816,21 +815,29 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("createdby");
 
+                    b.Property<int>("DefaultCapacity")
+                        .HasColumnType("integer")
+                        .HasColumnName("defaultcapacity");
+
+                    b.Property<int>("DeliveryType")
+                        .HasColumnType("integer")
+                        .HasColumnName("deliverytype");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<string>("DisplayLocation")
+                    b.Property<string>("DisplayAddress")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
-                        .HasColumnName("displaylocation");
+                        .HasColumnName("displayaddress");
 
-                    b.Property<decimal?>("DisplayPrice")
-                        .HasColumnType("numeric")
-                        .HasColumnName("displayprice");
+                    b.Property<int?>("DurationMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("durationminutes");
 
-                    b.Property<DateTime>("EndTime")
+                    b.Property<DateTime?>("EndTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("endtime");
 
@@ -853,7 +860,7 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnName("lastmodifiedby");
 
                     b.Property<double?>("Latitude")
-                        .HasColumnType("double precision")
+                        .HasColumnType("numeric(10,7)")
                         .HasColumnName("latitude");
 
                     b.Property<int>("LikeCount")
@@ -861,21 +868,56 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnName("likecount");
 
                     b.Property<double?>("Longitude")
-                        .HasColumnType("double precision")
+                        .HasColumnType("numeric(10,7)")
                         .HasColumnName("longitude");
+
+                    b.Property<string>("OnlineEventUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("onlineeventurl");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid")
                         .HasColumnName("organizationid");
 
-                    b.Property<string>("ShortDescription")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("shortdescription");
+                    b.Property<int>("RefundPolicy")
+                        .HasColumnType("integer")
+                        .HasColumnName("refundpolicy");
 
-                    b.Property<DateTime>("StartTime")
+                    b.Property<string>("RefundPolicyDescription")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("refundpolicydescription");
+
+                    b.Property<int?>("RegistrationDeadlineHours")
+                        .HasColumnType("integer")
+                        .HasColumnName("registrationdeadlinehours");
+
+                    b.Property<int>("ReviewCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("reviewcount");
+
+                    b.Property<int>("ScheduleType")
+                        .HasColumnType("integer")
+                        .HasColumnName("scheduletype");
+
+                    b.Property<DateTime?>("StartTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("starttime");
+
+                    b.Property<decimal?>("StartingPrice")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("startingprice");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("summary");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -883,9 +925,13 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("title");
 
-                    b.Property<Guid>("WorkshopTypeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("workshoptypeid");
+                    b.Property<int>("TotalBookings")
+                        .HasColumnType("integer")
+                        .HasColumnName("totalbookings");
+
+                    b.Property<bool>("UsesDefaultPricing")
+                        .HasColumnType("boolean")
+                        .HasColumnName("usesdefaultpricing");
 
                     b.HasKey("Id")
                         .HasName("pk_workshop");
@@ -895,12 +941,6 @@ namespace Wokiwoki.Infrastructure.Migrations
 
                     b.HasIndex("OrganizationId")
                         .HasDatabaseName("IX_Workshop_OrganizationId");
-
-                    b.HasIndex("StartTime")
-                        .HasDatabaseName("IX_Workshop_StartTime");
-
-                    b.HasIndex("WorkshopTypeId")
-                        .HasDatabaseName("ix_workshop_workshoptypeid");
 
                     b.ToTable("workshop");
                 });
@@ -1009,20 +1049,14 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.ToTable("workshop_media");
                 });
 
-            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopSession", b =>
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopSchedule", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("AddressDetail")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("addressdetail");
-
-                    b.Property<int>("Capacity")
+                    b.Property<int?>("Capacity")
                         .HasColumnType("integer")
                         .HasColumnName("capacity");
 
@@ -1034,24 +1068,19 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("createdby");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<string>("District")
-                        .IsRequired()
+                    b.Property<string>("DaysOfMonth")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
-                        .HasColumnName("district");
+                        .HasColumnName("daysofmonth");
 
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("timestamp with time zone")
+                    b.Property<string>("DaysOfWeek")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("daysofweek");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time without time zone")
                         .HasColumnName("endtime");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("isactive");
 
                     b.Property<DateTime>("LastModified")
                         .HasColumnType("timestamp with time zone")
@@ -1061,42 +1090,38 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
-                    b.Property<string>("Province")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("province");
+                    b.Property<int>("RecurrenceType")
+                        .HasColumnType("integer")
+                        .HasColumnName("recurrencetype");
 
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone")
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone")
                         .HasColumnName("starttime");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("title");
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("validfrom");
 
-                    b.Property<string>("Ward")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("ward");
+                    b.Property<DateTime?>("ValidUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("validuntil");
 
                     b.Property<Guid>("WorkshopId")
                         .HasColumnType("uuid")
                         .HasColumnName("workshopid");
 
                     b.HasKey("Id")
-                        .HasName("pk_workshop_session");
+                        .HasName("pk_workshop_schedule");
 
                     b.HasIndex("WorkshopId")
-                        .HasDatabaseName("IX_WorkshopSession_WorkshopId");
+                        .HasDatabaseName("ix_workshop_schedule_workshopid");
 
-                    b.ToTable("workshop_session");
+                    b.HasIndex("WorkshopId", "RecurrenceType");
+
+                    b.ToTable("workshop_schedule");
                 });
 
-            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopTicketType", b =>
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopScheduleTicket", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1111,10 +1136,189 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("createdby");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("isactive");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lastmodified");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("lastmodifiedby");
+
+                    b.Property<int>("MaxQuantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("maxquantity");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("price");
+
+                    b.Property<Guid>("WorkshopId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workshopid");
+
+                    b.Property<Guid?>("WorkshopScheduleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workshopscheduleid");
+
+                    b.HasKey("Id")
+                        .HasName("pk_workshop_schedule_ticket");
+
+                    b.HasIndex("WorkshopId")
+                        .HasDatabaseName("ix_workshop_schedule_ticket_workshopid");
+
+                    b.HasIndex("WorkshopScheduleId")
+                        .HasDatabaseName("ix_workshop_schedule_ticket_workshopscheduleid");
+
+                    b.HasIndex("WorkshopId", "WorkshopScheduleId", "IsActive");
+
+                    b.ToTable("workshop_schedule_ticket");
+                });
+
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AgeRestrictionType")
+                        .HasColumnType("integer")
+                        .HasColumnName("agerestrictiontype");
+
+                    b.Property<int>("BookedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("bookedcount");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("integer")
+                        .HasColumnName("capacity");
+
+                    b.Property<string>("Commune")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("commune");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("createdby");
+
                     b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("endtime");
+
+                    b.Property<bool>("HasCustomPricing")
+                        .HasColumnType("boolean")
+                        .HasColumnName("hascustompricing");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("isactive");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lastmodified");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("lastmodifiedby");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("numeric(10,7)")
+                        .HasColumnName("latitude");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("numeric(10,7)")
+                        .HasColumnName("longitude");
+
+                    b.Property<int?>("MinimumAge")
+                        .HasColumnType("integer")
+                        .HasColumnName("minimumage");
+
+                    b.Property<string>("ParkingDescription")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
-                        .HasColumnName("description");
+                        .HasColumnName("parkingdescription");
+
+                    b.Property<int?>("ParkingType")
+                        .HasColumnType("integer")
+                        .HasColumnName("parkingtype");
+
+                    b.Property<string>("Province")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("province");
+
+                    b.Property<Guid?>("ScheduleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("scheduleid");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("starttime");
+
+                    b.Property<string>("Street")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("street");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("title");
+
+                    b.Property<Guid>("WorkshopId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workshopid");
+
+                    b.HasKey("Id")
+                        .HasName("pk_workshop_session");
+
+                    b.HasIndex("ScheduleId");
+
+                    b.HasIndex("WorkshopId")
+                        .HasDatabaseName("IX_WorkshopSession_WorkshopId");
+
+                    b.HasIndex("StartTime", "IsActive");
+
+                    b.HasIndex("WorkshopId", "StartTime");
+
+                    b.ToTable("workshop_session");
+                });
+
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopSessionTicket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("createdby");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
@@ -1130,8 +1334,8 @@ namespace Wokiwoki.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
                     b.Property<decimal>("Price")
@@ -1142,13 +1346,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("quantity");
 
-                    b.Property<DateTime>("SaleEnd")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("saleend");
-
-                    b.Property<DateTime>("SaleStart")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("salestart");
+                    b.Property<Guid?>("ScheduleTicketId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("scheduleticketid");
 
                     b.Property<int>("Sold")
                         .HasColumnType("integer")
@@ -1159,64 +1359,18 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnName("workshopsessionid");
 
                     b.HasKey("Id")
-                        .HasName("pk_workshop_ticket_type");
+                        .HasName("pk_workshop_session_ticket");
+
+                    b.HasIndex("ScheduleTicketId")
+                        .HasDatabaseName("ix_workshop_session_ticket_scheduleticketid");
 
                     b.HasIndex("WorkshopSessionId")
                         .HasDatabaseName("IX_WorkshopTicketType_WorkshopSessionId");
 
-                    b.ToTable("workshop_ticket_type", t =>
+                    b.ToTable("workshop_session_ticket", t =>
                         {
                             t.HasCheckConstraint("CK_WorkshopTicketType_Price", "price >= 0");
                         });
-                });
-
-            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopType", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("createdby");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("IconUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("iconurl");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("isactive");
-
-                    b.Property<DateTime>("LastModified")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("lastmodified");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("lastmodifiedby");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("name");
-
-                    b.HasKey("Id")
-                        .HasName("pk_workshop_type");
-
-                    b.ToTable("workshop_type");
                 });
 
             modelBuilder.Entity("Wokiwoki.Infrastructure.Identity.ApplicationUser", b =>
@@ -1430,12 +1584,12 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_ticket_booking_bookingid");
 
-                    b.HasOne("Wokiwoki.Domain.Entities.WorkshopTicketType", "TicketType")
+                    b.HasOne("Wokiwoki.Domain.Entities.WorkshopSessionTicket", "TicketType")
                         .WithMany()
                         .HasForeignKey("TicketTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_ticket_workshop_ticket_type_tickettypeid");
+                        .HasConstraintName("fk_ticket_workshop_session_ticket_tickettypeid");
 
                     b.Navigation("Booking");
 
@@ -1508,18 +1662,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_workshop_organization_organizationid");
 
-                    b.HasOne("Wokiwoki.Domain.Entities.WorkshopType", "WorkshopType")
-                        .WithMany("Workshops")
-                        .HasForeignKey("WorkshopTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_workshop_workshop_type_workshoptypeid");
-
                     b.Navigation("Category");
 
                     b.Navigation("Organization");
-
-                    b.Navigation("WorkshopType");
                 });
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopHeroMedia", b =>
@@ -1554,8 +1699,46 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Navigation("Workshop");
                 });
 
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopSchedule", b =>
+                {
+                    b.HasOne("Wokiwoki.Domain.Entities.Workshop", "Workshop")
+                        .WithMany("Schedules")
+                        .HasForeignKey("WorkshopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_workshop_schedule_workshop_workshopid");
+
+                    b.Navigation("Workshop");
+                });
+
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopScheduleTicket", b =>
+                {
+                    b.HasOne("Wokiwoki.Domain.Entities.Workshop", "Workshop")
+                        .WithMany("ScheduleTickets")
+                        .HasForeignKey("WorkshopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_workshop_schedule_ticket_workshop_workshopid");
+
+                    b.HasOne("Wokiwoki.Domain.Entities.WorkshopSchedule", "WorkshopSchedule")
+                        .WithMany()
+                        .HasForeignKey("WorkshopScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_workshop_schedule_ticket_workshop_schedule_workshopschedule~");
+
+                    b.Navigation("Workshop");
+
+                    b.Navigation("WorkshopSchedule");
+                });
+
             modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopSession", b =>
                 {
+                    b.HasOne("Wokiwoki.Domain.Entities.WorkshopSchedule", null)
+                        .WithMany("Sessions")
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_workshop_session_workshop_schedule_workshopscheduleid");
+
                     b.HasOne("Wokiwoki.Domain.Entities.Workshop", "Workshop")
                         .WithMany("WorkshopSessions")
                         .HasForeignKey("WorkshopId")
@@ -1566,14 +1749,22 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Navigation("Workshop");
                 });
 
-            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopTicketType", b =>
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopSessionTicket", b =>
                 {
+                    b.HasOne("Wokiwoki.Domain.Entities.WorkshopScheduleTicket", "ScheduleTicket")
+                        .WithMany()
+                        .HasForeignKey("ScheduleTicketId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_workshop_session_ticket_workshop_schedule_ticket_scheduleti~");
+
                     b.HasOne("Wokiwoki.Domain.Entities.WorkshopSession", "WorkshopSession")
-                        .WithMany("WorkshopTicketTypes")
+                        .WithMany("WorkshopSessionTickets")
                         .HasForeignKey("WorkshopSessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_workshop_ticket_type_workshop_session_workshopsessionid");
+                        .HasConstraintName("fk_workshop_session_ticket_workshop_session_workshopsessionid");
+
+                    b.Navigation("ScheduleTicket");
 
                     b.Navigation("WorkshopSession");
                 });
@@ -1641,6 +1832,10 @@ namespace Wokiwoki.Infrastructure.Migrations
 
                     b.Navigation("Reviews");
 
+                    b.Navigation("ScheduleTickets");
+
+                    b.Navigation("Schedules");
+
                     b.Navigation("WorkshopHeroMedias");
 
                     b.Navigation("WorkshopMedias");
@@ -1648,14 +1843,14 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Navigation("WorkshopSessions");
                 });
 
-            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopSession", b =>
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopSchedule", b =>
                 {
-                    b.Navigation("WorkshopTicketTypes");
+                    b.Navigation("Sessions");
                 });
 
-            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopType", b =>
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopSession", b =>
                 {
-                    b.Navigation("Workshops");
+                    b.Navigation("WorkshopSessionTickets");
                 });
 
             modelBuilder.Entity("Wokiwoki.Infrastructure.Identity.ApplicationUser", b =>

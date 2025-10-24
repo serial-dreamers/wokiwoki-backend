@@ -23,9 +23,20 @@ namespace Wokiwoki.Application.Features.Auth.Commands.EmailRegistration.SendEmai
 			if (request == null)
 				return Result.Failure(new[] { "Invalid request" });
 
+			var email = request.Email;
+			var rateLimitKey = $"ratelimit:{email}";
+
+			var lastSent = await _redisCacheService.GetAsync(rateLimitKey);
+			if (lastSent != null)
+			{
+				return Result.Failure(new[] { "Please wait before requesting another verification code." });
+			}
+
 			var code = new Random().Next(100000, 999999).ToString();
 
 			await _redisCacheService.SetAsync($"verify:{request.Email}", code, TimeSpan.FromMinutes(5));
+
+			await _redisCacheService.SetAsync(rateLimitKey, "1", TimeSpan.FromSeconds(60));
 
 			var emailRequest = new EmailVerificationRequest
 			{

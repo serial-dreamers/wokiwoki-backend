@@ -19,8 +19,8 @@ namespace Wokiwoki.Application.Features.Categories.Commands.DeleteCategory
 			if (category == null)
 				throw new KeyNotFoundException($"Category with Id '{request.Id}' not found.");
 
-			
-			return await _categoryRepository.Delete(category.Id);
+
+			return await _categoryRepository.DeleteAsync(category.Id, cancellationToken);
 		}
 	}
 }

@@ -9,9 +9,15 @@ namespace Wokiwoki.Infrastructure.Repositories
 		{
 		}
 
-		public async Task<List<Category>> GetAllAsync(CancellationToken cancellationToken)
-		{
-		 return await _context.Categories.Where(c => c.IsActive).ToListAsync(cancellationToken);
-		}
+		public async Task<List<Category>> GetAllActiveAsync(CancellationToken cancellationToken)
+		=> await _context.Categories.Where(c => c.IsActive).ToListAsync(cancellationToken);
+		
+
+		public async Task<List<Category>> GetAllCategoriesWithTagsAsync(CancellationToken cancellationToken)
+		=> await _context.Categories
+				.Include(c => c.Tags)
+				.Where(c => c.IsActive)
+				.ToListAsync(cancellationToken);
+		
 	}
 }

@@ -4,6 +4,8 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 {
 	public interface ICategoryRepository : IBaseRepo<Category, Guid>
 	{
-		Task<List<Category>> GetAllAsync(CancellationToken cancellationToken);
+		Task<List<Category>> GetAllActiveAsync(CancellationToken cancellationToken);
+
+		Task<List<Category>> GetAllCategoriesWithTagsAsync(CancellationToken cancellationToken);
 	}
 }

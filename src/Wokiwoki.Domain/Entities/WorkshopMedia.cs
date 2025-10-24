@@ -7,12 +7,10 @@
 
 		public MediaType MediaType { get; set; } 
 
-		public Guid UploadedByUserId { get; set; }
-
 		public Guid WorkshopId { get; set; }
 
-		public bool IsActive { get; set; } = true;
-
 		public Workshop Workshop { get; set; } = null!;
+
+		public bool IsActive { get; set; } = true;
 	}
 }

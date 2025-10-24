@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Wokiwoki.Application.Common.Models;
-using Wokiwoki.Application.DTOs;
+using Wokiwoki.Application.DTOs.Response;
 
 namespace Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery
 {
     public record GetAllWorkshopQuery(
-        int pageNo,
-        int pageSize
+        int PageNumber,
+        int PageSize
         ) : IRequest<PaginatedList<SearchWorkshopDto>>;
     public class GetAllWorkshopQueryHandler : IRequestHandler<GetAllWorkshopQuery, PaginatedList<SearchWorkshopDto>>
     {
@@ -27,8 +27,10 @@ namespace Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshop
         public async Task<PaginatedList<SearchWorkshopDto>> Handle(GetAllWorkshopQuery request, CancellationToken cancellationToken)
         {
             var wL = await _repo.GetAllAsync(cancellationToken);
+
             var wLMapped = _mapper.Map<List<SearchWorkshopDto>>(wL);
-            var wLPaging = new PaginatedList<SearchWorkshopDto>(wLMapped, wLMapped.Count, request.pageNo, request.pageSize);
+
+            var wLPaging = new PaginatedList<SearchWorkshopDto>(wLMapped, wLMapped.Count, request.PageNumber, request.PageSize);
             return wLPaging;
         }
     }

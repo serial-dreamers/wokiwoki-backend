@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Net;
 using Wokiwoki.Application.Common.Models;
-using Wokiwoki.Application.DTOs;
 using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
 using Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery;
@@ -90,6 +90,33 @@ namespace Wokiwoki.Api.Controllers
 		{
 			var result = await _mediator.Send(request);
 			return Ok(result);
+		}
+
+
+		/// <summary>
+		/// Tạo bản nháp workshop (draft) ban đầu — chỉ cần tiêu đề, category, organization, tag.
+		/// </summary>
+		[HttpPost("draft")]
+		[ProducesResponseType(typeof(Guid), (int)HttpStatusCode.Created)]
+		[ProducesResponseType((int)HttpStatusCode.BadRequest)]
+		public async Task<IActionResult> CreateDraft([FromBody] CreateWorkshopDraftCommand command)
+		{
+			if (command == null)
+				return BadRequest("Request body cannot be null");
+
+			try
+			{
+				var id = await _mediator.Send(command);
+				return CreatedAtAction(nameof(GetById), new { id }, new { id });
+			}
+			catch (ArgumentException ex)
+			{ 
+				return BadRequest(new { message = ex.Message });
+			}
+			catch
+			{ 
+				return StatusCode(500, new { message = "An error occurred while creating workshop draft" });
+			}
 		}
 	}
 }

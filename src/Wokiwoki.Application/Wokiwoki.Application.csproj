@@ -16,4 +16,10 @@
     <ProjectReference Include="..\Wokiwoki.Domain\Wokiwoki.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Organizations\EventHandlers\" />
+    <Folder Include="Features\UserWorkShopLike\EventHandlers\" />
+    <Folder Include="Features\WorkshopMedias\EventHandlers\" />
+  </ItemGroup>
+
 </Project>

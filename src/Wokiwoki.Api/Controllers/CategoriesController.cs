@@ -110,5 +110,29 @@ namespace Wokiwoki.Api.Controllers
 
 			return Ok(new { message = "Category deleted successfully." });
 		}
+
+		/// <summary>
+		/// Get all categories including their related tags.
+		/// </summary>
+		/// <remarks>
+		/// This endpoint retrieves a list of all active categories,
+		/// including their associated tags if available.
+		/// </remarks>
+		/// <returns>
+		/// A list of <see cref="CategoryDto"/> objects containing category and tag information.
+		/// </returns>
+		[HttpGet("with-tags")]
+		[Produces("application/json")]
+		[SwaggerOperation(
+			Summary = "Get all categories with tags",
+			Description = "Fetch all categories along with their associated tags.")]
+		[ProducesResponseType(typeof(List<CategoryDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		public async Task<IActionResult> GetAllWithTags()
+		{
+			var result = await _mediator.Send(new GetCategoriesWithTagsQuery());
+			return Ok(result);
+		}
+
 	}
 }

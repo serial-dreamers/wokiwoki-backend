@@ -14,7 +14,7 @@ public static class DependencyInjection
 	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
 	.AddEnvironmentVariables();
 
-		//builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
+		//builder.Services.AddSingleton<TimeProvider>(TimeProvider.System); 
 
 		builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 

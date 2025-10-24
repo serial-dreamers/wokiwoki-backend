@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Azure.Storage.Blobs;
 using FluentEmail.MailKitSmtp; 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +15,7 @@ using System.Text;
 using Wokiwoki.Application.Common.Interfaces.Messaging;
 using Wokiwoki.Application.Common.Interfaces.Repositories;
 using Wokiwoki.Application.Common.Interfaces.Services;
+using Wokiwoki.Infrastructure.Data.Configurations;
 using Wokiwoki.Infrastructure.Data.Messaging;
 using Wokiwoki.Infrastructure.Repositories;
 using Wokiwoki.Infrastructure.Services;
@@ -50,8 +52,14 @@ public static class DependencyInjection
         .AddSignInManager()
         .AddDefaultTokenProviders();
 
+		builder.Services.AddSingleton(x =>
+		{
+			var config = builder.Configuration.GetSection("AzureBlobStorage").Get<AzureBlobStorageOptions>();
+			return new BlobServiceClient(builder.Configuration["AzureBlobStorage:ConnectionString"]);
+		});
 
-        builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+
+		builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
         {
 
             var redisEndpoint = builder.Configuration["Redis:Endpoint"];
@@ -90,7 +98,7 @@ public static class DependencyInjection
             .AddMailKitSender(new SmtpClientOptions
             {
                 Server = builder.Configuration["Smtp:SmtpServer"],
-                Port = int.Parse(builder.Configuration["Smtp:Port"]),
+                Port = int.Parse(builder.Configuration["Smtp:Port"]!),
                 User = builder.Configuration["Smtp:UserName"],
                 Password = builder.Configuration["Smtp:Password"],
                 UseSsl = false,
@@ -140,15 +148,19 @@ public static class DependencyInjection
             };
         });
 
+		builder.Services.AddHttpContextAccessor();
+
 
 		// Repositories
 		builder.Services.AddScoped<IWorkshopRepository, WorkshopRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<ITagRepository, TagRepository>();
         builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-
-
-
+		builder.Services.AddScoped<ITagRepository, TagRepository>(); 
+		builder.Services.AddScoped<IUserWorkshopLikeRepository, UserWorkshopLikeRepository>();
+		builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+		builder.Services.AddScoped<IWorkshopMediaRepository, WorkshopMediaRepository>();
+         
 
 		// Services
 		builder.Services.AddHostedService<EmailConsumerHosted>();
@@ -166,6 +178,8 @@ public static class DependencyInjection
 
 		builder.Services.AddScoped<IGoogleService, GoogleService>();
 
+		builder.Services.AddScoped<IUserContext, UserContext>();
+		builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 
-    }
+	}
 }
