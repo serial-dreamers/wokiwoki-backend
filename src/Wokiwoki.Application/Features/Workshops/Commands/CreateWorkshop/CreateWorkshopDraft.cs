@@ -7,19 +7,19 @@ using Wokiwoki.Domain.Events;
 namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
 {
 	public record CreateWorkshopDraftCommand(
+		string UserId,
 		string Title, 
+        string Summary,
 		Guid OrganizationId,
 		Guid CategoryId,
 		List<Guid> TagIds,
         decimal? StartingPrice,
         WorkshopDeliveryType DeliveryType,
 		WorkshopScheduleType ScheduleType,
-        string Summary,
         int? DurationMinutes,
-        int DefaultCapacity
-
-
+        int DefaultCapacity  
     ) : IRequest<Guid>;
+
 	public class CreateWorkshopDraftCommandHandler : IRequestHandler<CreateWorkshopDraftCommand, Guid>
 	{
 		private readonly IWorkshopRepository _workshopRepository;
@@ -62,6 +62,7 @@ namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
 				Created = DateTime.UtcNow,
 				ImageUrl = string.Empty,
 				DisplayAddress = string.Empty,  
+				CreatedBy = request.UserId
 			};
 			if (request.TagIds != null && request.TagIds.Any())
 			{

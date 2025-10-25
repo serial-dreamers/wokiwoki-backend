@@ -37,8 +37,7 @@ namespace Wokiwoki.Api.Controllers
             try
             {
                 var id = await _mediator.Send(command);
-                //return CreatedAtAction(nameof(GetById), new { id }, new { id });
-				return Ok(id);
+                return CreatedAtAction(nameof(GetById), new { id }, new { id }); 
             }
             catch (ArgumentException ex)
             {
@@ -58,12 +57,12 @@ namespace Wokiwoki.Api.Controllers
         /// Accepts multipart/form-data (files and fields) and creates a new workshop.
         /// Returns the created resource id and Location header.
         /// </remarks>
-        [HttpPost]
-		[Consumes("multipart/form-data")]
+        [HttpPost] 
+		[Consumes("application/json")]
 		[SwaggerOperation(Summary = "Create workshop", Description = "Create a new workshop. Accepts form data and files.")]
 		[SwaggerResponse(StatusCodes.Status201Created, "Workshop created", typeof(object))]
 		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request")]
-		public async Task<ActionResult> Create([FromForm] CreateWorkshopCommand command)
+		public async Task<ActionResult> Create([FromBody] CreateWorkshopCommand command)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
