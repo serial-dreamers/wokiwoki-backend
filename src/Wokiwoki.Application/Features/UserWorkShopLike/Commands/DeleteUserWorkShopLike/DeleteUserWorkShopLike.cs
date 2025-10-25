@@ -30,7 +30,7 @@ namespace Wokiwoki.Application.Features.UserWorkShopLike.Commands.DeleteUserWork
 				throw new KeyNotFoundException("Workshop not found");
 
 
-			var existingLike = await _likeRepo.GetExistsAsync(userId, request.WorkshopId, cancellationToken);
+			var existingLike = await _likeRepo.GetExistsTAsync(userId, request.WorkshopId, cancellationToken);
 			if (existingLike == null)
 				return;
 

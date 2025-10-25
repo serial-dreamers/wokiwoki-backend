@@ -66,7 +66,7 @@ namespace Wokiwoki.Application.Common.Mappings
 
 
 			//WorkshopMedia
-			CreateMap<WorkshopMedia, WorkshopMediaDto>();
+			CreateMap<WorkshopMedia, WorkshopMediaDto>(); 
 
 			//WorkshopHeroMedia
 			CreateMap<WorkshopHeroMedia, WorkshopHeroMediaDto>();

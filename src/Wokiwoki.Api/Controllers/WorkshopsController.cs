@@ -37,9 +37,8 @@ namespace Wokiwoki.Api.Controllers
             try
             {
                 var id = await _mediator.Send(command);
-                //return CreatedAtAction(nameof(GetById), new { id }, new { id });
-				return Ok(id);
-            }
+                return CreatedAtAction(nameof(GetById), new { id }, new { id });
+			}
             catch (ArgumentException ex)
             {
                 return BadRequest(new { message = ex.Message });
@@ -51,16 +50,19 @@ namespace Wokiwoki.Api.Controllers
         }
 
 
-        /// <summary>
-        /// Create a new workshop.
-        /// </summary>
-        /// <remarks>
-        /// Accepts multipart/form-data (files and fields) and creates a new workshop.
-        /// Returns the created resource id and Location header.
-        /// </remarks>
-        [HttpPost] 
-		[Consumes("application/json")]
-		[SwaggerOperation(Summary = "Create workshop", Description = "Create a new workshop. Accepts form data and files.")]
+		/// <summary>
+		/// Create a new workshop.
+		/// </summary>
+		/// <remarks>
+		/// Accepts multipart/form-data (files and fields) and creates a new workshop.
+		/// Returns the created resource id and Location header.
+		/// </remarks>
+		[HttpPost("draft/details")]
+		[Consumes("application/json")] 
+		[SwaggerOperation(
+			Summary = "Add or update draft details",
+			Description = "Add additional information (description, refund policy, etc.) to an existing workshop draft." 
+		)]
 		[SwaggerResponse(StatusCodes.Status201Created, "Workshop created", typeof(object))]
 		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request")]
 		public async Task<ActionResult> Create([FromBody] CreateWorkshopCommand command)
@@ -68,9 +70,7 @@ namespace Wokiwoki.Api.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var id = await _mediator.Send(command);
-
-			// Return 201 Created with Location header referencing GetById
+			var id = await _mediator.Send(command); 
 			return CreatedAtAction(nameof(GetById), new { id = id }, new { id });
 		}
 

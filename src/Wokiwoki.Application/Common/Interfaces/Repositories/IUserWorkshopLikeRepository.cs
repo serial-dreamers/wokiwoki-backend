@@ -6,7 +6,7 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 	{
 		Task<bool> ExistsAsync(string userId, Guid workshopId, CancellationToken cancellationToken);
 
-		Task<UserWorkshopLike> GetExistsAsync(string userId, Guid workshopId, CancellationToken cancellationToken);
+		Task<UserWorkshopLike> GetExistsTAsync(string userId, Guid workshopId, CancellationToken cancellationToken);
 
 	}
 }

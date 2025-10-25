@@ -223,8 +223,8 @@ namespace Wokiwoki.Infrastructure.Data
             modelBuilder.Entity<Workshop>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Title).HasMaxLength(255).IsRequired();
-                entity.Property(e => e.Summary).HasMaxLength(500).IsRequired();
+                entity.Property(e => e.Title).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.Summary).HasMaxLength(150).IsRequired();
                 entity.Property(e => e.Description).HasColumnType("text").IsRequired();
                 entity.Property(e => e.ImageUrl).HasMaxLength(500);
                 entity.Property(e => e.DisplayAddress).HasMaxLength(255);
@@ -341,9 +341,9 @@ namespace Wokiwoki.Infrastructure.Data
                     .HasForeignKey(e => e.WorkshopId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(e => e.Gallery)
+                entity.HasOne(e => e.WorkshopMedia)
                     .WithMany()
-                    .HasForeignKey(e => e.GalleryId)
+                    .HasForeignKey(e => e.MediaId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }

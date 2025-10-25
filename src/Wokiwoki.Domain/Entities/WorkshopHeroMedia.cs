@@ -5,7 +5,7 @@
 	{
 		public HeroMediaType HeroType { get; set; }  
 
-		public Guid? GalleryId { get; set; }
+		public Guid? MediaId { get; set; }
 
 		public Guid WorkshopId { get; set; }
 
@@ -13,6 +13,6 @@
 
 		public Workshop Workshop { get; set; } = null!;
 
-		public WorkshopMedia Gallery { get; set; } = null!;
+		public WorkshopMedia WorkshopMedia { get; set; } = null!;
 	}
 }

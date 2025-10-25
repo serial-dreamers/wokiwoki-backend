@@ -162,9 +162,11 @@ public static class DependencyInjection
 		builder.Services.AddScoped<IWorkshopMediaRepository, WorkshopMediaRepository>();
         builder.Services.AddScoped<IWorkshopScheduleRepository, WorkshopScheduleRepository>();
         builder.Services.AddScoped<IWorkshopSessionRepository, WorkshopSessionRepository>();
+		builder.Services.AddScoped<IWorkshopHeroMediaRepository, WorkshopHeroMediaRepository>();
 
-        // Services
-        builder.Services.AddHostedService<EmailConsumerHosted>();
+		
+		// Services
+		builder.Services.AddHostedService<EmailConsumerHosted>();
 
         builder.Services.AddSingleton<IMessagePublisher, AzureServiceBusPublisher>();
         builder.Services.AddSingleton<IMessageSubscriber, AzureServiceBusSubscriber>();
