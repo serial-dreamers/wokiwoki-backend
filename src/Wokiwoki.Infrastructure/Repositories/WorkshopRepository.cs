@@ -18,7 +18,6 @@ namespace Wokiwoki.Infrastructure.Repositories
 		{
 			var query = _context.Workshops
 				.Include(w => w.WorkshopSessions)
-				.ThenInclude(s => s.WorkshopSessionTickets)
 				.Include(w => w.Tags)
 				.Include(w => w.Category) 
 				.AsQueryable();
@@ -50,9 +49,9 @@ namespace Wokiwoki.Infrastructure.Repositories
 			if (request.IsFree.HasValue)
 			{
 				if (request.IsFree.Value)
-					query = query.Where(w => w.WorkshopSessions.All(s => s.WorkshopSessionTickets.All(t => t.Price == 0)));
+					query = query.Where(w => w.Schedules.All(s => s.Tickets.All(t => t.Price == 0)));
 				else
-					query = query.Where(w => w.WorkshopSessions.Any(s => s.WorkshopSessionTickets.Any(t => t.Price > 0)));
+					query = query.Where(w => w.Schedules.Any(s => s.Tickets.Any(t => t.Price > 0)));
 			}
 			 
 			if (request.WorkshopTypeId.HasValue)
@@ -71,8 +70,8 @@ namespace Wokiwoki.Infrastructure.Repositories
 		public async Task<List<Workshop>> GetAllActiveAsync(CancellationToken cancellationToken = default)
 		{
 			var wL = await _context.Workshops
-				.Include(w => w.WorkshopSessions)
-				.ThenInclude(s => s.WorkshopSessionTickets)
+				.Include(w => w.Schedules)
+				.ThenInclude(s => s.Tickets)
 				.Include(w => w.Tags)
 				.Include(w => w.Category) 
 				.Where(w => w.IsActive)
@@ -83,8 +82,8 @@ namespace Wokiwoki.Infrastructure.Repositories
 		public async Task<List<Workshop>> GetByIdActiveAsync(Guid id, CancellationToken cancellationToken = default)
 		{
 			var workshop = await _context.Workshops
-				.Include(w => w.WorkshopSessions)
-				.ThenInclude(s => s.WorkshopSessionTickets)
+				.Include(w => w.Schedules)
+				.ThenInclude(s => s.Tickets)
 				.Include(w => w.Tags)
 				.Include(w => w.Category) 
 				.Where(w => w.Id == id && w.IsActive)

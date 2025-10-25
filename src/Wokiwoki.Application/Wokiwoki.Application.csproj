@@ -20,6 +20,8 @@
     <Folder Include="Features\Organizations\EventHandlers\" />
     <Folder Include="Features\UserWorkShopLike\EventHandlers\" />
     <Folder Include="Features\WorkshopMedias\EventHandlers\" />
+    <Folder Include="Features\WorkshopSchedules\Commands\UpdateSchedule\" />
+    <Folder Include="Features\WorkshopSchedules\EventHandlers\" />
   </ItemGroup>
 
 </Project>

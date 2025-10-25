@@ -4,7 +4,9 @@ using Wokiwoki.Application.Features.Categories.Commands.CreateCategory;
 using Wokiwoki.Application.Features.Categories.Commands.UpdateCategory;
 using Wokiwoki.Application.Features.Tags.Commands.CreateTag;
 using Wokiwoki.Application.Features.Tags.Commands.UpdateTag;
-using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop; 
+using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
+using Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedule;
+using Wokiwoki.Application.Features.WorkshopSessions.Commands;
 using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
 
@@ -70,7 +72,13 @@ namespace Wokiwoki.Application.Common.Mappings
 			CreateMap<WorkshopHeroMedia, WorkshopHeroMediaDto>();
 
 			//Organization
-			CreateMap<Organization, OrganizationDto>(); 
-		}
+			CreateMap<Organization, OrganizationDto>();
+
+            //WorkshopSchedule
+            CreateMap<CreateScheduleCommand, WorkshopSchedule>();
+
+            //WorkshopSession
+            CreateMap<CreateSessionCommand,  WorkshopSession>();
+        }
 	}
 }

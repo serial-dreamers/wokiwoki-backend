@@ -12,6 +12,8 @@ builder.AddInfrastructureServices();
 //DI Web API Services
 builder.AddWebAPIServices();
 
+
+
 var app = builder.Build();
 
 // Middlewares
