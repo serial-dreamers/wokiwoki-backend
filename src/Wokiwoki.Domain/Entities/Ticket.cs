@@ -13,7 +13,7 @@
 
 		public bool IsActive { get; set; } = true;
 
-		public WorkshopSessionTicket TicketType { get; set; } = null!;
+		public WorkshopScheduleTicket TicketType { get; set; } = null!;
 
 		public Booking Booking { get; set; } = null!;
 	}

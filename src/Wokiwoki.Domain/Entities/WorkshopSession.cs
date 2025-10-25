@@ -33,6 +33,5 @@
 
 		public Workshop Workshop { get; set; } = null!;
 
-		public virtual ICollection<WorkshopSessionTicket> WorkshopSessionTickets { get; set; } = new List<WorkshopSessionTicket>();
 	}
 }

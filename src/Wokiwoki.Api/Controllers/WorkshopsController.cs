@@ -37,8 +37,8 @@ namespace Wokiwoki.Api.Controllers
             try
             {
                 var id = await _mediator.Send(command);
-                //return CreatedAtAction(nameof(GetById), new { id }, new { id });
-				return Ok(id);
+                return CreatedAtAction(nameof(GetById), new { id }, new { id });
+				//return Ok(id);
             }
             catch (ArgumentException ex)
             {

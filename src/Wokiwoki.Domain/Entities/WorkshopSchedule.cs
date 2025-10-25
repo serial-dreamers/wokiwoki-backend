@@ -20,5 +20,6 @@
 
 		public Workshop Workshop { get; set; } = null!;
 		public ICollection<WorkshopSession> Sessions { get; set; } = new List<WorkshopSession>();
-	}
+        public ICollection<WorkshopScheduleTicket> Tickets { get; set; } = new List<WorkshopScheduleTicket>();
+    }
 }

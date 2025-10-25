@@ -56,8 +56,6 @@
 
 		public virtual ICollection<WorkshopSession> WorkshopSessions { get; set; } = new List<WorkshopSession>();
 
-		public ICollection<WorkshopScheduleTicket> ScheduleTickets { get; set; } = new List<WorkshopScheduleTicket>();
-
 		public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
 
 		public virtual ICollection<WorkshopMedia> WorkshopMedias { get; set; } = new List<WorkshopMedia>();
