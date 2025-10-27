@@ -621,6 +621,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("qrcodeimage");
 
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sessionid");
+
                     b.Property<Guid>("TicketTypeId")
                         .HasColumnType("uuid")
                         .HasColumnName("tickettypeid");
@@ -630,6 +634,8 @@ namespace Wokiwoki.Infrastructure.Migrations
 
                     b.HasIndex("BookingId")
                         .HasDatabaseName("ix_ticket_bookingid");
+
+                    b.HasIndex("SessionId");
 
                     b.HasIndex("TicketTypeId")
                         .HasDatabaseName("ix_ticket_tickettypeid");
@@ -939,10 +945,6 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("createdby");
 
-                    b.Property<Guid?>("GalleryId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("galleryid");
-
                     b.Property<int>("HeroType")
                         .HasColumnType("integer")
                         .HasColumnName("herotype");
@@ -959,6 +961,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
 
+                    b.Property<Guid?>("MediaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("mediaid");
+
                     b.Property<Guid>("WorkshopId")
                         .HasColumnType("uuid")
                         .HasColumnName("workshopid");
@@ -966,8 +972,7 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_workshop_hero_media");
 
-                    b.HasIndex("GalleryId")
-                        .HasDatabaseName("ix_workshop_hero_media_galleryid");
+                    b.HasIndex("MediaId");
 
                     b.HasIndex("WorkshopId")
                         .HasDatabaseName("ix_workshop_hero_media_workshopid");
@@ -1484,6 +1489,13 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_ticket_booking_bookingid");
 
+                    b.HasOne("Wokiwoki.Domain.Entities.WorkshopSession", "WorkshopSession")
+                        .WithMany("Tickets")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_ticket_workshop_session_workshopsessionid");
+
                     b.HasOne("Wokiwoki.Domain.Entities.WorkshopScheduleTicket", "TicketType")
                         .WithMany("Tickets")
                         .HasForeignKey("TicketTypeId")
@@ -1494,6 +1506,8 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Navigation("Booking");
 
                     b.Navigation("TicketType");
+
+                    b.Navigation("WorkshopSession");
                 });
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.UserOrganizationFollow", b =>
@@ -1569,11 +1583,11 @@ namespace Wokiwoki.Infrastructure.Migrations
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopHeroMedia", b =>
                 {
-                    b.HasOne("Wokiwoki.Domain.Entities.WorkshopMedia", "Gallery")
+                    b.HasOne("Wokiwoki.Domain.Entities.WorkshopMedia", "WorkshopMedia")
                         .WithMany()
-                        .HasForeignKey("GalleryId")
+                        .HasForeignKey("MediaId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_workshop_hero_media_workshop_media_galleryid");
+                        .HasConstraintName("fk_workshop_hero_media_workshop_media_workshopmediaid");
 
                     b.HasOne("Wokiwoki.Domain.Entities.Workshop", "Workshop")
                         .WithMany("WorkshopHeroMedias")
@@ -1582,9 +1596,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_workshop_hero_media_workshop_workshopid");
 
-                    b.Navigation("Gallery");
-
                     b.Navigation("Workshop");
+
+                    b.Navigation("WorkshopMedia");
                 });
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopMedia", b =>
@@ -1721,6 +1735,11 @@ namespace Wokiwoki.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopScheduleTicket", b =>
+                {
+                    b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.WorkshopSession", b =>
                 {
                     b.Navigation("Tickets");
                 });

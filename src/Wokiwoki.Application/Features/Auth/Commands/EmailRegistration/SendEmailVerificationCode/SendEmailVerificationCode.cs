@@ -24,6 +24,20 @@ namespace Wokiwoki.Application.Features.Auth.Commands.EmailRegistration.SendEmai
 				return Result.Failure(new[] { "Invalid request" });
 
 			var email = request.Email;
+
+			var atIndex = email.IndexOf('@');
+			if (atIndex == -1)
+			{
+				return Result.Failure(new[] { "Email không hợp lệ." });
+			}
+
+			var domain = email.Substring(atIndex + 1).ToLowerInvariant();  
+
+			if (domain != "gmail.com" && !domain.EndsWith(".edu"))
+			{
+				return Result.Failure(new[] { "Chỉ hỗ trợ email Gmail hoặc .edu (email trường học)." });
+			}
+
 			var rateLimitKey = $"ratelimit:{email}";
 
 			var lastSent = await _redisCacheService.GetAsync(rateLimitKey);

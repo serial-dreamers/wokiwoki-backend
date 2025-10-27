@@ -27,11 +27,12 @@
 		public bool HasCustomPricing { get; set; }
 
 		public Guid WorkshopId { get; set; }
-		public Guid? ScheduleId { get; set; } // null = session riêng, không theo định kỳ
+		public Guid? ScheduleId { get; set; } 
 
 		public bool IsActive { get; set; } = true;
 
 		public Workshop Workshop { get; set; } = null!;
 
+		public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 	}
 }
