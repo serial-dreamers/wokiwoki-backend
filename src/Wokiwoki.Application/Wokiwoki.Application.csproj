@@ -18,6 +18,8 @@
 
   <ItemGroup>
     <Folder Include="Features\Organizations\EventHandlers\" />
+    <Folder Include="Features\Tickets\Commands\" />
+    <Folder Include="Features\Tickets\Queries\" />
     <Folder Include="Features\UserWorkShopLike\EventHandlers\" />
     <Folder Include="Features\WorkshopMedias\EventHandlers\" />
     <Folder Include="Features\WorkshopSchedules\Commands\UpdateSchedule\" />

@@ -1,5 +1,6 @@
 ﻿using AutoMapper; 
 using Wokiwoki.Application.DTOs.Response;
+using Wokiwoki.Application.Features.Bookings.Commands;
 using Wokiwoki.Application.Features.Categories.Commands.CreateCategory;
 using Wokiwoki.Application.Features.Categories.Commands.UpdateCategory;
 using Wokiwoki.Application.Features.Tags.Commands.CreateTag;
@@ -79,6 +80,11 @@ namespace Wokiwoki.Application.Common.Mappings
 
             //WorkshopSession
             CreateMap<CreateSessionCommand,  WorkshopSession>();
+
+            //Booking
+            CreateMap<CreateBookingCommand, Booking>();
+
+
         }
 	}
 }
