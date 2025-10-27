@@ -24,7 +24,7 @@ namespace Wokiwoki.Application.Features.Bookings.Queries
 
         public async Task<Booking> Handle(GetBookingByIdQuery request, CancellationToken cancellationToken)
         {
-            var result = await _repository.GetByIdAsync( request.Id );
+            var result = await _repository.GetByIdAsync(request.Id, cancellationToken);
             if (result == null)
             {
                 throw new Exception("Booking not found");
