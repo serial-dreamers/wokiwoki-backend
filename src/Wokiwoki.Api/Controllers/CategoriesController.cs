@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -43,7 +44,7 @@ namespace Wokiwoki.Api.Controllers
 
 		/// <summary>
 		/// Get all categories
-		/// </summary>
+		/// </summary> 
 		[HttpGet]
 		[SwaggerOperation(Summary = "Get all categories", Description = "Fetch list of all available categories.")]
 		[ProducesResponseType(typeof(List<Category>), StatusCodes.Status200OK)]

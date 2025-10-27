@@ -1483,7 +1483,7 @@ namespace Wokiwoki.Infrastructure.Migrations
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Ticket", b =>
                 {
                     b.HasOne("Wokiwoki.Domain.Entities.Booking", "Booking")
-                        .WithMany()
+                        .WithMany("Tickets")
                         .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
@@ -1693,6 +1693,11 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasForeignKey("WorkshopsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.Booking", b =>
+                {
+                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Category", b =>

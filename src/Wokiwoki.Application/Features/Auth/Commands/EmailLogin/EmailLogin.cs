@@ -13,14 +13,16 @@ namespace Wokiwoki.Application.Features.Auth.Commands.EmailLogin
 	{
 		private readonly IIdentityService _identityService;
 		private readonly IRefreshTokenService _refreshTokenService;
+		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ITokenService _tokenService;
 
 		public EmailLoginCommandHandler(IIdentityService identityService, IRefreshTokenService refreshTokenService,
-			ITokenService tokenService)
+			ITokenService tokenService, IOrganizationRepository organizationRepository)
 		{
 			_identityService = identityService;
 			_refreshTokenService = refreshTokenService;
 			_tokenService = tokenService;
+			_organizationRepository = organizationRepository;
 		}
 		public async Task<AuthDto> Handle(EmailLoginCommand request, CancellationToken cancellationToken)
 		{
@@ -33,6 +35,8 @@ namespace Wokiwoki.Application.Features.Auth.Commands.EmailLogin
 
 				authResponse.Data.AccessToken = accessToken;
 				authResponse.Data.RefreshToken = refreshToken; 
+				var organizationId = await _organizationRepository.GetOrganizationIdByUserIdAsync(authResponse.Data.User.Id);
+				authResponse.Data.User.OrganizationId = organizationId;
 			}
 			return authResponse;  
 		}

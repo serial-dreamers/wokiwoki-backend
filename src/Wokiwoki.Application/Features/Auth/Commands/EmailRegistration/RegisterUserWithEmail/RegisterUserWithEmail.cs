@@ -17,8 +17,7 @@ namespace Wokiwoki.Application.Features.Auth.Commands.EmailRegistration.Register
 		private readonly IIdentityService _identityService;
 		private readonly IRefreshTokenService _refreshTokenService;
 		private readonly ITokenService _tokenService;
-		private readonly IRedisCacheService _redisCacheService;
-
+		private readonly IRedisCacheService _redisCacheService;  
 
 		public RegisterUserWithEmailCommandHandler(IIdentityService identityService, IRefreshTokenService refreshTokenService, ITokenService tokenService, IRedisCacheService redisCacheService)
 		{
@@ -57,7 +56,8 @@ namespace Wokiwoki.Application.Features.Auth.Commands.EmailRegistration.Register
 					Id = userId,
 					Name = request.FullName,
 					Email = request.Email,
-					Roles = roles.ToList()
+					Roles = roles.ToList(),
+					OrganizationId = null
 				}
 			};
 

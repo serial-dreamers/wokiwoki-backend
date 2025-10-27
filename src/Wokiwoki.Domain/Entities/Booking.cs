@@ -12,9 +12,9 @@
 		public BookingStatus Status { get; set; }
 
 		public Workshop Workshop { get; set; } = null!;
-        public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 
         public bool IsActive { get; set; } = true;
 
+        public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 	}
 }

@@ -20,11 +20,15 @@ namespace Wokiwoki.Application.Features.Organizations.Commands.CreateOrganizatio
 	{
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IUuidService _uuidService;
+		private readonly IUserContext _userContext;
+
 		public CreateOrganizationCommandHandler(IOrganizationRepository organizationRepository,
-			IUuidService uuidService)
+			IUuidService uuidService,
+			IUserContext userContext)
 		{
 			_organizationRepository = organizationRepository;
 			_uuidService = uuidService;
+			_userContext = userContext;
 		}
 		public async Task<Guid> Handle(CreateOrganizationCommand request, CancellationToken cancellationToken)
 		{
@@ -44,7 +48,7 @@ namespace Wokiwoki.Application.Features.Organizations.Commands.CreateOrganizatio
 				IsActive = true,
 				FollowerCount= 0,
 				CreatedBy = "system",
-				OwnerId = "00000000-0000-0000-0000-000000000001",
+				OwnerId = _userContext.UserId,
 				Status = OrganizationStatus.Pending
 			}; 
 

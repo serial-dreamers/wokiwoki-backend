@@ -47,7 +47,7 @@ namespace Wokiwoki.Infrastructure.Data
 			ApplyLowercaseNaming(modelBuilder);
 
 			ConfigureAuditLog(modelBuilder);
-			ConfigureBooking(modelBuilder);
+			ConfigureBooking(modelBuilder);	
 			ConfigureOrganization(modelBuilder);
 			ConfigureRefreshToken(modelBuilder);
 			ConfigureTag(modelBuilder);
@@ -124,6 +124,11 @@ namespace Wokiwoki.Infrastructure.Data
 
 				entity.HasIndex(e => e.UserId);
 				entity.HasIndex(e => e.WorkshopId);
+
+				entity.HasMany(e => e.Tickets)
+					.WithOne(t => t.Booking)
+					.HasForeignKey(t => t.BookingId)
+					.OnDelete(DeleteBehavior.Cascade);
 			});
 		}
 
@@ -363,9 +368,10 @@ namespace Wokiwoki.Infrastructure.Data
 					.OnDelete(DeleteBehavior.Restrict);
 
 				entity.HasOne(e => e.Booking)
-					.WithMany()
+					.WithMany(b => b.Tickets)
 					.HasForeignKey(e => e.BookingId)
 					.OnDelete(DeleteBehavior.Restrict);
+
 
 				entity.HasOne(e => e.WorkshopSession)
 					.WithMany(s => s.Tickets)

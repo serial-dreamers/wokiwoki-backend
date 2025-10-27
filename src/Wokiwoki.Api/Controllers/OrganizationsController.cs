@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -31,6 +32,7 @@ namespace Wokiwoki.Api.Controllers
 		/// </remarks>
 		/// <param name="request">The organization creation request including name, contact info, address, and optional logo file.</param>
 		/// <returns>Returns 201 Created with the organization ID and Location header.</returns>
+		[Authorize]
 		[HttpPost]
 		[Consumes("multipart/form-data")]
 		[SwaggerOperation(

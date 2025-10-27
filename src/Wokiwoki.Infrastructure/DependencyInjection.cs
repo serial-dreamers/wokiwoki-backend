@@ -118,7 +118,7 @@ public static class DependencyInjection
         })
         .AddJwtBearer(options =>
         {
-            options.RequireHttpsMetadata = true;
+            options.RequireHttpsMetadata = false;
             options.UseSecurityTokenValidators = true;
 
             options.TokenValidationParameters = new TokenValidationParameters
@@ -128,7 +128,7 @@ public static class DependencyInjection
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
                 ),
 
-                ValidateIssuer = true,
+                ValidateIssuer = false,
                 ValidateAudience = true,
                 ValidateLifetime = true,
 
@@ -163,8 +163,10 @@ public static class DependencyInjection
         builder.Services.AddScoped<IWorkshopScheduleRepository, WorkshopScheduleRepository>();
         builder.Services.AddScoped<IWorkshopSessionRepository, WorkshopSessionRepository>();
 		builder.Services.AddScoped<IWorkshopHeroMediaRepository, WorkshopHeroMediaRepository>();
+		builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
-		
+
+
 		// Services
 		builder.Services.AddHostedService<EmailConsumerHosted>();
 
