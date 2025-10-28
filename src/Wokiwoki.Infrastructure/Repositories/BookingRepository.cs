@@ -10,9 +10,13 @@ namespace Wokiwoki.Infrastructure.Repositories
 {
     public class BookingRepository : BaseRepo<Booking, Guid>, IBookingRepository
     {
-        public async Task<Booking> GetByIdAsync(Guid id)
+        
+        public new async Task<Booking?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _context.Bookings.Include(b => b.Workshop).FirstOrDefaultAsync(b => b.Id == id);
+            return await _context.Bookings
+                .Include(b => b.Workshop)
+                .Include(b => b.Tickets) 
+                .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
         }
     }
 }

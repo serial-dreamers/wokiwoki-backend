@@ -11,10 +11,12 @@ using Wokiwoki.Domain.Enums;
 namespace Wokiwoki.Application.Features.Bookings.Commands
 {
     public sealed record CreateBookingCommand(
+        Guid UserId,
         Guid WorkshopId,
-
-        decimal TotalPrice
+        decimal TotalPrice,
+        List<TicketCreateDTO> Tickets
         ) : IRequest<Booking>;
+
     public class CreateBooking : IRequestHandler<CreateBookingCommand, Booking>
     {
         private readonly IBookingRepository _bookingRepository;
@@ -30,7 +32,19 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
             var entity = new Booking();
             _mapper.Map(command, entity);
             var result = await _bookingRepository.CreateAsync(entity, cancellationToken);
-            return result;
+            return result;  
         }
+    }
+    public class TicketCreateDTO
+    {
+        public Guid TicketTypeId { get; set; }
+
+        public Guid SessionId { get; set; }
+
+        public string QrCodeImage { get; set; } = null!;
+
+        public decimal Price { get; set; }
+
+        public bool IsActive { get; set; } = true;
     }
 }

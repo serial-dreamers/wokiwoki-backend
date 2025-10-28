@@ -82,7 +82,11 @@ namespace Wokiwoki.Application.Common.Mappings
             CreateMap<CreateSessionCommand,  WorkshopSession>();
 
             //Booking
-            CreateMap<CreateBookingCommand, Booking>();
+            CreateMap<CreateBookingCommand, Booking>()
+            .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets));
+
+            //Ticket
+            CreateMap<TicketCreateDTO, Ticket>();
 
 
         }
