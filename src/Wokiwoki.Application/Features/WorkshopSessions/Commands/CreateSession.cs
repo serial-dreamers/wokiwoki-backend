@@ -37,7 +37,7 @@ namespace Wokiwoki.Application.Features.WorkshopSessions.Commands
          int Capacity,
 
          Guid WorkshopId,
-         Guid? ScheduleId,  // null = session riêng, không theo định kỳ
+         Guid? ScheduleId,  
 
          bool IsActive = true
     ) : IRequest<WorkshopSession>;

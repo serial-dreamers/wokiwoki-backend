@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using System.Security.Cryptography;
 using Wokiwoki.Application.Common.Interfaces.Messaging;
 using Wokiwoki.Application.Common.Interfaces.Services;
 using Wokiwoki.Application.Common.Models;
@@ -38,7 +39,8 @@ namespace Wokiwoki.Application.Features.Auth.Commands.EmailRegistration.SendEmai
 				return Result.Failure(new[] { "Chỉ hỗ trợ email Gmail hoặc .edu (email trường học)." });
 			}
 
-			var rateLimitKey = $"ratelimit:{email}";
+			var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+			var rateLimitKey = $"ratelimit:{normalizedEmail}";
 
 			var lastSent = await _redisCacheService.GetAsync(rateLimitKey);
 			if (lastSent != null)
@@ -46,9 +48,9 @@ namespace Wokiwoki.Application.Features.Auth.Commands.EmailRegistration.SendEmai
 				return Result.Failure(new[] { "Please wait before requesting another verification code." });
 			}
 
-			var code = new Random().Next(100000, 999999).ToString();
+			var code = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
 
-			await _redisCacheService.SetAsync($"verify:{request.Email}", code, TimeSpan.FromMinutes(5));
+			await _redisCacheService.SetAsync($"verify:{normalizedEmail}", code, TimeSpan.FromMinutes(5));
 
 			await _redisCacheService.SetAsync(rateLimitKey, "1", TimeSpan.FromSeconds(60));
 
