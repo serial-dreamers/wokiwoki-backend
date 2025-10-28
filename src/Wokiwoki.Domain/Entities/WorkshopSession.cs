@@ -24,8 +24,6 @@
 
 		public int Capacity { get; set; }
 		public int BookedCount { get; set; }
-		public bool HasCustomPricing { get; set; }
-
 		public Guid WorkshopId { get; set; }
 		public Guid? ScheduleId { get; set; } 
 

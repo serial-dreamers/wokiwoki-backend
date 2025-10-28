@@ -16,6 +16,25 @@ namespace Wokiwoki.Api.Controllers
         {
             _mediator = mediator;
         }
+        [HttpPost("auto-generate/{scheduleId:guid}")]
+        /// <summary>
+        /// Generate workshop sessions automatically for 1 month based on the schedule.
+        /// </summary>
+        public async Task<IActionResult> Create1MonthSessions([FromBody] Create1MonthSessionCommand command)
+        {
+            if (command == null)
+                return BadRequest("Invalid request body.");
+
+            if (command.scheduleId == Guid.Empty)
+                return BadRequest("ScheduleId is required.");
+
+            var result = await _mediator.Send(command);
+
+            if (result == null || result.Count == 0)
+                return NotFound("No sessions generated.");
+
+            return Ok(result);
+        }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
