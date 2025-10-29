@@ -31,6 +31,7 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
         {
             var entity = new Booking();
             _mapper.Map(command, entity);
+            entity.Status = BookingStatus.Pending;
             var result = await _bookingRepository.CreateAsync(entity, cancellationToken);
             return result;  
         }

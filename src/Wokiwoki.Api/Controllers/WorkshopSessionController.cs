@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Wokiwoki.Application.Features.WorkshopSessions.Commands;
 using Wokiwoki.Application.Features.WorkshopSessions.Queries;
+using Wokiwoki.Domain.Entities;
 
 namespace Wokiwoki.Api.Controllers
 {
@@ -16,6 +17,22 @@ namespace Wokiwoki.Api.Controllers
         {
             _mediator = mediator;
         }
+
+        [HttpPut]
+        ///<summary>
+        ///Update session
+        /// </summary>
+        public async Task<IActionResult> Update([FromBody] UpdateSessionCommand command)
+        {
+            if (command.Id == Guid.Empty)
+                return BadRequest("ScheduleId is required.");
+
+            var result = await _mediator.Send(command);
+
+            return Ok(result);
+        }
+
+
         [HttpPost("auto-generate/{scheduleId:guid}")]
         /// <summary>
         /// Generate workshop sessions automatically for 1 month based on the schedule.
