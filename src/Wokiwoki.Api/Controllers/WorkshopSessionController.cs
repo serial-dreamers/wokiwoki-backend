@@ -18,6 +18,22 @@ namespace Wokiwoki.Api.Controllers
             _mediator = mediator;
         }
 
+        [HttpGet("BySchedule/{scheduleId}")]
+        ///<summary>
+        ///Get Session By Schedule
+        /// </summary>
+        public async Task<IActionResult> GetSessionByScheduleId(GetSessionByScheduleIdQuery request)
+
+        {
+            if(request == null)
+            {
+                return BadRequest("Cannot be null");
+            }
+            var result = await _mediator.Send(request);
+            return Ok(result);
+        }
+
+
         [HttpPut]
         ///<summary>
         ///Update session
@@ -33,7 +49,7 @@ namespace Wokiwoki.Api.Controllers
         }
 
 
-        [HttpPost("auto-generate/{scheduleId:guid}")]
+        [HttpPost("auto-generate/")]
         /// <summary>
         /// Generate workshop sessions automatically for 1 month based on the schedule.
         /// </summary>

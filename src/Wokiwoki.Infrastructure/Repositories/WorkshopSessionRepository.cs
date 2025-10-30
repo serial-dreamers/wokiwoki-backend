@@ -14,7 +14,16 @@ namespace Wokiwoki.Infrastructure.Repositories
         public WorkshopSessionRepository(WokiwokiDbContext context) : base(context)
         { }
 
-
+        public async Task<List<WorkshopSession>> GetSessionByScheduleId(Guid scheduleId, CancellationToken cancellationToken)
+        {
+            var schedule = await _context.WorkshopSchedules.FirstOrDefaultAsync(s => s.Id == scheduleId);
+            if(schedule == null)
+            {
+                return null;
+            }
+            var result = await _context.WorkshopSessions.Where(s => s.ScheduleId == scheduleId).ToListAsync();
+            return result;
+        }
         public async Task<List<WorkshopSession>> Create1MonthSession(Guid scheduleId, WorkshopSession session, CancellationToken cancellationToken = default)
         {
             var schedule = await _context.WorkshopSchedules
@@ -74,6 +83,13 @@ namespace Wokiwoki.Infrastructure.Repositories
                 {
                     if (daysOfMonth.Contains(date.Day))
                         dates.Add(date);
+                }
+            }
+            else if (schedule.RecurrenceType == RecurrenceType.Daily)
+            {
+                for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+                {
+                    dates.Add(date);
                 }
             }
 
