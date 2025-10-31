@@ -10,8 +10,7 @@ namespace Wokiwoki.Application.Features.Sepay.QRCode
 {
     public sealed record GenerateQRCodeCommand(
         decimal amount,
-        string des,
-        string Authorization
+        string des
         ) : IRequest<string>;
     public class GenerateQRCode : IRequestHandler<GenerateQRCodeCommand, string>
     {
@@ -22,17 +21,6 @@ namespace Wokiwoki.Application.Features.Sepay.QRCode
         }
         public async Task<string> Handle(GenerateQRCodeCommand request, CancellationToken cancellationToken)
         {
-            var sepayApiKey = Environment.GetEnvironmentVariable("SepayApiKey");
-
-            // Header SePay gửi: "Authorization": "Apikey <API_KEY>"
-            if (!request.Authorization.StartsWith("Apikey ", StringComparison.OrdinalIgnoreCase))
-                return "Invalid header format";
-
-            var apiKey = request.Authorization.Replace("Apikey ", "", StringComparison.OrdinalIgnoreCase).Trim();
-
-            if (apiKey != sepayApiKey)
-                return "Invalid API key";
-
             string result = "Booking not found";
             var booking = await _bookingRepository.GetByIdAsync(Guid.Parse(request.des));
             if(booking != null && request.amount >= 2000)

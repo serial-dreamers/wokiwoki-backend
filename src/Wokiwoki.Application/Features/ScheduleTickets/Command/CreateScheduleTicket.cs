@@ -9,13 +9,20 @@ using Wokiwoki.Domain.Entities;
 
 namespace Wokiwoki.Application.Features.ScheduleTickets.Command
 {
-    public sealed record CreateScheduleTicketCommand(
-         Guid WorkshopScheduleId ,
-         string Name,
-         decimal Price ,
-         int MaxQuantity
-        ) : IRequest<WorkshopScheduleTicket>;
+    //public sealed record CreateScheduleTicketCommand(
+    //     Guid WorkshopScheduleId ,
+    //     string Name,
+    //     decimal Price ,
+    //     int MaxQuantity
+    //    ) : IRequest<WorkshopScheduleTicket>;
 
+    public sealed record CreateScheduleTicketCommand : IRequest<WorkshopScheduleTicket>
+    {
+        public Guid WorkshopScheduleId { get; init; }
+        public string Name { get; init; } = string.Empty;
+        public decimal Price { get; init; }
+        public int MaxQuantity { get; init; }
+    }
     public class CreateScheduleTicket : IRequestHandler<CreateScheduleTicketCommand, WorkshopScheduleTicket>
     {
         private readonly IWorkshopScheduleTicketRepository _workshopScheduleTicketRepository;

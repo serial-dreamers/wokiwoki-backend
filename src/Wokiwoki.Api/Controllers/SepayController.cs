@@ -24,7 +24,7 @@ namespace Wokiwoki.Api.Controllers
             var authHeader = Request.Headers["Authorization"].ToString();
 
             // Gửi header xuống handler
-            var result = await _mediator.Send(command with { Authorization = authHeader });
+            var result = await _mediator.Send(command);
             return Ok(result);
         }
 

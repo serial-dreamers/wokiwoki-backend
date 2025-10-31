@@ -32,7 +32,9 @@ namespace Wokiwoki.Api.Controllers
         /// </summary>
         public async Task<IActionResult> ConfirmBooking(ConfirmBookingCommand command)
         {
-            var result = await _mediator.Send(command);
+            var authHeader = Request.Headers["Authorization"].ToString();
+
+            var result = await _mediator.Send(command with { Authorization = authHeader });
             return Ok(result);
         }
 
