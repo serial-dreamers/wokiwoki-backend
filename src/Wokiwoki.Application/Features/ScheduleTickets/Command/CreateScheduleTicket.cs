@@ -30,6 +30,7 @@ namespace Wokiwoki.Application.Features.ScheduleTickets.Command
         {
             var entity = new WorkshopScheduleTicket();
             _mapper.Map(request, entity);
+            entity.IsActive = true;
             var result = await _workshopScheduleTicketRepository.CreateAsync(entity, cancellationToken);
             return result;
         }
