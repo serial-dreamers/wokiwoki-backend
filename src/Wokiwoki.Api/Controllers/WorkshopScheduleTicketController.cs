@@ -20,7 +20,7 @@ namespace Wokiwoki.Api.Controllers
         ///<summary>
         ///Create Schedule ticket
         /// </summary>
-        public async Task<IActionResult> CreateScheduleTicket(CreateScheduleTicketCommand command)
+        public async Task<IActionResult> CreateScheduleTicket([FromBody] CreateScheduleTicketCommand command)
         {
             var result = await _mediator.Send(command);
             return Ok(result);
