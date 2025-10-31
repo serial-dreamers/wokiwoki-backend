@@ -365,6 +365,7 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.HasKey(e => e.Id);
 				entity.Property(e => e.Price).HasColumnType("numeric(18,2)");
 				entity.Property(e => e.QrCodeImage).IsRequired();
+				entity.Property(e => e.Quantity).IsRequired();
 
 				entity.HasOne(e => e.TicketType)
 					.WithMany(st => st.Tickets)

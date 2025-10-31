@@ -23,13 +23,19 @@ namespace Wokiwoki.Api.Controllers
 			_mediator = mediator;
 		}
 
-        /// <summary>
-        /// Tạo bản nháp workshop (draft) ban đầu — chỉ cần tiêu đề, category, organization, tag.
-        /// </summary>
-        [HttpPost("draft")]
-        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CreateDraft([FromBody] CreateWorkshopDraftCommand command)
+		/// <summary>
+		/// Create an initial workshop draft — only requires title, category, organization, and tags.
+		/// </summary>
+		[HttpPost("draft")]
+		[Consumes("application/json")]
+		[SwaggerOperation(
+			Summary = "Create workshop draft",
+			Description = "Creates a draft version of a workshop with basic information such as title, category, organization, and tags. The draft can later be updated with full details before publishing.",
+			Tags = new[] { "Workshop" })]
+		[SwaggerResponse(StatusCodes.Status201Created, "Workshop draft created successfully", typeof(object))]
+		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid or missing request body")]
+		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Error while creating workshop draft")]
+		public async Task<IActionResult> CreateDraft([FromBody] CreateWorkshopDraftCommand command)
         {
             if (command == null)
                 return BadRequest("Request body cannot be null");

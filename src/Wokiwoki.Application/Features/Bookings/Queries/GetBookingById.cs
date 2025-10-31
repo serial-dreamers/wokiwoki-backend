@@ -13,6 +13,7 @@ namespace Wokiwoki.Application.Features.Bookings.Queries
     (
          Guid Id
     ) : IRequest<Booking>;
+
     public class GetBookingById : IRequestHandler<GetBookingByIdQuery, Booking>
     {
         private readonly IBookingRepository _repository;

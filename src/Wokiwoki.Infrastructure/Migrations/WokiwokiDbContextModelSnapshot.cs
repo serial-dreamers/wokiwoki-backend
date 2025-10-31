@@ -718,6 +718,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("qrcodeimage");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
+
                     b.Property<Guid>("SessionId")
                         .HasColumnType("uuid")
                         .HasColumnName("sessionid");

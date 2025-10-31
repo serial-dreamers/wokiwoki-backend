@@ -12,6 +12,7 @@ namespace Wokiwoki.Application.Features.Sepay.QRCode
         decimal amount,
         string des
         ) : IRequest<string>;
+
     public class GenerateQRCode : IRequestHandler<GenerateQRCodeCommand, string>
     {
         private readonly IBookingRepository _bookingRepository;
