@@ -52,7 +52,7 @@
 
 		public virtual ICollection<UserWorkshopLike> Likes { get; set; } = new List<UserWorkshopLike>();
 
-		public ICollection<WorkshopSchedule> Schedules { get; set; } = new List<WorkshopSchedule>();
+		public virtual ICollection<WorkshopSchedule> Schedules { get; set; } = new List<WorkshopSchedule>();
 
 		public virtual ICollection<WorkshopSession> WorkshopSessions { get; set; } = new List<WorkshopSession>();
 

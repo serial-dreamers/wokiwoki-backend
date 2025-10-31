@@ -16,10 +16,11 @@ namespace Wokiwoki.Api.Controllers
         {
             _mediator = mediator;
         }
-        [HttpPost]
-        /// <summary>
-        /// Tạo schedule.
-        /// </summary>
+
+		/// <summary>
+		/// Tạo schedule.
+		/// </summary>
+		[HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateScheduleCommand command)
         {
             if (command == null)
@@ -30,8 +31,6 @@ namespace Wokiwoki.Api.Controllers
             {
                 var result = await _mediator.Send(command);
                 return CreatedAtAction(nameof(GetById), new { id = result.Id }, result );
-
-
                 //return Ok(result);
             }
             catch (Exception ex)
@@ -39,10 +38,11 @@ namespace Wokiwoki.Api.Controllers
                 throw new Exception(ex.Message);
             }
         }
-        [HttpGet("{id}")]
-        /// <summary>
-        /// Get By Id
-        /// </summary>
+
+		/// <summary>
+		/// Get By Id
+		/// </summary>
+		[HttpGet("{id}")] 
         public async Task<IActionResult> GetById(Guid id)
         {
             if (id == null)

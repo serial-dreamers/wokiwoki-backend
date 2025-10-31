@@ -16,7 +16,7 @@ namespace Wokiwoki.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpPatch("UpdateStatus/")]
+        [HttpPatch("update-status")]
         /// <summary>
         /// Update booking status
         /// </summary>
@@ -26,7 +26,7 @@ namespace Wokiwoki.Api.Controllers
             return Ok(result);
         }
 
-        [HttpPatch("Confirm/")]
+        [HttpPatch("confirm")]
         /// <summary>
         /// Confirm booking
         /// </summary>

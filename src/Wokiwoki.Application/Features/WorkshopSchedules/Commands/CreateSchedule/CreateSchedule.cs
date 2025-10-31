@@ -1,10 +1,5 @@
 ﻿using AutoMapper;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediatR; 
 using Wokiwoki.Application.Common.Interfaces.Services;
 using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
@@ -13,21 +8,16 @@ namespace Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedul
 {
     public record CreateScheduleCommand(
         Guid WorkshopId,
-
         RecurrenceType RecurrenceType,
-
         string? DaysOfWeek,
         string? DaysOfMonth,
-
         TimeOnly StartTime,
         TimeOnly EndTime,
-
         DateTime ValidFrom,
         DateTime? ValidUntil,
-
         int? Capacity
+	) : IRequest<WorkshopSchedule>;
 
-    ) : IRequest<WorkshopSchedule>;
     public class CreateScheduleCommandHandler : IRequestHandler<CreateScheduleCommand, WorkshopSchedule>
     {
         private readonly IWorkshopScheduleRepository _repo;
@@ -53,7 +43,7 @@ namespace Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedul
 
             _mapper.Map(request, schedule);
                 
-            // 3️⃣ Cập nhật lại DB
+           
             var result = await _repo.CreateAsync(schedule);
 
             if (result == null)
