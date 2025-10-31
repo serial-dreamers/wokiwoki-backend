@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\Chatbots\Queries\" />
     <Folder Include="Features\Organizations\EventHandlers\" />
     <Folder Include="Features\Tickets\Commands\" />
     <Folder Include="Features\Tickets\Queries\" />

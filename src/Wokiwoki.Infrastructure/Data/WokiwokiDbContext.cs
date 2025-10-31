@@ -27,6 +27,8 @@ namespace Wokiwoki.Infrastructure.Data
 		public DbSet<WorkshopHeroMedia> WorkshopHeroMedias => Set<WorkshopHeroMedia>();
 		public DbSet<WorkshopMedia> WorkshopMedias => Set<WorkshopMedia>();
 		public DbSet<Review> Reviews => Set<Review>();
+		public DbSet<ConversationChat> ConversationChats => Set<ConversationChat>();
+		public DbSet<MessageChat> MessageChats => Set<MessageChat>();
 
 		private readonly string _currentUser;
 
@@ -63,6 +65,8 @@ namespace Wokiwoki.Infrastructure.Data
 			ConfigureTicket(modelBuilder);
 			ConfigureReview(modelBuilder);
 			ConfigureTagRelationships(modelBuilder);
+			ConfigureConversationChat(modelBuilder);
+			ConfigureMessageChat(modelBuilder);
 		}
 
 		// =====================================================================
@@ -407,5 +411,49 @@ namespace Wokiwoki.Infrastructure.Data
 				.WithMany(e => e.Tags)
 				.UsingEntity("workshop_tag");
 		}
+
+		private static void ConfigureConversationChat(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<ConversationChat>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+
+				entity.Property(e => e.UserId)
+					.IsRequired()
+					.HasMaxLength(100);
+
+				entity.Property(e => e.Title)
+					.HasMaxLength(255); 
+
+				entity.Property(e => e.IsActive)
+					.HasDefaultValue(true);
+
+				entity.HasMany(e => e.MessagesChats)
+					.WithOne(e => e.ConversationChat)
+					.HasForeignKey(e => e.ConversationId)
+					.OnDelete(DeleteBehavior.Cascade);
+			});
+		}
+
+		private static void ConfigureMessageChat(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<MessageChat>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+
+				entity.Property(e => e.Role)
+					.IsRequired()
+					.HasMaxLength(50);
+
+				entity.Property(e => e.Content)
+					.IsRequired(); 
+
+				entity.HasOne(e => e.ConversationChat)
+					.WithMany(e => e.MessagesChats)
+					.HasForeignKey(e => e.ConversationId)
+					.OnDelete(DeleteBehavior.Cascade);
+			});
+		}
+
 	}
 }

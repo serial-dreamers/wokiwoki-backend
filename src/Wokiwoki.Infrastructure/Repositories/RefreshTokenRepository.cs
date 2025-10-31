@@ -23,5 +23,20 @@ namespace Wokiwoki.Infrastructure.Repositories
 		{
 			return await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == token);
 		}
+
+		public async Task<RefreshToken?> GetRefreshTokenByHashAsync(string tokenHash)
+		{
+			return await _context.RefreshTokens
+			.Where(x => x.Token == tokenHash)
+			.OrderByDescending(x => x.Created) // latest one first (phòng trường hợp lỗi trùng)
+			.FirstOrDefaultAsync();
+		}
+
+		public async Task<IEnumerable<RefreshToken>> GetTokensByUserIdAsync(string userId)
+		{
+			return await _context.RefreshTokens
+				.Where(x => x.UserId == userId)
+				.ToListAsync();
+		}
 	}
 }

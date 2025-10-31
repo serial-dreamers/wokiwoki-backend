@@ -43,23 +43,32 @@ namespace Wokiwoki.Api.Controllers
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public async Task<IActionResult> Create([FromForm] CreateWorkshopMediaRequest request)
 		{
+			if (request.LogoFile == null)
+				return BadRequest("Không có file nào được tải lên.");
+
 			string? imgUrl = string.Empty;
-
-			if (request.LogoFile != null)
+			MediaType mediaType = MediaType.Image;
+			var ext = Path.GetExtension(request.LogoFile.FileName).ToLowerInvariant(); 
+			if (new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext))
 			{
-				using var stream = request.LogoFile.OpenReadStream();
-				imgUrl = await _blobStorageService.UploadFileAsync(
-					stream,
-					request.LogoFile.FileName,
-					request.LogoFile.ContentType,
-					request.LogoFile.Length,
-					BlobContainerType.WorkshopMedia
-				);
+				mediaType = MediaType.Image;
 			}
+			else if (new[] { ".mp4", ".mov", ".avi", ".mkv" }.Contains(ext))
+			{
+				mediaType = MediaType.Video;
+			}
+			else
+			{
+				return BadRequest("Định dạng file không hợp lệ. Chỉ hỗ trợ ảnh (.jpg, .png, .gif, .webp) và video (.mp4, .mov, .avi, .mkv).");
+			} 
 
-			var command = new CreateWorkshopMediaCommand(
-				imgUrl,
-				request.WorkshopId
+			var command = new CreateWorkshopMediaCommand( 
+				request.WorkshopId,
+				mediaType,
+				request.LogoFile.FileName,
+				request.LogoFile.ContentType,
+				request.LogoFile.Length,
+				request.LogoFile.OpenReadStream()
 			);
 
 			var id = await _mediator.Send(command);

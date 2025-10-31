@@ -17,6 +17,11 @@ namespace Wokiwoki.Infrastructure.Repositories
 		{
 		}
 
+		public async Task<List<WorkshopHeroMedia>> GetHeroMediasByWorkshopId(Guid workshopId)
+		{
+			return await _context.WorkshopHeroMedias.Include(hrm => hrm.WorkshopMedia).Where(hrm => hrm.WorkshopId == workshopId && hrm.IsActive == true).ToListAsync();	  
+		}
+
 		public async Task SyncHeroMediaAsync(
 		Guid workshopId,
 		List<WorkshopHeroMediaDto> heroMediaDtos,

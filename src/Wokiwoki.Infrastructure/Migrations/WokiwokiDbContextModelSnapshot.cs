@@ -345,6 +345,98 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.ToTable("category");
                 });
 
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.ConversationChat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("createdby");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("isactive");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lastmodified");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("lastmodifiedby");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("userid");
+
+                    b.HasKey("Id")
+                        .HasName("pk_conversationchat");
+
+                    b.ToTable("conversationchat");
+                });
+
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.MessageChat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<Guid>("ConversationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("conversationid");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("createdby");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lastmodified");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("lastmodifiedby");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("role");
+
+                    b.HasKey("Id")
+                        .HasName("pk_messagechat");
+
+                    b.HasIndex("ConversationId");
+
+                    b.ToTable("messagechat");
+                });
+
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Organization", b =>
                 {
                     b.Property<Guid>("Id")
@@ -489,6 +581,11 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("comment");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
@@ -1198,10 +1295,6 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("endtime");
 
-                    b.Property<bool>("HasCustomPricing")
-                        .HasColumnType("boolean")
-                        .HasColumnName("hascustompricing");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("isactive");
@@ -1468,6 +1561,18 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Navigation("Workshop");
                 });
 
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.MessageChat", b =>
+                {
+                    b.HasOne("Wokiwoki.Domain.Entities.ConversationChat", "ConversationChat")
+                        .WithMany("MessagesChats")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_messagechat_conversationchat_conversationchatid");
+
+                    b.Navigation("ConversationChat");
+                });
+
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Review", b =>
                 {
                     b.HasOne("Wokiwoki.Domain.Entities.Workshop", "Workshop")
@@ -1705,6 +1810,11 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Navigation("TagPreferences");
 
                     b.Navigation("Workshops");
+                });
+
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.ConversationChat", b =>
+                {
+                    b.Navigation("MessagesChats");
                 });
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Organization", b =>

@@ -165,6 +165,7 @@ public static class DependencyInjection
 		builder.Services.AddScoped<IWorkshopHeroMediaRepository, WorkshopHeroMediaRepository>();
 		builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
+		builder.Services.AddScoped<IConversationChatRepository, ConversationChatRepository>();
 
 
 		// Services
@@ -185,6 +186,8 @@ public static class DependencyInjection
 
 		builder.Services.AddScoped<IUserContext, UserContext>();
 		builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
+		builder.Services.AddScoped<IAzureOpenAIChatService, AzureOpenAIChatService>();
+
 
 	}
 }

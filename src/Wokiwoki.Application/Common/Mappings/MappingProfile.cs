@@ -5,6 +5,7 @@ using Wokiwoki.Application.Features.Categories.Commands.CreateCategory;
 using Wokiwoki.Application.Features.Categories.Commands.UpdateCategory;
 using Wokiwoki.Application.Features.Tags.Commands.CreateTag;
 using Wokiwoki.Application.Features.Tags.Commands.UpdateTag;
+using Wokiwoki.Application.Features.WorkshopHeroMedias.Queries.GetHeroMedias;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
 using Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedule;
 using Wokiwoki.Application.Features.WorkshopSessions.Commands;
@@ -71,6 +72,14 @@ namespace Wokiwoki.Application.Common.Mappings
 
 			//WorkshopHeroMedia
 			CreateMap<WorkshopHeroMedia, WorkshopHeroMediaDto>();
+
+			CreateMap<WorkshopHeroMedia, WorkshopHeroMediaDtoWithWsId>()
+			.ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+			.ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.WorkshopMedia.Id))
+			.ForMember(dest => dest.HeroType, opt => opt.MapFrom(src => src.HeroType))
+			.ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.WorkshopMedia.ImageUrl))
+			.ForMember(dest => dest.WorkshopId, opt => opt.MapFrom(src => src.WorkshopId))
+			.ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
 			//Organization
 			CreateMap<Organization, OrganizationDto>();

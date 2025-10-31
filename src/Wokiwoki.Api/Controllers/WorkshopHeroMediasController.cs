@@ -5,6 +5,8 @@ using Swashbuckle.AspNetCore.Annotations;
 using Wokiwoki.Application.Features.WorkshopHeroMedias;
 using Wokiwoki.Application.Features.WorkshopHeroMedias.Commands.CreateWorkshopHeroMedia;
 using Wokiwoki.Application.Features.WorkshopHeroMedias.Queries.GetHeroMediaById;
+using Wokiwoki.Application.Features.WorkshopHeroMedias.Queries.GetHeroMedias;
+using Wokiwoki.Domain.Entities;
 
 namespace Wokiwoki.Api.Controllers
 {
@@ -84,5 +86,24 @@ namespace Wokiwoki.Api.Controllers
 			await _mediator.Send(command);
 			return NoContent(); // 204, vì command trả Unit
 		}
+
+
+		[HttpGet("{workshopId}/heroes")]
+		[SwaggerOperation(
+			Summary = "Get hero media list for a specific workshop",
+			Description = "Retrieve all hero media items (images/videos) associated with the given workshop ID."
+		)]
+		[ProducesResponseType(typeof(List<WorkshopHeroMedia>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<IActionResult> GetHeroMediasByWorkshopId(Guid workshopId)
+		{
+			var result = await _mediator.Send(new GetHeroMediasByWorkshopIdQuery(workshopId));
+
+			if (result == null || !result.Any())
+				return NotFound(new { message = "No hero media found for this workshop." });
+
+			return Ok(result);
+		}
+
 	}
 }

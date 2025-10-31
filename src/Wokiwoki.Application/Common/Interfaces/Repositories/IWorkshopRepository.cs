@@ -18,5 +18,7 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 		Task IncrementLikeCountAsync(Guid workshopId, CancellationToken cancellationToken);
 		Task DecrementLikeCountAsync(Guid workshopId, CancellationToken cancellationToken);
 
+        Task<bool> CheckWorkshopExistById(Guid workshopId, CancellationToken cancellationToken);
+
 	}
 }

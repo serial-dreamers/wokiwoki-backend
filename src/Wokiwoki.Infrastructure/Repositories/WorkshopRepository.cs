@@ -105,6 +105,12 @@ namespace Wokiwoki.Infrastructure.Repositories
 				$"UPDATE workshop SET likecount = CASE WHEN likecount > 0 THEN likecount - 1 ELSE 0 END WHERE id = {workshopId}", cancellationToken
 				);
 		}
+
+		public async Task<bool> CheckWorkshopExistById(Guid workshopId, CancellationToken cancellationToken)
+		{
+			return await _context.Workshops
+				.AnyAsync(ws => ws.Id == workshopId && ws.IsActive, cancellationToken);
+		}
 		//public async Task<bool> UpdateAsync(Guid id, CancellationToken cancellationToken = default)
 		//{
 		//	var w = await _context.Workshops.FirstOrDefaultAsync(w => w.Id == id);
