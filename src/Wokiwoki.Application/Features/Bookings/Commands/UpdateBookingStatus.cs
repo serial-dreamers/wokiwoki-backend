@@ -20,6 +20,7 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
             _bookingRepository = bookingRepository;
         }
         public Task<bool> Handle(UpdateBookingStatusCommand request, CancellationToken cancellationToken)
+
         {
             BookingStatus status = (BookingStatus) request.BookingStatus;
             return _bookingRepository.UpdateBookingStatus(request.Id, status, cancellationToken);
