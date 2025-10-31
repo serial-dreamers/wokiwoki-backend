@@ -39,6 +39,7 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
     public class TicketCreateDTO
     {
         public Guid TicketTypeId { get; set; }
+        public int Quantity { get; set; }
 
         public Guid SessionId { get; set; }
 
