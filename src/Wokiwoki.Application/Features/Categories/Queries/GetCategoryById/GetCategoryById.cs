@@ -19,7 +19,7 @@ namespace Wokiwoki.Application.Features.Categories.Queries.GetCategoryById
 
 		public async Task<CategoryDto?> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
 		{
-			var category = await _categoryRepository.GetByIdAsync(request.Id);
+			var category = await _categoryRepository.GetByIdAsync(request.Id, cancellationToken);
 
 			if (category is null)
 				return null;

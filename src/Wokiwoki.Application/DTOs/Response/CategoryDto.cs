@@ -11,5 +11,7 @@
 		public string? IconUrl { get; set; }
 
 		public string? ImageUrl { get; set; }
+
+		public List<TagDto> Tags { get; set; } = new();
 	}
 }

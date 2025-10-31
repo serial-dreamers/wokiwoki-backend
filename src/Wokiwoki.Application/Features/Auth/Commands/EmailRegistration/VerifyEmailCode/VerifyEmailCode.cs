@@ -20,11 +20,12 @@ namespace Wokiwoki.Application.Features.Auth.Commands.EmailRegistration.VerifyEm
 			if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Code))
 				return Result.Failure(new[] { "Invalid request" });
 
-			var cached = await _redisCacheService.GetAsync($"verify:{request.Email}");
+			var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+			var cached = await _redisCacheService.GetAsync($"verify:{normalizedEmail}");
 
 			if (cached == null || cached != request.Code)
 				return Result.Failure(new[] { "Invalid or expired code" });
-			//await _redisCacheService.RemoveAsync(request.Email);
+			//await _redisCacheService.RemoveAsync(normalizedEmail);
 
 			return Result.Success();
 		}

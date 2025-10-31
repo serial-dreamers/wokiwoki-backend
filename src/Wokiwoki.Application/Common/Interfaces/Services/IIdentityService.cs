@@ -15,5 +15,11 @@ namespace Wokiwoki.Application.Common.Interfaces.Services
 		Task<IEnumerable<string>> GetRolesByUserIdAsync(string userId); 
 
 		Task<AuthDto?> LoginGoogleConfirm(string providerKey, string password, string fullname);
+
+		Task<Result> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
+
+		Task<string?> FindByEmailAsync(string email);
+
+		Task<Result> ResetPasswordAsync(string userId, string newPassword);
 	}
 }

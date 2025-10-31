@@ -27,6 +27,6 @@ namespace Wokiwoki.Application.DTOs.Response
 		public string Name { get; set; } = default!;
 		public string Email { get; set; } = null!;
 		public List<string> Roles { get; set; } = new();
-
+		public Guid? OrganizationId { get; set; }
 	}
 }

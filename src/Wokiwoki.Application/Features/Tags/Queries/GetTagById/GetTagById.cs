@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
-using Wokiwoki.Application.DTOs;
+using Wokiwoki.Application.DTOs.Response;
 
 namespace Wokiwoki.Application.Features.Tags.Queries.GetTagById
 {

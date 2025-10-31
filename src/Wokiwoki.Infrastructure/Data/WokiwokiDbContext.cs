@@ -2,89 +2,105 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Wokiwoki.Infrastructure.Data
 {
 	public class WokiwokiDbContext : IdentityDbContext<ApplicationUser>
 	{
-
-		public DbSet<AuditLog> AuditLogs { get; set; }
-		public DbSet<Booking> Bookings { get; set; }
-		public DbSet<Category> Categories { get; set; }
-		public DbSet<Organization> Organizations { get; set; } 
-		public DbSet<RefreshToken> RefreshTokens { get; set; }
-		public DbSet<Tag> Tags { get; set; }
-		public DbSet<Ticket> Tickets { get; set; }
-		public DbSet<UserTagPreference> UserTagPreferences { get; set; }
-		public DbSet<UserWorkshopLike> UserWorkshopLikes { get; set; }
-		public DbSet<Workshop> Workshops { get; set; }
-		public DbSet<WorkshopHeroMedia> WorkshopHeroMedias { get; set; }
-		public DbSet<WorkshopMedia> WorkshopMedias { get; set; }
-		public DbSet<WorkshopSession> WorkshopSessions { get; set; }
-		public DbSet<WorkshopTicketType> WorkshopTicketTypes { get; set; }
-		public DbSet<WorkshopType> WorkshopTypes { get; set; }
-		public DbSet<UserOrganizationFollow> UserOrganizationFollows { get; set; }
-		public DbSet<Review> Reviews { get; set; }
-
+		// === DbSet ===
+		public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+		public DbSet<Booking> Bookings => Set<Booking>();
+		public DbSet<Category> Categories => Set<Category>();
+		public DbSet<Organization> Organizations => Set<Organization>();
+		public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+		public DbSet<Tag> Tags => Set<Tag>();
+		public DbSet<Ticket> Tickets => Set<Ticket>();
+		public DbSet<UserTagPreference> UserTagPreferences => Set<UserTagPreference>();
+		public DbSet<UserWorkshopLike> UserWorkshopLikes => Set<UserWorkshopLike>();
+		public DbSet<UserOrganizationFollow> UserOrganizationFollows => Set<UserOrganizationFollow>();
+		public DbSet<Workshop> Workshops => Set<Workshop>();
+		public DbSet<WorkshopSchedule> WorkshopSchedules => Set<WorkshopSchedule>();
+		public DbSet<WorkshopScheduleTicket> WorkshopScheduleTickets => Set<WorkshopScheduleTicket>();
+		public DbSet<WorkshopSession> WorkshopSessions => Set<WorkshopSession>();
+		public DbSet<WorkshopHeroMedia> WorkshopHeroMedias => Set<WorkshopHeroMedia>();
+		public DbSet<WorkshopMedia> WorkshopMedias => Set<WorkshopMedia>();
+		public DbSet<Review> Reviews => Set<Review>();
+		public DbSet<ConversationChat> ConversationChats => Set<ConversationChat>();
+		public DbSet<MessageChat> MessageChats => Set<MessageChat>();
 
 		private readonly string _currentUser;
 
 		public WokiwokiDbContext()
 		{
-		 
 		}
 
-		public WokiwokiDbContext(DbContextOptions<WokiwokiDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
+		public WokiwokiDbContext(DbContextOptions<WokiwokiDbContext> options, IHttpContextAccessor httpContextAccessor)
+			: base(options)
 		{
 			_currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name ?? "System";
 		}
 
-
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			base.OnModelCreating(modelBuilder); 
+			base.OnModelCreating(modelBuilder);
 
+			ApplyLowercaseNaming(modelBuilder);
+
+			ConfigureAuditLog(modelBuilder);
+			ConfigureBooking(modelBuilder);	
+			ConfigureOrganization(modelBuilder);
+			ConfigureRefreshToken(modelBuilder);
+			ConfigureTag(modelBuilder);
+			ConfigureUserTagPreference(modelBuilder);
+			ConfigureUserWorkshopLike(modelBuilder);
+			ConfigureUserOrganizationFollow(modelBuilder);
+			ConfigureWorkshop(modelBuilder);
+			ConfigureWorkshopSchedule(modelBuilder);
+			ConfigureWorkshopScheduleTicket(modelBuilder);
+			ConfigureWorkshopSession(modelBuilder);
+			ConfigureWorkshopMedia(modelBuilder);
+			ConfigureWorkshopHeroMedia(modelBuilder);
+			ConfigureTicket(modelBuilder);
+			ConfigureReview(modelBuilder);
+			ConfigureTagRelationships(modelBuilder);
+			ConfigureConversationChat(modelBuilder);
+			ConfigureMessageChat(modelBuilder);
+		}
+
+		// =====================================================================
+		// ====================== CONFIGURATION DETAILS =========================
+		// =====================================================================
+
+		private static void ApplyLowercaseNaming(ModelBuilder modelBuilder)
+		{
 			foreach (var entityType in modelBuilder.Model.GetEntityTypes())
 			{
 				entityType.SetTableName(entityType.GetTableName()?.ToLower());
 
 				foreach (var property in entityType.GetProperties())
 				{
-					var columnName = property.GetColumnName(StoreObjectIdentifier.Table(entityType.GetTableName(), entityType.GetSchema()));
-					property.SetColumnName(columnName.ToLower());
+					var columnName = property.GetColumnName(StoreObjectIdentifier.Table(entityType.GetTableName()!, entityType.GetSchema()));
+					property.SetColumnName(columnName!.ToLower());
 
 					if (property.ClrType == typeof(Guid) || property.ClrType == typeof(Guid?))
-					{
 						property.SetColumnType("uuid");
-					}
 				}
 
 				foreach (var key in entityType.GetKeys())
-				{
-					key.SetName(key.GetName().ToLower());
-				}
+					key.SetName(key.GetName()!.ToLower());
 
 				foreach (var fk in entityType.GetForeignKeys())
-				{
-					fk.SetConstraintName(fk.GetConstraintName().ToLower());
-				}
+					fk.SetConstraintName(fk.GetConstraintName()!.ToLower());
 
 				foreach (var index in entityType.GetIndexes())
-				{
-					index.SetDatabaseName(index.GetDatabaseName().ToLower());
-				}
+					index.SetDatabaseName(index.GetDatabaseName()!.ToLower());
 			}
+		}
 
-			// AUDIT LOG
+		private static void ConfigureAuditLog(ModelBuilder modelBuilder)
+		{
 			modelBuilder.Entity<AuditLog>(entity =>
 			{
 				entity.HasKey(e => e.Id);
@@ -93,25 +109,35 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.Property(e => e.OriginalValue).HasColumnType("text");
 				entity.Property(e => e.NewValue).HasColumnType("text");
 
-				entity.HasIndex(e => new { e.EntityName, e.Created }).HasDatabaseName("IX_AuditLog_Entity_Created");
-				entity.HasIndex(e => e.LastModifiedBy).HasDatabaseName("IX_AuditLog_ModifiedBy");
+				entity.HasIndex(e => new { e.EntityName, e.Created });
+				entity.HasIndex(e => e.LastModifiedBy);
 			});
+		}
 
-			// BOOKING
+		private static void ConfigureBooking(ModelBuilder modelBuilder)
+		{
 			modelBuilder.Entity<Booking>(entity =>
 			{
 				entity.HasKey(e => e.Id);
-				entity.Property(e => e.TotalPrice).HasColumnType("numeric(18,2)");  
+				entity.Property(e => e.TotalPrice).HasColumnType("numeric(18,2)");
+
 				entity.HasOne(e => e.Workshop)
 					.WithMany()
 					.HasForeignKey(e => e.WorkshopId)
 					.OnDelete(DeleteBehavior.Restrict);
 
-				entity.HasIndex(e => e.UserId).HasDatabaseName("IX_Booking_UserId");
-				entity.HasIndex(e => e.WorkshopId).HasDatabaseName("IX_Booking_WorkshopId");
-			});
+				entity.HasIndex(e => e.UserId);
+				entity.HasIndex(e => e.WorkshopId);
 
-			// ORGANIZATION
+				entity.HasMany(e => e.Tickets)
+					.WithOne(t => t.Booking)
+					.HasForeignKey(t => t.BookingId)
+					.OnDelete(DeleteBehavior.Cascade);
+			});
+		}
+
+		private static void ConfigureOrganization(ModelBuilder modelBuilder)
+		{
 			modelBuilder.Entity<Organization>(entity =>
 			{
 				entity.HasKey(e => e.Id);
@@ -120,23 +146,27 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.Property(e => e.LogoUrl).HasMaxLength(500);
 				entity.Property(e => e.ContactEmail).HasMaxLength(255);
 				entity.Property(e => e.ContactPhone).HasMaxLength(20);
-				entity.Property(e => e.Street).HasMaxLength(255); 
+				entity.Property(e => e.Street).HasMaxLength(255);
 				entity.Property(e => e.Commune).HasMaxLength(100);
 				entity.Property(e => e.Province).HasMaxLength(100);
-			}); 
+			});
+		}
 
-			// REFRESH TOKEN
+		private static void ConfigureRefreshToken(ModelBuilder modelBuilder)
+		{
 			modelBuilder.Entity<RefreshToken>(entity =>
 			{
 				entity.HasKey(e => e.Id);
 				entity.Property(e => e.Token).HasMaxLength(500).IsRequired();
-				entity.Ignore(e => e.IsActive); // Computed property
+				entity.Ignore(e => e.IsActive);
 
-				entity.HasIndex(e => e.UserId).HasDatabaseName("IX_RefreshToken_UserId");
-				entity.HasIndex(e => e.Token).HasDatabaseName("IX_RefreshToken_Token");
+				entity.HasIndex(e => e.UserId);
+				entity.HasIndex(e => e.Token);
 			});
+		}
 
-			// TAG
+		private static void ConfigureTag(ModelBuilder modelBuilder)
+		{
 			modelBuilder.Entity<Tag>(entity =>
 			{
 				entity.HasKey(e => e.Id);
@@ -144,26 +174,10 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.Property(e => e.Description).HasMaxLength(500);
 				entity.Property(e => e.IconUrl).HasMaxLength(500);
 			});
+		}
 
-			// TICKET
-			modelBuilder.Entity<Ticket>(entity =>
-			{
-				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Price).HasColumnType("numeric(18,2)");
-				entity.Property(e => e.QrCodeImage).IsRequired(); 
-
-				entity.HasOne(e => e.TicketType)
-					.WithMany()
-					.HasForeignKey(e => e.TicketTypeId)
-					.OnDelete(DeleteBehavior.Restrict);
-
-				entity.HasOne(e => e.Booking)
-					.WithMany()
-					.HasForeignKey(e => e.BookingId)
-					.OnDelete(DeleteBehavior.Restrict);
-			});
-
-			// USER TAG PREFERENCE
+		private static void ConfigureUserTagPreference(ModelBuilder modelBuilder)
+		{
 			modelBuilder.Entity<UserTagPreference>(entity =>
 			{
 				entity.HasKey(e => e.Id);
@@ -179,21 +193,24 @@ namespace Wokiwoki.Infrastructure.Data
 					.HasForeignKey(e => e.CategoryId)
 					.OnDelete(DeleteBehavior.Restrict);
 			});
+		}
 
-			// USER WORKSHOP LIKE
+		private static void ConfigureUserWorkshopLike(ModelBuilder modelBuilder)
+		{
 			modelBuilder.Entity<UserWorkshopLike>(entity =>
 			{
 				entity.HasKey(e => e.Id);
 				entity.HasIndex(e => new { e.UserId, e.WorkshopId }).IsUnique();
 
 				entity.HasOne(e => e.Workshop)
-					.WithMany(e=>e.Likes)
+					.WithMany(e => e.Likes)
 					.HasForeignKey(e => e.WorkshopId)
 					.OnDelete(DeleteBehavior.Cascade);
 			});
+		}
 
-
-			// USER ORGANIZATION FOLLOW
+		private static void ConfigureUserOrganizationFollow(ModelBuilder modelBuilder)
+		{
 			modelBuilder.Entity<UserOrganizationFollow>(entity =>
 			{
 				entity.HasKey(e => e.Id);
@@ -204,18 +221,23 @@ namespace Wokiwoki.Infrastructure.Data
 					.HasForeignKey(e => e.OrganizationId)
 					.OnDelete(DeleteBehavior.Cascade);
 			});
+		}
 
-			// WORKSHOP
+		private static void ConfigureWorkshop(ModelBuilder modelBuilder)
+		{
 			modelBuilder.Entity<Workshop>(entity =>
 			{
 				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Title).HasMaxLength(255).IsRequired();
-				entity.Property(e => e.ShortDescription).HasMaxLength(500);
+				entity.Property(e => e.Title).HasMaxLength(100).IsRequired();
+				entity.Property(e => e.Summary).HasMaxLength(150).IsRequired();
 				entity.Property(e => e.Description).HasColumnType("text").IsRequired();
 				entity.Property(e => e.ImageUrl).HasMaxLength(500);
-
-				entity.Property(e => e.DisplayLocation).HasMaxLength(255);
-
+				entity.Property(e => e.DisplayAddress).HasMaxLength(255);
+				entity.Property(e => e.Latitude).HasColumnType("numeric(10,7)");
+				entity.Property(e => e.Longitude).HasColumnType("numeric(10,7)");
+				entity.Property(e => e.OnlineEventUrl).HasMaxLength(500);
+				entity.Property(e => e.StartingPrice).HasColumnType("numeric(18,2)");
+				entity.Property(e => e.RefundPolicyDescription).HasMaxLength(1000);
 
 				entity.HasOne(e => e.Organization)
 					.WithMany()
@@ -227,38 +249,85 @@ namespace Wokiwoki.Infrastructure.Data
 					.HasForeignKey(e => e.CategoryId)
 					.OnDelete(DeleteBehavior.Restrict);
 
-				entity.HasIndex(e => e.OrganizationId).HasDatabaseName("IX_Workshop_OrganizationId");
-				entity.HasIndex(e => e.StartTime).HasDatabaseName("IX_Workshop_StartTime");
-				entity.HasIndex(e => e.CategoryId).HasDatabaseName("IX_Workshop_CategoryId");
+				entity.HasIndex(e => e.OrganizationId);
+				entity.HasIndex(e => e.CategoryId);
 			});
+		}
 
-			// WORKSHOP CATEGORY
-			modelBuilder.Entity<Category>(entity =>
+		private static void ConfigureWorkshopSchedule(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<WorkshopSchedule>(entity =>
 			{
 				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Name).HasMaxLength(255).IsRequired();
-				entity.Property(e => e.Description).HasMaxLength(500);
-				entity.Property(e => e.IconUrl).HasMaxLength(500);
-				entity.Property(e => e.ImageUrl).HasMaxLength(500);
-			});
-
-			// WORKSHOP HERO MEDIA
-			modelBuilder.Entity<WorkshopHeroMedia>(entity =>
-			{
-				entity.HasKey(e => e.Id);
+				entity.Property(e => e.DaysOfWeek).HasMaxLength(50);
+				entity.Property(e => e.DaysOfMonth).HasMaxLength(100);
 
 				entity.HasOne(e => e.Workshop)
-					.WithMany(e => e.WorkshopHeroMedias)
+					.WithMany(w => w.Schedules)
 					.HasForeignKey(e => e.WorkshopId)
 					.OnDelete(DeleteBehavior.Cascade);
 
-				entity.HasOne(e => e.Gallery)
-					.WithMany()
-					.HasForeignKey(e => e.GalleryId)
-					.OnDelete(DeleteBehavior.Restrict);
+				entity.HasIndex(e => e.WorkshopId);
+				entity.HasIndex(e => new { e.WorkshopId, e.RecurrenceType });
 			});
+		}
 
-			// WORKSHOP MEDIA 
+		private static void ConfigureWorkshopScheduleTicket(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<WorkshopScheduleTicket>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+				entity.Property(e => e.Price).HasColumnType("numeric(18,2)").IsRequired();
+
+				entity.HasOne(e => e.WorkshopSchedule)
+					.WithMany(ws => ws.Tickets)
+					.HasForeignKey(e => e.WorkshopScheduleId)
+					.OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasIndex(e => e.WorkshopScheduleId);
+				entity.HasIndex(e => e.IsActive);
+			});
+		}
+
+		private static void ConfigureWorkshopSession(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<WorkshopSession>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Title).HasMaxLength(255).IsRequired();
+				entity.Property(e => e.Description).HasColumnType("text").IsRequired();
+				entity.Property(e => e.Street).HasMaxLength(255);
+				entity.Property(e => e.Commune).HasMaxLength(100);
+				entity.Property(e => e.Province).HasMaxLength(100);
+				entity.Property(e => e.Latitude).HasColumnType("numeric(10,7)");
+				entity.Property(e => e.Longitude).HasColumnType("numeric(10,7)");
+				entity.Property(e => e.ParkingDescription).HasMaxLength(500);
+
+				entity.HasOne(e => e.Workshop)
+					.WithMany(e => e.WorkshopSessions)
+					.HasForeignKey(e => e.WorkshopId)
+					.OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne<WorkshopSchedule>()
+					.WithMany(s => s.Sessions)
+					.HasForeignKey(e => e.ScheduleId)
+					.OnDelete(DeleteBehavior.SetNull);
+
+				entity.HasMany(e => e.Tickets)
+					.WithOne(e => e.WorkshopSession)
+					.HasForeignKey(e => e.SessionId)
+					.OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasIndex(e => e.WorkshopId);
+				entity.HasIndex(e => e.ScheduleId);
+				entity.HasIndex(e => new { e.StartTime, e.IsActive });
+				entity.HasIndex(e => new { e.WorkshopId, e.StartTime });
+			});
+		}
+
+		private static void ConfigureWorkshopMedia(ModelBuilder modelBuilder)
+		{
 			modelBuilder.Entity<WorkshopMedia>(entity =>
 			{
 				entity.HasKey(e => e.Id);
@@ -269,149 +338,123 @@ namespace Wokiwoki.Infrastructure.Data
 					.HasForeignKey(e => e.WorkshopId)
 					.OnDelete(DeleteBehavior.Cascade);
 			});
+		}
 
-			// WORKSHOP SESSION
-			modelBuilder.Entity<WorkshopSession>(entity =>
+		private static void ConfigureWorkshopHeroMedia(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<WorkshopHeroMedia>(entity =>
 			{
 				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Title).HasMaxLength(255).IsRequired();
-				entity.Property(e => e.Description).HasColumnType("text").IsRequired();
-				entity.Property(e => e.Province).HasMaxLength(100);
-				entity.Property(e => e.District).HasMaxLength(100);
-				entity.Property(e => e.Ward).HasMaxLength(100);
-				entity.Property(e => e.AddressDetail).HasMaxLength(255); 
 
 				entity.HasOne(e => e.Workshop)
-					.WithMany(e => e.WorkshopSessions)
+					.WithMany(e => e.WorkshopHeroMedias)
 					.HasForeignKey(e => e.WorkshopId)
 					.OnDelete(DeleteBehavior.Cascade);
 
-				entity.HasIndex(e => e.WorkshopId).HasDatabaseName("IX_WorkshopSession_WorkshopId");
+				entity.HasOne(e => e.WorkshopMedia)
+					.WithMany()
+					.HasForeignKey(e => e.MediaId)
+					.OnDelete(DeleteBehavior.Restrict);
 			});
+		}
 
-			// WORKSHOP TICKET TYPE
-			modelBuilder.Entity<WorkshopTicketType>(entity =>
+		private static void ConfigureTicket(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<Ticket>(entity =>
 			{
 				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Name).HasMaxLength(255).IsRequired();
-				entity.Property(e => e.Description).HasMaxLength(500);
-				entity.Property(e => e.Price)
-					.HasColumnType("numeric(18,2)")
-					.HasColumnName("price");
-				entity.ToTable(t =>
-				{
-					t.HasCheckConstraint("CK_WorkshopTicketType_Price", "price >= 0");
-				});
+				entity.Property(e => e.Price).HasColumnType("numeric(18,2)");
+				entity.Property(e => e.QrCodeImage).IsRequired();
+				entity.Property(e => e.Quantity).IsRequired();
+
+				entity.HasOne(e => e.TicketType)
+					.WithMany(st => st.Tickets)
+					.HasForeignKey(e => e.TicketTypeId)
+					.OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(e => e.Booking)
+					.WithMany(b => b.Tickets)
+					.HasForeignKey(e => e.BookingId)
+					.OnDelete(DeleteBehavior.Restrict);
+
+
 				entity.HasOne(e => e.WorkshopSession)
-					.WithMany(e => e.WorkshopTicketTypes)
-					.HasForeignKey(e => e.WorkshopSessionId)
-					.OnDelete(DeleteBehavior.Cascade);
+					.WithMany(s => s.Tickets)
+					.HasForeignKey(e => e.SessionId)
+					.OnDelete(DeleteBehavior.Restrict);
 
-				entity.HasIndex(e => e.WorkshopSessionId).HasDatabaseName("IX_WorkshopTicketType_WorkshopSessionId");
 			});
+		}
 
-			// WORKSHOP TYPE
-			modelBuilder.Entity<WorkshopType>(entity =>
+		private static void ConfigureReview(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<Review>(entity =>
 			{
-				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Name).HasMaxLength(255).IsRequired();
-				entity.Property(e => e.Description).HasMaxLength(500);
-				entity.Property(e => e.IconUrl).HasMaxLength(500);
-			});
+				entity.HasKey(r => r.Id);
+				entity.HasIndex(r => new { r.WorkshopId, r.UserId }).IsUnique();
+				entity.Property(r => r.Rating).IsRequired();
 
-			// TAG - CATEGORY (many-to-many)
+				entity.HasOne(r => r.Workshop)
+					.WithMany(w => w.Reviews)
+					.HasForeignKey(r => r.WorkshopId);
+			});
+		}
+
+		private static void ConfigureTagRelationships(ModelBuilder modelBuilder)
+		{
 			modelBuilder.Entity<Tag>()
 				.HasMany(e => e.Categories)
 				.WithMany(e => e.Tags)
 				.UsingEntity("category_tag");
 
-			// TAG - WORKSHOP (many-to-many)
 			modelBuilder.Entity<Tag>()
 				.HasMany(e => e.Workshops)
 				.WithMany(e => e.Tags)
 				.UsingEntity("workshop_tag");
-
-			modelBuilder.Entity<Review>(entity =>
-			{
-				entity.HasKey(r => r.Id);
-
-				entity.HasIndex(r => new { r.WorkshopId, r.UserId }).IsUnique();
-
-				entity.Property(r => r.Rating)
-					  .IsRequired();
-
-				entity.HasOne(r => r.Workshop)
-					  .WithMany(w => w.Reviews)
-					  .HasForeignKey(r => r.WorkshopId); 
-			});
-
 		}
 
-		//public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-		//{
-		//	var modifiedEntries = ChangeTracker.Entries()
-		//		.Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
-		//		.ToList();
+		private static void ConfigureConversationChat(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<ConversationChat>(entity =>
+			{
+				entity.HasKey(e => e.Id);
 
-		//	var auditLogs = new List<AuditLog>();
+				entity.Property(e => e.UserId)
+					.IsRequired()
+					.HasMaxLength(100);
 
-		//	foreach (var entry in modifiedEntries)
-		//	{
-		//		var audit = new AuditLog
-		//		{
-		//			EntityName = entry.Entity.GetType().Name,
-		//			LastModifiedBy = _currentUser,
-		//			Created = DateTime.UtcNow,
-		//			LastModified= DateTime.UtcNow,
-		//			Action = entry.State.ToString()
-		//		};
+				entity.Property(e => e.Title)
+					.HasMaxLength(255); 
 
-		//		if (entry.State == EntityState.Modified)
-		//		{
-		//			var original = new Dictionary<string, object>();
-		//			var current = new Dictionary<string, object>();
+				entity.Property(e => e.IsActive)
+					.HasDefaultValue(true);
 
-		//			foreach (var prop in entry.OriginalValues.Properties)
-		//			{
-		//				var originalValue = entry.OriginalValues[prop]?.ToString();
-		//				var currentValue = entry.CurrentValues[prop]?.ToString();
+				entity.HasMany(e => e.MessagesChats)
+					.WithOne(e => e.ConversationChat)
+					.HasForeignKey(e => e.ConversationId)
+					.OnDelete(DeleteBehavior.Cascade);
+			});
+		}
 
-		//				if (originalValue != currentValue)
-		//				{
-		//					original[prop.Name] = originalValue;
-		//					current[prop.Name] = currentValue;
-		//				}
-		//			}
+		private static void ConfigureMessageChat(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<MessageChat>(entity =>
+			{
+				entity.HasKey(e => e.Id);
 
-		//			audit.OriginalValue = JsonSerializer.Serialize(original);
-		//			audit.NewValue = JsonSerializer.Serialize(current);
-		//		}
-		//		else if (entry.State == EntityState.Added)
-		//		{
-		//			// chỉ log các field quan trọng thay vì full entity
-		//			var values = entry.CurrentValues.Properties.ToDictionary(p => p.Name, p => entry.CurrentValues[p]?.ToString());
-		//			audit.NewValue = JsonSerializer.Serialize(values);
-		//		}
-		//		else if (entry.State == EntityState.Deleted)
-		//		{
-		//			var values = entry.OriginalValues.Properties.ToDictionary(p => p.Name, p => entry.OriginalValues[p]?.ToString());
-		//			audit.OriginalValue = JsonSerializer.Serialize(values);
-		//		}
+				entity.Property(e => e.Role)
+					.IsRequired()
+					.HasMaxLength(50);
 
-		//		auditLogs.Add(audit);
-		//	}
-			 
-		//	var result = await base.SaveChangesAsync(cancellationToken);
-			 
-		//	if (auditLogs.Any())
-		//	{
-		//		AuditLogs.AddRange(auditLogs);
-		//		await base.SaveChangesAsync(cancellationToken);
-		//	}
+				entity.Property(e => e.Content)
+					.IsRequired(); 
 
-		//	return result;
-		//}
+				entity.HasOne(e => e.ConversationChat)
+					.WithMany(e => e.MessagesChats)
+					.HasForeignKey(e => e.ConversationId)
+					.OnDelete(DeleteBehavior.Cascade);
+			});
+		}
 
 	}
-
 }

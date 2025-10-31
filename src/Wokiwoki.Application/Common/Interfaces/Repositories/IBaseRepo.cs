@@ -8,12 +8,15 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 {
 	public interface IBaseRepo<T, Tkey> where T : class
 	{
-		Task<T?> GetByIdAsync(Tkey id); 
-		Task<T> CreateAsync(T entity);
-		Task<bool> Delete(Tkey id);
-		Task<bool> UpdateAsync(Tkey id, T entity);
-		Task<T?> UpdateTAsync(Tkey id, T entity);
-		Task<IEnumerable<T>> GetAllAsync();
-		Task<bool> SaveChangeAsync();
+		Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default);
+		Task<bool> DeleteAsync(Tkey id, CancellationToken cancellationToken = default);
+		Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
+		Task<T?> GetByIdAsync(Tkey id, CancellationToken cancellationToken = default);
+		Task<bool> SaveChangeAsync(CancellationToken cancellationToken = default);
+		Task<bool> UpdateAsync(Tkey id, T entity, CancellationToken cancellationToken = default);
+		Task<T?> UpdateTAsync(Tkey id, T entity, CancellationToken cancellationToken = default);
+
+		Task<T?> GetActiveByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
 	}
 }

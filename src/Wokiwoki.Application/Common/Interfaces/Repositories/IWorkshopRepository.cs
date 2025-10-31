@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Wokiwoki.Application.Common.Models;
+﻿using Wokiwoki.Application.Common.Models;
 using Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery;
 using Wokiwoki.Domain.Entities;
 
@@ -15,7 +10,15 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
         Task<PaginatedList<Workshop>> SearchAsync(
             SearchWorkshopQuery request,
             CancellationToken cancellationToken = default);
-        Task<List<Workshop>> GetAllAsync(CancellationToken cancellationToken = default);
+
+        Task<List<Workshop>> GetAllActiveAsync(CancellationToken cancellationToken = default);
+
+        Task<List<Workshop>> GetByIdActiveAsync(Guid id, CancellationToken cancellationToken = default);
+
+		Task IncrementLikeCountAsync(Guid workshopId, CancellationToken cancellationToken);
+		Task DecrementLikeCountAsync(Guid workshopId, CancellationToken cancellationToken);
+
+        Task<bool> CheckWorkshopExistById(Guid workshopId, CancellationToken cancellationToken);
 
 	}
 }

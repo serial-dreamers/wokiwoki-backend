@@ -1,7 +1,5 @@
-using dotenv.net;
-//using Microsoft.AspNetCore.Identity;
-using Wokiwoki.Api;
-//using Wokiwoki.Infrastructure.Data.Seeder;
+using dotenv.net; 
+using Wokiwoki.Api; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +11,8 @@ builder.AddInfrastructureServices();
  
 //DI Web API Services
 builder.AddWebAPIServices();
+
+
 
 var app = builder.Build();
 
@@ -42,8 +42,8 @@ if (app.Environment.IsDevelopment() || swaggerEnabled)
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization(); 
-
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

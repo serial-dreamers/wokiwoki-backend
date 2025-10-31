@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Wokiwoki.Application.Common.Interfaces.Repositories;
+﻿using Wokiwoki.Application.Common.Interfaces.Repositories;
 using Wokiwoki.Application.Common.Models;
 using Wokiwoki.Infrastructure.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -23,81 +18,98 @@ namespace Wokiwoki.Infrastructure.Repositories
 		{
 			var query = _context.Workshops
 				.Include(w => w.WorkshopSessions)
-				.ThenInclude(s => s.WorkshopTicketTypes)
 				.Include(w => w.Tags)
-				.Include(w => w.Category)
-				.Include(w => w.WorkshopType)
+				.Include(w => w.Category) 
 				.AsQueryable();
 
 			var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 			var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
 			// category
-			if (request.cateId.HasValue)
-				query = query.Where(w => w.CategoryId == request.cateId.Value);
+			if (request.CategoryId.HasValue)
+				query = query.Where(w => w.CategoryId == request.CategoryId.Value);
 
 			// tag
-			if (request.tagIdList != null && request.tagIdList.Any())
-				query = query.Where(w => w.Tags.Any(t => request.tagIdList.Contains(t.Id)));
+			if (request.TagIds != null && request.TagIds.Any())
+				query = query.Where(w => w.Tags.Any(t => request.TagIds.Contains(t.Id)));
 
 			// date type
-			if (!string.IsNullOrEmpty(request.typeDate))
-			{
-				if (request.typeDate.Equals("today", StringComparison.OrdinalIgnoreCase))
-					query = query.Where(w => w.StartTime.Date == vietnamNow.Date);
-				else if (request.typeDate.Equals("upcoming", StringComparison.OrdinalIgnoreCase))
-					query = query.Where(w => w.StartTime > vietnamNow);
-			}
+			//if (!string.IsNullOrEmpty(request.DateFilterType))
+			//{
+			//	if (request.DateFilterType.Equals("today", StringComparison.OrdinalIgnoreCase))
+			//		query = query.Where(w => w.StartTime == vietnamNow.Date);
+			//	else if (request.DateFilterType.Equals("upcoming", StringComparison.OrdinalIgnoreCase))
+			//		query = query.Where(w => w.StartTime > vietnamNow);
+			//}
 
-			// date range
-			if (request.startDate.HasValue && request.endDate.HasValue)
-				query = query.Where(w => w.StartTime >= request.startDate && w.EndTime <= request.endDate);
+			//// date range
+			//if (request.StartDate.HasValue && request.EndDate.HasValue)
+			//	query = query.Where(w => w.StartTime >= request.StartDate && w.EndTime <= request.EndDate);
 
 			// free
-			if (request.isFree.HasValue)
+			if (request.IsFree.HasValue)
 			{
-				if (request.isFree.Value)
-					query = query.Where(w => w.WorkshopSessions.All(s => s.WorkshopTicketTypes.All(t => t.Price == 0)));
+				if (request.IsFree.Value)
+					query = query.Where(w => w.Schedules.All(s => s.Tickets.All(t => t.Price == 0)));
 				else
-					query = query.Where(w => w.WorkshopSessions.Any(s => s.WorkshopTicketTypes.Any(t => t.Price > 0)));
+					query = query.Where(w => w.Schedules.Any(s => s.Tickets.Any(t => t.Price > 0)));
 			}
 			 
-			if (request.typeId.HasValue)
-				query = query.Where(w => w.WorkshopTypeId == request.typeId.Value);
+			if (request.WorkshopTypeId.HasValue)
+				query = query.Where(w => (int)w.ScheduleType == request.WorkshopTypeId);
 
 			var totalCount = await query.CountAsync(cancellationToken);
 
 
 
-			var listWorkshop = await query.OrderByDescending(w => w.StartTime)
-							.ToPaginatedListAsync(request.pageNo, request.pageSize, cancellationToken);
+			var listWorkshop = await query.OrderByDescending(w => w.Created)
+							.ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
 
 			return listWorkshop;
 		}
 
-		public async Task<List<Workshop>> GetAllAsync(CancellationToken cancellationToken = default)
+		public async Task<List<Workshop>> GetAllActiveAsync(CancellationToken cancellationToken = default)
 		{
 			var wL = await _context.Workshops
-				.Include(w => w.WorkshopSessions)
-					.ThenInclude(s => s.WorkshopTicketTypes)
+				.Include(w => w.Schedules)
+				.ThenInclude(s => s.Tickets)
 				.Include(w => w.Tags)
-				.Include(w => w.Category)
-				.Include(w => w.WorkshopType)
+				.Include(w => w.Category) 
+				.Where(w => w.IsActive)
 				.ToListAsync(cancellationToken);
 
 			return wL;
 		}
-		public async Task<List<Workshop>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+		public async Task<List<Workshop>> GetByIdActiveAsync(Guid id, CancellationToken cancellationToken = default)
 		{
 			var workshop = await _context.Workshops
-				.Include(w => w.WorkshopSessions)
-					.ThenInclude(s => s.WorkshopTicketTypes)
+				.Include(w => w.Schedules)
+				.ThenInclude(s => s.Tickets)
 				.Include(w => w.Tags)
-				.Include(w => w.Category)
-				.Include(w => w.WorkshopType)
-				.Where(w => w.Id == id)
+				.Include(w => w.Category) 
+				.Where(w => w.Id == id && w.IsActive)
 				.ToListAsync(cancellationToken);
 
 			return workshop;
+		}
+
+		public async Task IncrementLikeCountAsync(Guid workshopId, CancellationToken cancellationToken)
+		{
+			await _context.Database.ExecuteSqlInterpolatedAsync(
+				$"UPDATE workshop SET LikeCount = likecount + 1 WHERE id = {workshopId}", cancellationToken
+				);
+		}
+
+		public async Task DecrementLikeCountAsync(Guid workshopId, CancellationToken cancellationToken)
+		{
+			await _context.Database.ExecuteSqlInterpolatedAsync(
+				$"UPDATE workshop SET likecount = CASE WHEN likecount > 0 THEN likecount - 1 ELSE 0 END WHERE id = {workshopId}", cancellationToken
+				);
+		}
+
+		public async Task<bool> CheckWorkshopExistById(Guid workshopId, CancellationToken cancellationToken)
+		{
+			return await _context.Workshops
+				.AnyAsync(ws => ws.Id == workshopId && ws.IsActive, cancellationToken);
 		}
 		//public async Task<bool> UpdateAsync(Guid id, CancellationToken cancellationToken = default)
 		//{

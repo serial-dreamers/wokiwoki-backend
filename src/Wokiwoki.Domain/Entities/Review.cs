@@ -9,6 +9,8 @@
 
 		public string UserId { get; set; } = null!;
 
+		public string Comment { get; set; } = null!;
+
 		public int Rating { get; set; }
 
 		public Workshop Workshop { get; set; } = null!; 

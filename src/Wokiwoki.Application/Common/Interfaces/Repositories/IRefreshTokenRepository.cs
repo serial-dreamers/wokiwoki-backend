@@ -6,5 +6,7 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 	{
 		Task AddRefreshTokenAsync(RefreshToken refreshToken);
 		Task<RefreshToken?> GetRefreshTokenAsync(string token);
+		Task<RefreshToken?> GetRefreshTokenByHashAsync(string tokenHash);
+		Task<IEnumerable<RefreshToken>> GetTokensByUserIdAsync(string userId);
 	}
 }

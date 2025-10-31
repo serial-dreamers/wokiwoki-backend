@@ -1,17 +1,8 @@
-﻿using dotenv.net;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
+﻿
 using Microsoft.OpenApi.Models;
-using System.Diagnostics;
-using System.Security.Claims;
-using System.Text;
+using System.Diagnostics; 
 using System.Text.Json.Serialization;
-using Wokiwoki.Api.Middlewares;
-using Wokiwoki.Infrastructure.Data;
-using Wokiwoki.Infrastructure.Identity;
-
+using Wokiwoki.Api.Middlewares; 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
 {
@@ -60,6 +51,18 @@ public static class DependencyInjection
 			c.EnableAnnotations();
 		});
 
+		builder.Services.AddAuthorization(options =>
+		{
+			options.AddPolicy("RequireAdminRole", policy =>
+				policy.RequireRole("Admin"));  
+		});
+
+		builder.Services.AddAuthorization(options =>
+		{
+			options.AddPolicy("RequireCustomerRole", policy =>
+				policy.RequireRole("Customer"));
+		});
+
 		builder.Services.AddCors(options =>
 		{
 			options.AddPolicy("AllowFrontend",
@@ -67,7 +70,7 @@ public static class DependencyInjection
 				{
 					builder.WithOrigins(
 						"http://localhost:5173",
-						"https://www.wokiwoki.com/"
+						"https://www.wokiwoki.com"
 						)
 						   .AllowAnyMethod()
 						   .AllowAnyHeader()

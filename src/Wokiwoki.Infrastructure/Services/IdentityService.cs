@@ -153,5 +153,48 @@ namespace Wokiwoki.Infrastructure.Services
 			return authResponse;
 		}
 
+		public async Task<Result> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
+		{
+			var user = await _userManager.FindByIdAsync(userId);
+			if (user == null) 
+			return Result.Failure(new[] { "User not found" });
+
+
+			var identityResult = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+
+			if (!identityResult.Succeeded)
+			{
+				var errors = identityResult.Errors.Select(e => e.Description).ToArray();
+				return Result.Failure(errors);
+			}
+
+			return Result.Success();
+		}
+
+		public async Task<string?> FindByEmailAsync(string email)
+		{
+			var user = await _userManager.FindByEmailAsync(email);
+			if (user == null)
+				return null;
+			return user.Id;
+		}
+
+		public async Task<Result> ResetPasswordAsync(string userId, string newPassword)
+		{
+			var user = await _userManager.FindByIdAsync(userId);
+			if (user == null)
+				return Result.Failure(new[] { "User not found" });
+
+			var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+			var identityResult = await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
+
+			if (!identityResult.Succeeded)
+			{
+				var errors = identityResult.Errors.Select(e => e.Description).ToArray();
+				return Result.Failure(errors);
+			}
+
+			return Result.Success();
+		}
 	}
 }

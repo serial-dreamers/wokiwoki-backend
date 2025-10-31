@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\Tickets\**" />
+    <EmbeddedResource Remove="Features\Tickets\**" />
+    <None Remove="Features\Tickets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="dotenv.net" Version="4.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
@@ -14,6 +20,16 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Wokiwoki.Domain\Wokiwoki.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Chatbots\Queries\" />
+    <Folder Include="Features\Organizations\EventHandlers\" />
+    <Folder Include="Features\ScheduleTickets\Queries\" />
+    <Folder Include="Features\UserWorkShopLike\EventHandlers\" />
+    <Folder Include="Features\WorkshopMedias\EventHandlers\" />
+    <Folder Include="Features\WorkshopSchedules\Commands\UpdateSchedule\" />
+    <Folder Include="Features\WorkshopSchedules\EventHandlers\" />
   </ItemGroup>
 
 </Project>

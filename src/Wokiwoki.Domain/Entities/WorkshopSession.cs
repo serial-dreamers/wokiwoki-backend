@@ -7,26 +7,30 @@
 
 		public string Description { get; set; } = null!;
 
-		public DateTime StartTime { get; set; }
+		public DateTime StartTime { get; set; } 
+		public DateTime EndTime { get; set; }
 
-		public DateTime EndTime { get; set; } 
+		public string? Street { get; set; }
+		public string? Commune { get; set; }
+		public string? Province { get; set; }
+		public double? Latitude { get; set; }
+		public double? Longitude { get; set; }
 
-		public string Province { get; set; } = null!;
+		public AgeRestrictionType AgeRestrictionType { get; set; }
+		public int? MinimumAge { get; set; }
 
-		public string District { get; set; } = null!;
+		public ParkingType? ParkingType { get; set; }
+		public string? ParkingDescription { get; set; }
 
-		public string Ward { get; set; } = null!;
-
-		public string AddressDetail { get; set; } = null!;
-
-		public int Capacity { get; set; } 
-
+		public int Capacity { get; set; }
+		public int BookedCount { get; set; }
 		public Guid WorkshopId { get; set; }
-
-		public Workshop Workshop { get; set; } = null!;
+		public Guid? ScheduleId { get; set; } 
 
 		public bool IsActive { get; set; } = true;
 
-		public virtual ICollection<WorkshopTicketType> WorkshopTicketTypes { get; set; } = new List<WorkshopTicketType>();
+		public Workshop Workshop { get; set; } = null!;
+
+		public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 	}
 }
