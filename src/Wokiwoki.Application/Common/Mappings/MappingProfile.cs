@@ -3,6 +3,7 @@ using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Bookings.Commands;
 using Wokiwoki.Application.Features.Categories.Commands.CreateCategory;
 using Wokiwoki.Application.Features.Categories.Commands.UpdateCategory;
+using Wokiwoki.Application.Features.ScheduleTickets.Command;
 using Wokiwoki.Application.Features.Tags.Commands.CreateTag;
 using Wokiwoki.Application.Features.Tags.Commands.UpdateTag;
 using Wokiwoki.Application.Features.WorkshopHeroMedias.Queries.GetHeroMedias;
@@ -89,6 +90,7 @@ namespace Wokiwoki.Application.Common.Mappings
 
             //WorkshopSession
             CreateMap<CreateSessionCommand,  WorkshopSession>();
+            CreateMap<UpdateSessionCommand, WorkshopSession>();
 
             //Booking
             CreateMap<CreateBookingCommand, Booking>()
@@ -97,7 +99,8 @@ namespace Wokiwoki.Application.Common.Mappings
             //Ticket
             CreateMap<TicketCreateDTO, Ticket>();
 
-
+            //ScheduleTicket
+            CreateMap<CreateScheduleTicketCommand, WorkshopScheduleTicket>();
         }
 	}
 }

@@ -26,7 +26,10 @@ namespace Wokiwoki.Application.Features.WorkshopSessions.Commands
     public class Create1MonthSession : IRequestHandler<Create1MonthSessionCommand, List<WorkshopSession>>
     {
         private readonly IWorkshopSessionRepository _repo;
-        
+        public Create1MonthSession (IWorkshopSessionRepository repo)
+        {
+            _repo = repo;
+        }
         public async Task<List<WorkshopSession>> Handle(Create1MonthSessionCommand request, CancellationToken cancellationToken)
         {
             var session = new WorkshopSession

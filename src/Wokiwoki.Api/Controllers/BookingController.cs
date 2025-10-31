@@ -16,6 +16,27 @@ namespace Wokiwoki.Api.Controllers
             _mediator = mediator;
         }
 
+        [HttpPatch("UpdateStatus/")]
+        /// <summary>
+        /// Update booking status
+        /// </summary>
+        public async Task<IActionResult> UpdateBookingStatus(UpdateBookingStatusCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpPatch("Confirm/")]
+        /// <summary>
+        /// Confirm booking
+        /// </summary>
+        public async Task<IActionResult> ConfirmBooking(ConfirmBookingCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+
         /// <summary>
         /// Get booking by id
         /// </summary>
