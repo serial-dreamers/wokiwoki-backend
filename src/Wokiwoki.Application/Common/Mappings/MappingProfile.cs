@@ -87,9 +87,10 @@ namespace Wokiwoki.Application.Common.Mappings
 
             //WorkshopSchedule
             CreateMap<CreateScheduleCommand, WorkshopSchedule>();
+			CreateMap<WorkshopSchedule, WorkshopScheduleDto>();
 
-            //WorkshopSession
-            CreateMap<CreateSessionCommand,  WorkshopSession>();
+			//WorkshopSession
+			CreateMap<CreateSessionCommand,  WorkshopSession>();
             CreateMap<UpdateSessionCommand, WorkshopSession>();
 
             //Booking

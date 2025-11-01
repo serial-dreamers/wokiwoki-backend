@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Wokiwoki.Application.Common.Models;
+using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedule;
 using Wokiwoki.Application.Features.WorkshopSchedules.Queries.GetSchedule;
 using Wokiwoki.Domain.Entities;
@@ -18,6 +19,33 @@ namespace Wokiwoki.Api.Controllers
 		{
 			_mediator = mediator;
 		}
+
+		/// <summary>
+		/// Get all schedules of a specific workshop with pagination.
+		/// </summary>
+		[HttpGet("workshop/{workshopId:guid}")]
+		[SwaggerOperation(
+			Summary = "Get paginated schedules for a workshop",
+			Description = "Retrieves all recurrence schedules (daily, weekly, monthly, etc.) belonging to a specific workshop with pagination support.",
+			Tags = new[] { "Schedules" }
+		)]
+		[SwaggerResponse(StatusCodes.Status200OK, "Schedules retrieved successfully", typeof(PaginatedList<WorkshopScheduleDto>))]
+		[SwaggerResponse(StatusCodes.Status404NotFound, "No schedules found for the specified workshop")]
+		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error while retrieving schedules")]
+		public async Task<IActionResult> GetByWorkshopId(
+			Guid workshopId,
+			[FromQuery] int pageNumber = 1,
+			[FromQuery] int pageSize = 10)
+		{
+			var result = await _mediator.Send(new GetSchedulesByWorkshopIdQuery(workshopId, pageNumber, pageSize));
+
+			if (result == null || !result.Records.Any())
+				return NotFound("No schedules found for this workshop.");
+
+			return Ok(result);
+		}
+
+
 
 		/// <summary>
 		/// Get a specific workshop schedule by ID.
