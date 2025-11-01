@@ -1,63 +1,65 @@
 ﻿using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Wokiwoki.Application.Features.Bookings.Commands
 {
-    public sealed record ConfirmBookingCommand(
-        string Content,
-        string Authorization
+	public sealed record ConfirmBookingCommand(
+		string Content,
+		string Authorization
+	) : IRequest<bool>;
 
-        ) : IRequest<bool>;
-    public class ConfirmBooking : IRequestHandler<ConfirmBookingCommand, bool>
-    {
-        private readonly IBookingRepository _repository;
-        public ConfirmBooking( IBookingRepository repository)
-        {
-            _repository = repository;
-        }
-        public async Task<bool> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)
-        { 
-            var sepayApiKey = Environment.GetEnvironmentVariable("SepayApiKey");
+	public class ConfirmBooking : IRequestHandler<ConfirmBookingCommand, bool>
+	{
+		private readonly IBookingRepository _repository;
 
-            if (string.IsNullOrWhiteSpace(request.Authorization) ||
-                !request.Authorization.StartsWith("Apikey ", StringComparison.OrdinalIgnoreCase))
-                return false;
+		public ConfirmBooking(IBookingRepository repository)
+		{
+			_repository = repository;
+		}
 
-            var apiKey = request.Authorization
-                .Replace("Apikey ", "", StringComparison.OrdinalIgnoreCase)
-                .Trim();
+		public async Task<bool> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)
+		{
+			// ✅ Lấy Sepay API key từ môi trường
+			var sepayApiKey = Environment.GetEnvironmentVariable("SepayApiKey");
 
-            if (apiKey != sepayApiKey)
-                return false;
-             
-            var match = Regex.Match(request.Content ?? string.Empty,
-                @"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+			// ✅ Lấy ra API key từ header Authorization
+			var apiKey = request.Authorization
+				.Replace("Apikey ", "", StringComparison.OrdinalIgnoreCase)
+				.Trim();
 
-            if (!match.Success)
-            {
-                Console.WriteLine($"[ConfirmBooking] ❌ Không tìm thấy BookingId trong content: {request.Content}");
-                return false;
-            }
+			Console.WriteLine("Sepay key: " + apiKey);
 
-            var bookingIdText = match.Value;
-            if (!Guid.TryParse(bookingIdText, out Guid bookingId))
-            {
-                Console.WriteLine($"[ConfirmBooking] ❌ BookingId không hợp lệ: {bookingIdText}");
-                return false;
-            }
+			// ✅ Regex tách phần GUID dạng 32 ký tự liền sau dấu '-'
+			var match = Regex.Match(request.Content ?? string.Empty, @"-([0-9a-fA-F]{32})");
 
-            Console.WriteLine($"[ConfirmBooking] BookingId trích xuất: {bookingId}");
-             
-            var result = await _repository.ConfirmBooking(bookingId, cancellationToken);
-            Console.WriteLine($"[ConfirmBooking] Kết quả xác nhận: {result}");
+			// ✅ Lấy chuỗi 32 ký tự hex
+			var hexId = match.Groups[1].Value;
 
-            return result;
-        }
+			// ✅ Chèn dấu gạch đúng chuẩn GUID
+			var bookingIdText =
+				$"{hexId.Substring(0, 8)}-" +
+				$"{hexId.Substring(8, 4)}-" +
+				$"{hexId.Substring(12, 4)}-" +
+				$"{hexId.Substring(16, 4)}-" +
+				$"{hexId.Substring(20)}";
 
-    }
+			Console.WriteLine($"[ConfirmBooking] ✅ BookingId trích xuất: {bookingIdText}");
+
+			// ✅ Nếu cần kiểm tra GUID hợp lệ
+			if (!Guid.TryParse(bookingIdText, out Guid bookingId))
+			{
+				Console.WriteLine($"[ConfirmBooking] ❌ BookingId không hợp lệ: {bookingIdText}");
+				return false;
+			}
+
+			var result = await _repository.ConfirmBooking(bookingId, cancellationToken);
+			return result;
+
+			// ✅ Trả về debug string
+			//return $"Sepay key: {apiKey}, bookingId: {bookingIdText}";
+		}
+	}
 }
