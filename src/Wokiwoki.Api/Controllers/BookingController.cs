@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Text.Json;
 using Wokiwoki.Application.Common.Models;
 using Wokiwoki.Application.Features.Bookings.Commands;
 using Wokiwoki.Application.Features.Bookings.Queries;
@@ -79,10 +80,16 @@ namespace Wokiwoki.Api.Controllers
         [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authorization header is missing or invalid")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Booking not found")]
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Error while confirming booking")]
-        public async Task<IActionResult> ConfirmBooking([FromBody] ConfirmBookingCommand command)
+        public async Task<IActionResult> ConfirmBooking([FromBody] JsonElement payload)
         {
             try
             {
+                string? content = payload.GetProperty("content").GetString();
+
+                var command = new ConfirmBookingCommand(
+                    Content: content ?? string.Empty,
+                    Authorization: Request.Headers["Authorization"].ToString()
+                );
                 // 1️⃣ Kiểm tra Authorization header
                 if (!Request.Headers.TryGetValue("Authorization", out var authHeader) || string.IsNullOrWhiteSpace(authHeader))
                     return Unauthorized(new { message = "Authorization header is required." });
