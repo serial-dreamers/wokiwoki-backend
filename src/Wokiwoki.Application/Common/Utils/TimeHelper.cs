@@ -7,17 +7,28 @@
 
 		public static DateTime NowInVietnam()
 		{
-			return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);
+			var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);
+			//return DateTime.SpecifyKind(vietnamTime, DateTimeKind.Local);
+			return DateTime.UtcNow;
+
 		}
 
 		public static DateTime ToVietnamTime(DateTime utcDateTime)
 		{
-			return TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, VietnamTimeZone);
+			var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, VietnamTimeZone);
+			//return DateTime.SpecifyKind(vietnamTime, DateTimeKind.Local);
+			return DateTime.UtcNow;
+
 		}
 
 		public static DateTime ToUtcFromVietnam(DateTime vietnamTime)
 		{
-			return TimeZoneInfo.ConvertTimeToUtc(vietnamTime, VietnamTimeZone);
+			if (vietnamTime.Kind == DateTimeKind.Unspecified)
+				vietnamTime = DateTime.SpecifyKind(vietnamTime, DateTimeKind.Local);
+			//return TimeZoneInfo.ConvertTimeToUtc(vietnamTime, VietnamTimeZone);
+			return DateTime.UtcNow;
+
 		}
 	}
+
 }

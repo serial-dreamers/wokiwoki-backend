@@ -7,7 +7,7 @@ using Wokiwoki.Domain.Entities;
 
 namespace Wokiwoki.Api.Controllers
 {
-	[Route("api/[controller]")]
+	[Route("api/[controller]s")]
 	[ApiController]
 	public class WorkshopScheduleController : ControllerBase
 	{
@@ -51,7 +51,7 @@ namespace Wokiwoki.Api.Controllers
 			Summary = "Create new workshop schedule",
 			Description = "Creates a new schedule for a specific workshop with recurrence settings (daily, weekly, monthly).",
 			Tags = new[] { "Schedules" })]
-		[SwaggerResponse(StatusCodes.Status201Created, "Schedule created successfully", typeof(WorkshopSchedule))]
+		[SwaggerResponse(StatusCodes.Status201Created, "Schedule created successfully", typeof(Guid))]
 		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request body or missing required fields")]
 		[SwaggerResponse(StatusCodes.Status404NotFound, "Workshop not found")]
 		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error while creating schedule")]
@@ -60,15 +60,9 @@ namespace Wokiwoki.Api.Controllers
 			if (command == null)
 				return BadRequest("Request is null");
 
-			try
-			{
-				var result = await _mediator.Send(command);
-				return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
-			}
-			catch (Exception ex)
-			{
-				throw new Exception(ex.Message);
-			}
+			var result = await _mediator.Send(command);
+			return CreatedAtAction(nameof(GetById), new { id = result }, result);
+
 		}
 
 	}

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Wokiwoki.Application.Common.Interfaces.Services;
+using Wokiwoki.Application.Common.Utils;
 using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
 
@@ -16,10 +17,13 @@ namespace Wokiwoki.Application.Features.WorkshopHeroMedias.Commands.CreateWorksh
 	{
 		private readonly IWorkshopHeroMediaRepository _workshopHeroMediaRepository;
 		private readonly IUuidService _uuidService;
-		public CreateWorkshopHeroMediaCommandHandler(IWorkshopHeroMediaRepository workshopHeroMediaRepository, IUuidService uuidService)
+		private readonly IUserContext _userContext;
+
+		public CreateWorkshopHeroMediaCommandHandler(IWorkshopHeroMediaRepository workshopHeroMediaRepository, IUuidService uuidService, IUserContext userContext)
 		{
 			_workshopHeroMediaRepository = workshopHeroMediaRepository;
 			_uuidService = uuidService;
+			_userContext = userContext;
 		}
 		public async Task<Guid> Handle(CreateWorkshopHeroMediaCommand request, CancellationToken cancellationToken)
 		{
@@ -30,7 +34,9 @@ namespace Wokiwoki.Application.Features.WorkshopHeroMedias.Commands.CreateWorksh
 				WorkshopId = request.WorkshopId,
 				HeroType = request.HeroType,
 				MediaId = request.MediaId,
-				IsActive = true
+				IsActive = true,
+				Created = TimeHelper.NowInVietnam(),
+				CreatedBy = _userContext.UserId
 			};
 			var workshopHeroMediaCreated = await _workshopHeroMediaRepository.CreateAsync(
 			 workshopHeroMedia

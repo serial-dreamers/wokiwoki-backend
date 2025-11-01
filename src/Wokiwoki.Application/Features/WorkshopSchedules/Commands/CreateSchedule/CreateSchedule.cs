@@ -16,9 +16,9 @@ namespace Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedul
         DateTime ValidFrom,
         DateTime? ValidUntil,
         int? Capacity
-	) : IRequest<WorkshopSchedule>;
+	) : IRequest<Guid>;
 
-    public class CreateScheduleCommandHandler : IRequestHandler<CreateScheduleCommand, WorkshopSchedule>
+    public class CreateScheduleCommandHandler : IRequestHandler<CreateScheduleCommand, Guid>
     {
         private readonly IWorkshopScheduleRepository _repo;
         private readonly IWorkshopRepository _workshopRepository;
@@ -33,24 +33,23 @@ namespace Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedul
             _mapper = mapper;
             _uuidService = uuidService;
         }
-        public async Task<WorkshopSchedule> Handle(CreateScheduleCommand request, CancellationToken cancellationToken)
-        {
-            // 1️⃣ Lấy workshop hiện có (draft)
+        public async Task<Guid> Handle(CreateScheduleCommand request, CancellationToken cancellationToken)
+        { 
             var workshop = await _workshopRepository.GetByIdAsync(request.WorkshopId);
+
             if (workshop == null)
                 throw new Exception("Workshop not found");
             var schedule = new WorkshopSchedule();
 
             _mapper.Map(request, schedule);
                 
-           
+           schedule.Created= DateTime.UtcNow;
             var result = await _repo.CreateAsync(schedule);
 
             if (result == null)
                 throw new Exception("Create schedule failed");
-
-            // 4️⃣ Trả về ID
-            return result;
+             
+            return result.Id;
         }
     }
 }

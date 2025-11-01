@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -69,6 +70,7 @@ namespace Wokiwoki.Api.Controllers
 		/// </summary>
 		/// <param name="command">Contains WorkshopId and a list of HeroMedias to sync.</param>
 		/// <returns>No content. Syncs hero media by adding, updating, or deactivating as needed.</returns>
+		[Authorize]		
 		[HttpPut("{workshopId}/heroes/sync")]
 		[Consumes("application/json")]
 		[SwaggerOperation(

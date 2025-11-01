@@ -1,5 +1,6 @@
 ﻿using MediatR; 
 using Wokiwoki.Application.Common.Interfaces.Services;
+using Wokiwoki.Application.Common.Utils;
 using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
 
@@ -20,7 +21,7 @@ namespace Wokiwoki.Application.Features.Organizations.Commands.CreateOrganizatio
 	{
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IUuidService _uuidService;
-		private readonly IUserContext _userContext;
+		private readonly IUserContext _userContext; 
 
 		public CreateOrganizationCommandHandler(IOrganizationRepository organizationRepository,
 			IUuidService uuidService,
@@ -44,10 +45,10 @@ namespace Wokiwoki.Application.Features.Organizations.Commands.CreateOrganizatio
 				Commune = request.Commune,
 				Province = request.Province,
 				LogoUrl = request.LogoUrl,
-				Created = DateTime.UtcNow,
+				Created = TimeHelper.NowInVietnam(),
 				IsActive = true,
 				FollowerCount= 0,
-				CreatedBy = "system",
+				CreatedBy = _userContext.UserId,
 				OwnerId = _userContext.UserId,
 				Status = OrganizationStatus.Pending
 			}; 

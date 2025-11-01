@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Wokiwoki.Application.Common.Interfaces.Repositories;
+using Wokiwoki.Application.Common.Utils;
 using Wokiwoki.Domain.Enums;
 
 namespace Wokiwoki.Infrastructure.Repositories
@@ -32,14 +33,13 @@ namespace Wokiwoki.Infrastructure.Repositories
 
             if (schedule == null)
                 throw new Exception("Schedule not found");
-
-            // 🔎 Tìm session mới nhất của schedule
+             
             var latestSession = await _context.WorkshopSessions
                 .Where(x => x.ScheduleId == scheduleId)
                 .OrderByDescending(x => x.StartTime)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            var now = DateTime.UtcNow;
+            var now = TimeHelper.NowInVietnam();
             DateTime startDate;
 
             if (latestSession == null)
@@ -94,8 +94,8 @@ namespace Wokiwoki.Infrastructure.Repositories
             }
 
             foreach (var date in dates)
-            {
-                var entity = new WorkshopSession
+            { 
+				var entity = new WorkshopSession
                 {
                     WorkshopId = schedule.WorkshopId,
                     ScheduleId = schedule.Id,

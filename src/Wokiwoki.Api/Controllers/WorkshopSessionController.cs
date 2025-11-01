@@ -6,7 +6,7 @@ using Wokiwoki.Domain.Entities;
 
 namespace Wokiwoki.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]s")]
     [ApiController]
     public class WorkshopSessionController : ControllerBase
     {

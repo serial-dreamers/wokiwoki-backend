@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Wokiwoki.Application.Common.Interfaces.Repositories;
 using Wokiwoki.Application.Common.Interfaces.Services;
+using Wokiwoki.Application.Common.Utils;
 using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
 using Wokiwoki.Domain.Events;
@@ -49,8 +50,9 @@ namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
             // 2️⃣ Map những field được phép từ request sang entity
             _mapper.Map(request, workshop);
 
-            // 3️⃣ Cập nhật lại DB
-            var updatedWorkshop = await _workshopRepository.UpdateTAsync(request.Id, workshop, cancellationToken);
+            workshop.LastModified = TimeHelper.NowInVietnam();
+			// 3️⃣ Cập nhật lại DB
+			var updatedWorkshop = await _workshopRepository.UpdateTAsync(request.Id, workshop, cancellationToken);
 
             if (updatedWorkshop == null)
                 throw new Exception("Update workshop failed");
