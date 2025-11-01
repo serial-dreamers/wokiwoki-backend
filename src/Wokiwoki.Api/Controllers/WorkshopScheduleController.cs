@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using Wokiwoki.Application.Common.Models;
 using Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedule;
 using Wokiwoki.Application.Features.WorkshopSchedules.Queries.GetSchedule;
 using Wokiwoki.Domain.Entities;
@@ -51,7 +52,7 @@ namespace Wokiwoki.Api.Controllers
 			Summary = "Create new workshop schedule",
 			Description = "Creates a new schedule for a specific workshop with recurrence settings (daily, weekly, monthly).",
 			Tags = new[] { "Schedules" })]
-		[SwaggerResponse(StatusCodes.Status201Created, "Schedule created successfully", typeof(Guid))]
+		[SwaggerResponse(StatusCodes.Status201Created, "Schedule created successfully", typeof(Result<Guid>))]
 		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request body or missing required fields")]
 		[SwaggerResponse(StatusCodes.Status404NotFound, "Workshop not found")]
 		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error while creating schedule")]
@@ -61,7 +62,21 @@ namespace Wokiwoki.Api.Controllers
 				return BadRequest("Request is null");
 
 			var result = await _mediator.Send(command);
-			return CreatedAtAction(nameof(GetById), new { id = result }, result);
+			if (!result.Succeeded)
+			{
+				var error = result.Errors.FirstOrDefault() ?? "Unknown error";
+				 
+				if (error.Contains("not found", StringComparison.OrdinalIgnoreCase))
+					return NotFound(new { message = error });
+
+				// Các lỗi khác (VD: validation, DB, ...)
+				return BadRequest(new { message = error });
+			}
+
+			return CreatedAtAction(nameof(GetById), new { id = result.Value }, new
+			{ 
+				id = result.Value
+			});
 
 		}
 

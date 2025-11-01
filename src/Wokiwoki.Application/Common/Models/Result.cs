@@ -37,6 +37,6 @@
 
 		public static new Result<T> Failure(IEnumerable<string> errors) => new Result<T>(false, default, errors);
 
-		public static new Result<T> FailureT(string error) => new Result<T>(false, default, new[] { error });
+		public static Result<T> FailureT(string error) => new Result<T>(false, default, new[] { error });
 	}
 }
