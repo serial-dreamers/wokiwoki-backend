@@ -66,15 +66,12 @@ namespace Wokiwoki.Api.Controllers
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
-        /// <summary>
-        /// Confirm booking (Webhook from Sepay)
-        /// </summary>
         [HttpPost("confirm")]
         [Consumes("application/json")]
         [SwaggerOperation(
-            Summary = "Confirm booking (Webhook from Sepay)",
-            Description = "Sepay sends payment notification here. Confirms a booking and triggers necessary validation or payment checks.",
-            Tags = new[] { "Booking" })]
+    Summary = "Confirm booking (Webhook from Sepay)",
+    Description = "Sepay sends payment notification here. Confirms a booking and triggers necessary validation or payment checks.",
+    Tags = new[] { "Booking" })]
         [SwaggerResponse(StatusCodes.Status200OK, "Booking confirmed successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid booking data or request")]
         [SwaggerResponse(StatusCodes.Status401Unauthorized, "Authorization header is missing or invalid")]
@@ -82,46 +79,82 @@ namespace Wokiwoki.Api.Controllers
         [SwaggerResponse(StatusCodes.Status500InternalServerError, "Error while confirming booking")]
         public async Task<IActionResult> ConfirmBooking([FromBody] JsonElement payload)
         {
-            try
-            {
-                string? content = payload.GetProperty("content").GetString();
 
-                var command = new ConfirmBookingCommand(
-                    Content: content ?? string.Empty,
-                    Authorization: Request.Headers["Authorization"].ToString()
-                );
-                // 1️⃣ Kiểm tra Authorization header
-                if (!Request.Headers.TryGetValue("Authorization", out var authHeader) || string.IsNullOrWhiteSpace(authHeader))
-                    return Unauthorized(new { message = "Authorization header is required." });
+            // ✅ Lấy content từ body
+            string? content = payload.TryGetProperty("content", out var c) ? c.GetString() : null;
 
-                // 2️⃣ Gửi command đến handler, có Authorization
-                var isConfirmed = await _mediator.Send(command with { Authorization = authHeader });
+            // ✅ Lấy Authorization header
+            if (!Request.Headers.TryGetValue("Authorization", out var authHeader) || string.IsNullOrWhiteSpace(authHeader))
+                return Unauthorized(new { message = "Authorization header is required." });
 
-                // 3️⃣ Mapping kết quả
-                if (!isConfirmed)
-                    return BadRequest(new { message = "Failed to confirm booking. Please verify API key or BookingId." });
+            // ✅ Gửi command qua Mediator
+            var command = new ConfirmBookingCommand(
+                Content: content ?? string.Empty,
+                Authorization: authHeader
+            );
 
-                // ✅ Thành công
-                return Ok(new { message = "Booking confirmed successfully." });
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound(new { message = "Booking not found." });
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized(new { message = "You are not authorized to confirm this booking." });
-            }
-            catch (Exception ex)
-            {
-                // ⚠️ Lỗi không mong đợi
-                return StatusCode(StatusCodes.Status500InternalServerError, new
-                {
-                    message = "An unexpected error occurred while confirming booking.",
-                    error = ex.Message
-                });
-            }
+            var isConfirmed = await _mediator.Send(command);
+
+            return Ok(isConfirmed);
+
         }
+
+        ///// <summary>
+        ///// Confirm booking (Webhook from Sepay)
+        ///// </summary>
+        //[HttpPost("confirm")]
+        //[Consumes("application/json")]
+        //[SwaggerOperation(
+        //    Summary = "Confirm booking (Webhook from Sepay)",
+        //    Description = "Sepay sends payment notification here. Confirms a booking and triggers necessary validation or payment checks.",
+        //    Tags = new[] { "Booking" })]
+        //[SwaggerResponse(StatusCodes.Status200OK, "Booking confirmed successfully")]
+        //[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid booking data or request")]
+        //[SwaggerResponse(StatusCodes.Status401Unauthorized, "Authorization header is missing or invalid")]
+        //[SwaggerResponse(StatusCodes.Status404NotFound, "Booking not found")]
+        //[SwaggerResponse(StatusCodes.Status500InternalServerError, "Error while confirming booking")]
+        //public async Task<IActionResult> ConfirmBooking([FromBody] JsonElement payload)
+        //{
+        //    try
+        //    {
+        //        string? content = payload.GetProperty("content").GetString();
+
+        //        var command = new ConfirmBookingCommand(
+        //            Content: content ?? string.Empty,
+        //            Authorization: Request.Headers["Authorization"].ToString()
+        //        );
+        //        // 1️⃣ Kiểm tra Authorization header
+        //        if (!Request.Headers.TryGetValue("Authorization", out var authHeader) || string.IsNullOrWhiteSpace(authHeader))
+        //            return Unauthorized(new { message = "Authorization header is required." });
+
+        //        // 2️⃣ Gửi command đến handler, có Authorization
+        //        var isConfirmed = await _mediator.Send(command with { Authorization = authHeader });
+
+        //        // 3️⃣ Mapping kết quả
+        //        if (!isConfirmed)
+        //            return BadRequest(new { message = "Failed to confirm booking. Please verify API key or BookingId." });
+
+        //        // ✅ Thành công
+        //        return Ok(new { message = "Booking confirmed successfully." });
+        //    }
+        //    catch (KeyNotFoundException)
+        //    {
+        //        return NotFound(new { message = "Booking not found." });
+        //    }
+        //    catch (UnauthorizedAccessException)
+        //    {
+        //        return Unauthorized(new { message = "You are not authorized to confirm this booking." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // ⚠️ Lỗi không mong đợi
+        //        return StatusCode(StatusCodes.Status500InternalServerError, new
+        //        {
+        //            message = "An unexpected error occurred while confirming booking.",
+        //            error = ex.Message
+        //        });
+        //    }
+        //}
 
         /// <summary>
         /// Update booking status.

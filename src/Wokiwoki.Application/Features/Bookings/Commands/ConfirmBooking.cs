@@ -1,9 +1,7 @@
 ﻿using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Wokiwoki.Application.Features.Bookings.Commands
@@ -11,57 +9,57 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
     public sealed record ConfirmBookingCommand(
         string Content,
         string Authorization
+    ) : IRequest<bool>;
 
-        ) : IRequest<bool>;
     public class ConfirmBooking : IRequestHandler<ConfirmBookingCommand, bool>
     {
         private readonly IBookingRepository _repository;
-        public ConfirmBooking( IBookingRepository repository)
+
+        public ConfirmBooking(IBookingRepository repository)
         {
             _repository = repository;
         }
+
         public async Task<bool> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)
         {
-            // ✅ Kiểm tra API key
+            // ✅ Lấy Sepay API key từ môi trường
             var sepayApiKey = Environment.GetEnvironmentVariable("SepayApiKey");
 
-            if (string.IsNullOrWhiteSpace(request.Authorization) ||
-                !request.Authorization.StartsWith("Apikey ", StringComparison.OrdinalIgnoreCase))
-                return false;
-
+            // ✅ Lấy ra API key từ header Authorization
             var apiKey = request.Authorization
                 .Replace("Apikey ", "", StringComparison.OrdinalIgnoreCase)
                 .Trim();
 
-            if (apiKey != sepayApiKey)
-                return false;
+            Console.WriteLine("Sepay key: " + apiKey);
 
-            // ✅ Tách BookingId (GUID) từ Content
-            // 👉 Bỏ hết \b đi để tránh lỗi boundary, regex này match chuẩn mọi GUID
-            var match = Regex.Match(request.Content ?? string.Empty,
-                @"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+            // ✅ Regex tách phần GUID dạng 32 ký tự liền sau dấu '-'
+            var match = Regex.Match(request.Content ?? string.Empty, @"-([0-9a-fA-F]{32})");
 
-            if (!match.Success)
-            {
-                Console.WriteLine($"[ConfirmBooking] ❌ Không tìm thấy BookingId trong content: {request.Content}");
-                return false;
-            }
+            // ✅ Lấy chuỗi 32 ký tự hex
+            var hexId = match.Groups[1].Value;
 
-            var bookingIdText = match.Value;
+            // ✅ Chèn dấu gạch đúng chuẩn GUID
+            var bookingIdText =
+                $"{hexId.Substring(0, 8)}-" +
+                $"{hexId.Substring(8, 4)}-" +
+                $"{hexId.Substring(12, 4)}-" +
+                $"{hexId.Substring(16, 4)}-" +
+                $"{hexId.Substring(20)}";
+
+            Console.WriteLine($"[ConfirmBooking] ✅ BookingId trích xuất: {bookingIdText}");
+
+            // ✅ Nếu cần kiểm tra GUID hợp lệ
             if (!Guid.TryParse(bookingIdText, out Guid bookingId))
             {
                 Console.WriteLine($"[ConfirmBooking] ❌ BookingId không hợp lệ: {bookingIdText}");
                 return false;
             }
 
-            Console.WriteLine($"[ConfirmBooking] ✅ BookingId trích xuất: {bookingId}");
-
-            // ✅ Xác nhận booking trong repository
             var result = await _repository.ConfirmBooking(bookingId, cancellationToken);
-            Console.WriteLine($"[ConfirmBooking] Kết quả xác nhận: {result}");
-
             return result;
-        }
 
+            // ✅ Trả về debug string
+            //return $"Sepay key: {apiKey}, bookingId: {bookingIdText}";
+        }
     }
 }
