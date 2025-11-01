@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Wokiwoki.Application.Common.Interfaces.Repositories;
+using Wokiwoki.Application.Common.Interfaces.Services;
 using Wokiwoki.Application.Common.Utils;
 using Wokiwoki.Domain.Enums;
 
@@ -12,8 +13,11 @@ namespace Wokiwoki.Infrastructure.Repositories
 {
     public class WorkshopSessionRepository : BaseRepo<WorkshopSession, Guid>, IWorkshopSessionRepository
     {
-        public WorkshopSessionRepository(WokiwokiDbContext context) : base(context)
-        { }
+        private readonly IUuidService _uuidService;
+        public WorkshopSessionRepository(WokiwokiDbContext context, IUuidService uuidService) : base(context)
+        { 
+            _uuidService = uuidService;
+        }
 
         public async Task<List<WorkshopSession>> GetSessionByScheduleId(Guid scheduleId, CancellationToken cancellationToken)
         {
@@ -97,6 +101,7 @@ namespace Wokiwoki.Infrastructure.Repositories
             { 
 				var entity = new WorkshopSession
                 {
+                    Id = _uuidService.NewGuid(),
                     WorkshopId = schedule.WorkshopId,
                     ScheduleId = schedule.Id,
                     Title = session.Title,
@@ -124,6 +129,26 @@ namespace Wokiwoki.Infrastructure.Repositories
             return createdSessions;
         }
 
-    }
+		public async Task<List<WorkshopSession>> GetSessionsWeekByScheduleId(
+	            Guid scheduleId,
+	            DateTime? startDate,
+	            DateTime? endDate,
+	            CancellationToken cancellationToken)
+		{
+			var query = _context.WorkshopSessions
+				.Where(x => x.ScheduleId == scheduleId);
+
+			if (startDate.HasValue)
+				query = query.Where(x => x.StartTime >= startDate.Value);
+
+			if (endDate.HasValue)
+				query = query.Where(x => x.EndTime <= endDate.Value);
+
+			query = query.OrderBy(x => x.StartTime);
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+	}
 }
 

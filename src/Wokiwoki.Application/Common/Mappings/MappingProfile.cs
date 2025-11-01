@@ -1,4 +1,5 @@
-﻿using AutoMapper; 
+﻿using AutoMapper;
+using Wokiwoki.Application.DTOs;
 using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Bookings.Commands;
 using Wokiwoki.Application.Features.Categories.Commands.CreateCategory;
@@ -92,9 +93,16 @@ namespace Wokiwoki.Application.Common.Mappings
 			//WorkshopSession
 			CreateMap<CreateSessionCommand,  WorkshopSession>();
             CreateMap<UpdateSessionCommand, WorkshopSession>();
+			CreateMap<WorkshopSession, WorkshopSessionDto>();
 
-            //Booking
-            CreateMap<CreateBookingCommand, Booking>()
+			CreateMap<Create1MonthSessionCommand, WorkshopSession>()
+			.ForMember(dest => dest.Id, opt => opt.Ignore())
+			.ForMember(dest => dest.ScheduleId, opt => opt.Ignore());
+
+			CreateMap<WorkshopSession, CreatedList>(); 
+
+			//Booking
+			CreateMap<CreateBookingCommand, Booking>()
             .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets));
 
             //Ticket
@@ -102,6 +110,8 @@ namespace Wokiwoki.Application.Common.Mappings
 
             //ScheduleTicket
             CreateMap<CreateScheduleTicketCommand, WorkshopScheduleTicket>();
-        }
+			CreateMap<WorkshopScheduleTicket, WorkshopScheduleTicketDto>();
+
+		}
 	}
 }

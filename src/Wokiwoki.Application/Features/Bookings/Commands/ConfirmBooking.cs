@@ -21,8 +21,7 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
             _repository = repository;
         }
         public async Task<bool> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)
-        {
-            // ✅ Kiểm tra API key
+        { 
             var sepayApiKey = Environment.GetEnvironmentVariable("SepayApiKey");
 
             if (string.IsNullOrWhiteSpace(request.Authorization) ||
@@ -35,9 +34,7 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
 
             if (apiKey != sepayApiKey)
                 return false;
-
-            // ✅ Tách BookingId (GUID) từ Content
-            // 👉 Bỏ hết \b đi để tránh lỗi boundary, regex này match chuẩn mọi GUID
+             
             var match = Regex.Match(request.Content ?? string.Empty,
                 @"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
@@ -54,9 +51,8 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
                 return false;
             }
 
-            Console.WriteLine($"[ConfirmBooking] ✅ BookingId trích xuất: {bookingId}");
-
-            // ✅ Xác nhận booking trong repository
+            Console.WriteLine($"[ConfirmBooking] BookingId trích xuất: {bookingId}");
+             
             var result = await _repository.ConfirmBooking(bookingId, cancellationToken);
             Console.WriteLine($"[ConfirmBooking] Kết quả xác nhận: {result}");
 

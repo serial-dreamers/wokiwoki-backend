@@ -25,7 +25,6 @@
   <ItemGroup>
     <Folder Include="Features\Chatbots\Queries\" />
     <Folder Include="Features\Organizations\EventHandlers\" />
-    <Folder Include="Features\ScheduleTickets\Queries\" />
     <Folder Include="Features\UserWorkShopLike\EventHandlers\" />
     <Folder Include="Features\WorkshopMedias\EventHandlers\" />
     <Folder Include="Features\WorkshopSchedules\Commands\UpdateSchedule\" />
