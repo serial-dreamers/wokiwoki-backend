@@ -1,7 +1,7 @@
 ﻿
 namespace Wokiwoki.Application.DTOs
 {
-	public class CreatedList
+	public class CreatedDto
 	{
 		public Guid Id { get; set; } 
 	}

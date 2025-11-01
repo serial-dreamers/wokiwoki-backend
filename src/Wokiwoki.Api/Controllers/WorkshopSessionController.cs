@@ -100,7 +100,7 @@ namespace Wokiwoki.Api.Controllers
 		Summary = "Create new session",
 		Description = "Creates a new workshop session record.",
 		Tags = new[] { "Workshop Session" })]
-		[SwaggerResponse(StatusCodes.Status201Created, "Session created successfully", typeof(Guid))]
+		[SwaggerResponse(StatusCodes.Status201Created, "Session created successfully", typeof(CreatedDto))]
 		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request body")]
 		public async Task<IActionResult> Create([FromBody] CreateSessionCommand command)
 		{
@@ -138,7 +138,7 @@ namespace Wokiwoki.Api.Controllers
 			Description = "Automatically generates workshop sessions for one month based on a schedule.",
 			Tags = new[] { "Workshop Session" }
 		)]
-		[ProducesResponseType(typeof(List<Guid>), StatusCodes.Status201Created)]
+		[ProducesResponseType(typeof(List<CreatedDto>), StatusCodes.Status201Created)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> Create1MonthSessions([FromBody] Create1MonthSessionCommand command)

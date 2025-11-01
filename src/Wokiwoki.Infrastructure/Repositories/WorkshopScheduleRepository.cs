@@ -1,10 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Wokiwoki.Application.Common.Interfaces.Repositories;
+﻿using Wokiwoki.Application.Common.Interfaces.Repositories;
 using Wokiwoki.Application.Common.Models;
 using Wokiwoki.Infrastructure.Data.Extensions;
 

@@ -46,7 +46,7 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
 				$"{hexId.Substring(16, 4)}-" +
 				$"{hexId.Substring(20)}";
 
-			Console.WriteLine($"[ConfirmBooking] ✅ BookingId trích xuất: {bookingIdText}");
+			Console.WriteLine($"[ConfirmBooking] BookingId trích xuất: {bookingIdText}");
 
 			// ✅ Nếu cần kiểm tra GUID hợp lệ
 			if (!Guid.TryParse(bookingIdText, out Guid bookingId))

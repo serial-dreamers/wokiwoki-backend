@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Wokiwoki.Application.Common.Models;
+using Wokiwoki.Application.DTOs;
 using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
 using Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery;
@@ -32,7 +33,7 @@ namespace Wokiwoki.Api.Controllers
 			Summary = "Create workshop draft",
 			Description = "Creates a draft version of a workshop with basic information such as title, category, organization, and tags. The draft can later be updated with full details before publishing.",
 			Tags = new[] { "Workshops" })]
-		[SwaggerResponse(StatusCodes.Status201Created, "Workshop draft created successfully", typeof(object))]
+		[SwaggerResponse(StatusCodes.Status201Created, "Workshop draft created successfully", typeof(CreatedDto))]
 		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid or missing request body")]
 		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Error while creating workshop draft")]
 		public async Task<IActionResult> CreateDraft([FromBody] CreateWorkshopDraftCommand command)
@@ -70,7 +71,7 @@ namespace Wokiwoki.Api.Controllers
 			Description = "Add additional information (description, refund policy, etc.) to an existing workshop draft.",
 			Tags = new[] { "Workshops" }
 		)]
-		[SwaggerResponse(StatusCodes.Status201Created, "Workshop created", typeof(object))]
+		[SwaggerResponse(StatusCodes.Status201Created, "Workshop created", typeof(CreatedDto))]
 		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request")]
 		public async Task<ActionResult> Create([FromBody] CreateWorkshopCommand command)
 		{

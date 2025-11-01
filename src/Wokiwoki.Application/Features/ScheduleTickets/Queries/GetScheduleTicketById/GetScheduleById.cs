@@ -1,13 +1,8 @@
 ﻿using AutoMapper;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediatR; 
 using Wokiwoki.Application.DTOs.Response;
 
-namespace Wokiwoki.Application.Features.ScheduleTickets.Queries.GetScheduleById
+namespace Wokiwoki.Application.Features.ScheduleTickets.Queries.GetScheduleTicketById
 {
 	public record GetScheduleTicketByIdQuery(Guid scheduleId) : IRequest<WorkshopScheduleTicketDto>;
 

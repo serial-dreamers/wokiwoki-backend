@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Wokiwoki.Application.Common.Models;
+using Wokiwoki.Application.DTOs;
 using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedule;
 using Wokiwoki.Application.Features.WorkshopSchedules.Queries.GetSchedule;
@@ -80,7 +81,7 @@ namespace Wokiwoki.Api.Controllers
 			Summary = "Create new workshop schedule",
 			Description = "Creates a new schedule for a specific workshop with recurrence settings (daily, weekly, monthly).",
 			Tags = new[] { "Schedules" })]
-		[SwaggerResponse(StatusCodes.Status201Created, "Schedule created successfully", typeof(Result<Guid>))]
+		[SwaggerResponse(StatusCodes.Status201Created, "Schedule created successfully", typeof(CreatedDto))]
 		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request body or missing required fields")]
 		[SwaggerResponse(StatusCodes.Status404NotFound, "Workshop not found")]
 		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Server error while creating schedule")]

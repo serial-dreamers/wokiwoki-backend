@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.ScheduleTickets.Command;
-using Wokiwoki.Application.Features.ScheduleTickets.Queries.GetScheduleById;
+using Wokiwoki.Application.Features.ScheduleTickets.Queries.GetScheduleTicketById;
+using Wokiwoki.Application.Features.ScheduleTickets.Queries.GetScheduleTickets;
 using Wokiwoki.Domain.Entities;
 
 namespace Wokiwoki.Api.Controllers
@@ -20,14 +21,39 @@ namespace Wokiwoki.Api.Controllers
             _mediator = mediator;
         }
 
-		/// <summary>
-		/// Create a new schedule ticket.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new ticket type (e.g. Early Bird, Regular) for a specific workshop schedule.
-		/// </remarks>
-		/// <param name="command">Ticket creation details including schedule ID, name, price, and quantity.</param>
-		/// <returns>Returns the ID of the created ticket.</returns>
+		[HttpGet("by-schedule/{scheduleId:guid}")]
+		[SwaggerOperation(
+			Summary = "Get tickets by schedule ID",
+			Description = "Fetch all tickets associated with a specific schedule.",
+			Tags = new[] { "Schedule Tickets" })]
+		[SwaggerResponse(StatusCodes.Status200OK, "Tickets retrieved successfully", typeof(List<WorkshopScheduleTicketDto>))]
+		[SwaggerResponse(StatusCodes.Status404NotFound, "No tickets found for this schedule")]
+		public async Task<IActionResult> GetByScheduleId(Guid scheduleId)
+		{
+			var tickets = await _mediator.Send(new GetScheduleTicketsByScheduleIdQuery(scheduleId));
+
+			  
+			return Ok(tickets);
+		}
+
+		[HttpGet("{id:guid}")]
+		[SwaggerOperation(
+			Summary = "Get schedule ticket by ID",
+			Description = "Fetch details of a specific workshop schedule ticket.",
+			Tags = new[] { "Schedule Tickets" })]
+		[SwaggerResponse(StatusCodes.Status200OK, "Ticket found", typeof(WorkshopScheduleTicketDto))]
+		[SwaggerResponse(StatusCodes.Status404NotFound, "Ticket not found")]
+		public async Task<IActionResult> GetById(Guid id)
+		{
+			var ticket = await _mediator.Send(new GetScheduleTicketByIdQuery(id));
+
+			if (ticket == null)
+				return NotFound(new { message = "Schedule ticket not found." });
+
+			return Ok(ticket);
+		}
+
+
 		[HttpPost]
 		[Consumes("application/json")]
 		[SwaggerOperation(
@@ -55,32 +81,7 @@ namespace Wokiwoki.Api.Controllers
 
 			return CreatedAtAction(nameof(GetById), new { id = result.Value }, new { id = result.Value });
 			 
-		}
-
-		/// <summary>
-		/// Get a schedule ticket by ID.
-		/// </summary>
-		/// <remarks>
-		/// Retrieves the details of a specific workshop schedule ticket by its ID.
-		/// </remarks>
-		/// <param name="id">The unique ID of the schedule ticket.</param>
-		/// <returns>Details of the ticket.</returns>
-		[HttpGet("{id:guid}")]
-		[SwaggerOperation(
-			Summary = "Get schedule ticket by ID",
-			Description = "Fetch details of a specific workshop schedule ticket.",
-			Tags = new[] { "Schedule Tickets" })]
-		[SwaggerResponse(StatusCodes.Status200OK, "Ticket found", typeof(WorkshopScheduleTicketDto))]
-		[SwaggerResponse(StatusCodes.Status404NotFound, "Ticket not found")]
-		public async Task<IActionResult> GetById(Guid id)
-		{
-			var ticket = await _mediator.Send(new GetScheduleTicketByIdQuery(id));
-
-			if (ticket == null)
-				return NotFound(new { message = "Schedule ticket not found." });
-
-			return Ok(ticket);
-		}
+		} 
 
 	}
 }

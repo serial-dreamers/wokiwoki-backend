@@ -26,9 +26,9 @@ namespace Wokiwoki.Application.Features.WorkshopSessions.Commands
         int? MinimumAge,
         ParkingType? ParkingType,
         string? ParkingDescription
-        ) : IRequest<List<CreatedList>>;
+        ) : IRequest<List<CreatedDto>>;
 
-    public class Create1MonthSession : IRequestHandler<Create1MonthSessionCommand, List<CreatedList>>
+    public class Create1MonthSession : IRequestHandler<Create1MonthSessionCommand, List<CreatedDto>>
     {
         private readonly IWorkshopSessionRepository _repo;
 		private readonly IMapper _mapper;
@@ -38,12 +38,12 @@ namespace Wokiwoki.Application.Features.WorkshopSessions.Commands
             _repo = repo; 
             _mapper = mapper;
         }
-        public async Task<List<CreatedList>> Handle(Create1MonthSessionCommand request, CancellationToken cancellationToken)
+        public async Task<List<CreatedDto>> Handle(Create1MonthSessionCommand request, CancellationToken cancellationToken)
         {
 			var session = _mapper.Map<WorkshopSession>(request);
 			var result = await _repo.Create1MonthSession(request.scheduleId, session, cancellationToken);
 
-			return _mapper.Map<List<CreatedList>>(result);
+			return _mapper.Map<List<CreatedDto>>(result);
 		}
     }
 }

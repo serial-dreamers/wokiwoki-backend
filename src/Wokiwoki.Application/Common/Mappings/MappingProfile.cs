@@ -99,7 +99,7 @@ namespace Wokiwoki.Application.Common.Mappings
 			.ForMember(dest => dest.Id, opt => opt.Ignore())
 			.ForMember(dest => dest.ScheduleId, opt => opt.Ignore());
 
-			CreateMap<WorkshopSession, CreatedList>(); 
+			CreateMap<WorkshopSession, CreatedDto>(); 
 
 			//Booking
 			CreateMap<CreateBookingCommand, Booking>()
