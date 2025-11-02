@@ -20,5 +20,8 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 
         Task<bool> CheckWorkshopExistById(Guid workshopId, CancellationToken cancellationToken);
 
+        Task<Workshop?> GetWorkshopById(Guid workshopId, CancellationToken cancellationToken);
+
+
 	}
 }

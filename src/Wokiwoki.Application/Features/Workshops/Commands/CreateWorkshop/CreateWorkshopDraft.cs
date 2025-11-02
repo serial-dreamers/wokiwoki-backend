@@ -1,5 +1,8 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Wokiwoki.Application.Common.Interfaces.Services;
+using Wokiwoki.Application.Common.Models;
+using Wokiwoki.Application.DTOs;
 using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
 using Wokiwoki.Domain.Events;
@@ -7,7 +10,7 @@ using Wokiwoki.Domain.Events;
 namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
 {
     public record CreateWorkshopDraftCommand(
-        string? Id,
+        Guid? Id,
         string UserId,
         string Title,
         string Summary,
@@ -19,28 +22,34 @@ namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
         WorkshopScheduleType ScheduleType,
         int? DurationMinutes,
         int DefaultCapacity
-    ) : IRequest<Guid>;
+    ) : IRequest<Result<CreatedDto>>;
 
-    public class CreateWorkshopDraftCommandHandler : IRequestHandler<CreateWorkshopDraftCommand, Guid>
+    public class CreateWorkshopDraftCommandHandler : IRequestHandler<CreateWorkshopDraftCommand, Result<CreatedDto>>
     {
         private readonly IWorkshopRepository _workshopRepository;
         private readonly ITagRepository _tagRepository;
         private readonly IUuidService _uuidService;
+        private readonly IMapper _mapper;
 
         public CreateWorkshopDraftCommandHandler(IWorkshopRepository workshopRepository
             , ITagRepository tagRepository,
-            IUuidService uuidService)
+            IUuidService uuidService,
+            IMapper mapper)
         {
             _workshopRepository = workshopRepository;
             _tagRepository = tagRepository;
             _uuidService = uuidService;
+            _mapper = mapper;
         }
-        public async Task<Guid> Handle(CreateWorkshopDraftCommand request, CancellationToken cancellationToken)
+        public async Task<Result<CreatedDto>> Handle(CreateWorkshopDraftCommand request, CancellationToken cancellationToken)
         {
+
             var result = new Workshop();
-            if (string.IsNullOrEmpty(request.Title))
-                throw new ArgumentException("Title is required");
-            if (string.IsNullOrEmpty(request.Id))
+			if (string.IsNullOrEmpty(request.Title))
+				return Result<CreatedDto>.FailureT("Title is required");
+
+
+			if (request.Id == null || request.Id == Guid.Empty)
             {
                 var id = _uuidService.NewGuid();
                 var workshop = new Workshop
@@ -79,16 +88,15 @@ namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
                 result = await _workshopRepository.CreateAsync(workshop);
 
                 if (result == null)
-                    throw new Exception("Create workshop failed");
+					return Result<CreatedDto>.FailureT("Create workshop failed"); 
 
                 workshop.AddDomainEvent(new WorkshopCreatedEvent(result));
             }
             else
-            {
-                // 🟠 UPDATE EXISTING WORKSHOP
-                var existingWorkshop = await _workshopRepository.GetByIdAsync(Guid.Parse(request.Id));
+            { 
+                var existingWorkshop = await _workshopRepository.GetWorkshopById(request.Id.Value, cancellationToken);
                 if (existingWorkshop == null)
-                    throw new Exception("Workshop not found");
+					return Result<CreatedDto>.FailureT("Workshop not found"); 
 
                 existingWorkshop.Title = request.Title;
                 existingWorkshop.Summary = request.Summary;
@@ -100,8 +108,7 @@ namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
                 existingWorkshop.StartingPrice = request.StartingPrice;
                 existingWorkshop.LastModified = DateTime.UtcNow;
                 existingWorkshop.LastModifiedBy = request.UserId;
-
-                // 🏷️ Update tags
+                 
                 if (request.TagIds != null)
                 {
                     var tags = await _tagRepository.GetTagsByCategory(request.CategoryId, cancellationToken);
@@ -118,7 +125,9 @@ namespace Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop
                 await _workshopRepository.UpdateTAsync(existingWorkshop.Id, existingWorkshop, cancellationToken);
                 result = existingWorkshop;
             }
-            return result.Id;
-        }
+
+			var itemCreateDTO = _mapper.Map<CreatedDto>(result);
+			return Result<CreatedDto>.Success(itemCreateDTO);
+		}
     }
 }

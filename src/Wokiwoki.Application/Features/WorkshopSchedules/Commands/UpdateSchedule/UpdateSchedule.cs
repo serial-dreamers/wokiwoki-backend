@@ -27,6 +27,7 @@ namespace Wokiwoki.Application.Features.WorkshopSchedules.Commands.UpdateSchedul
 
      int? Capacity
         ) : IRequest<WorkshopSchedule>;
+
     public class UpdateSchedule : IRequestHandler<UpdateScheduleCommand, WorkshopSchedule>
     {
         private readonly IWorkshopScheduleRepository _repo;

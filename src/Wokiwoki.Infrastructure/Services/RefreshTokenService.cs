@@ -29,8 +29,8 @@ namespace Wokiwoki.Infrastructure.Services
 				Id = _uuidService.NewGuid(),
 				UserId = userId,
 				Token = tokenHash,
-				Created = TimeHelper.NowInVietnam(),
-				ExpiresAt = TimeHelper.NowInVietnam().AddDays(7),
+				Created = DateTime.UtcNow,
+				ExpiresAt = DateTime.UtcNow.AddDays(7),
 				Revoked = false,
 				CreatedBy = userId
 			};
@@ -51,7 +51,7 @@ namespace Wokiwoki.Infrastructure.Services
 			var existingToken = await _refreshTokenRepository.GetRefreshTokenByHashAsync(tokenHash);
 			if (existingToken == null) return null;
 			 
-			if (existingToken.ExpiresAt <= TimeHelper.NowInVietnam() || existingToken.Revoked)
+			if (existingToken.ExpiresAt <= DateTime.UtcNow || existingToken.Revoked)
 				return null;
 			 
 			existingToken.Revoked = true;
@@ -65,8 +65,8 @@ namespace Wokiwoki.Infrastructure.Services
 				Id = _uuidService.NewGuid(),
 				UserId = existingToken.UserId,
 				Token = newHash,
-				Created = TimeHelper.NowInVietnam(),
-				ExpiresAt = TimeHelper.NowInVietnam().AddDays(7),
+				Created = DateTime.UtcNow,
+				ExpiresAt = DateTime.UtcNow.AddDays(7),
 				Revoked = false,
 				CreatedBy = existingToken.UserId
 			};

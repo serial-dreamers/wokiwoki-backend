@@ -111,6 +111,13 @@ namespace Wokiwoki.Infrastructure.Repositories
 			return await _context.Workshops
 				.AnyAsync(ws => ws.Id == workshopId && ws.IsActive, cancellationToken);
 		}
+
+		public async Task<Workshop?> GetWorkshopById(Guid workshopId, CancellationToken cancellationToken)
+		{
+			return await _context.Workshops 
+				.Include(wt => wt.Tags)
+				.FirstOrDefaultAsync(w => w.Id == workshopId && w.IsActive, cancellationToken);
+		}
 		//public async Task<bool> UpdateAsync(Guid id, CancellationToken cancellationToken = default)
 		//{
 		//	var w = await _context.Workshops.FirstOrDefaultAsync(w => w.Id == id);

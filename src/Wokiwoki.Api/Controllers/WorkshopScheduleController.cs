@@ -23,15 +23,19 @@ namespace Wokiwoki.Api.Controllers
 		}
 
 		[HttpPut]
+		[Consumes("application/json")]
+		[SwaggerOperation(
+			Summary = "Update a workshop schedule",
+			Description = "Updates an existing schedule (daily, weekly, monthly, etc.) for a specific workshop.",
+			Tags = new[] { "Schedules" }
+		)]
 		public async Task<IActionResult> UpdateSchedule(UpdateScheduleCommand command)
 		{
 			var result = await _mediator.Send(command);
 			return Ok(result);
 		}
 
-		/// <summary>
-		/// Get all schedules of a specific workshop with pagination.
-		/// </summary>
+		 
 		[HttpGet("workshop/{workshopId:guid}")]
 		[SwaggerOperation(
 			Summary = "Get paginated schedules for a workshop",
@@ -55,10 +59,7 @@ namespace Wokiwoki.Api.Controllers
 		}
 
 
-
-		/// <summary>
-		/// Get a specific workshop schedule by ID.
-		/// </summary>
+		 
 		[HttpGet("{id}")]
 		[SwaggerOperation(
 			Summary = "Get workshop schedule by ID",
@@ -80,9 +81,7 @@ namespace Wokiwoki.Api.Controllers
 			return Ok(result);
 		}
 
-		/// <summary>
-		/// Create a new workshop schedule.
-		/// </summary>
+		 
 		[HttpPost]
 		[Consumes("application/json")]
 		[SwaggerOperation(

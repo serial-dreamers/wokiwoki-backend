@@ -24,41 +24,39 @@ namespace Wokiwoki.Api.Controllers
 			_mediator = mediator;
 		}
 
-		/// <summary>
-		/// Create an initial workshop draft — only requires title, category, organization, and tags.
-		/// </summary>
 		[HttpPost("draft")]
 		[Consumes("application/json")]
 		[SwaggerOperation(
-			Summary = "Create workshop draft",
-			Description = "Creates a draft version of a workshop with basic information such as title, category, organization, and tags. The draft can later be updated with full details before publishing.",
-			Tags = new[] { "Workshops" })]
+	Summary = "Create workshop draft",
+	Description = "Creates a draft version of a workshop with basic information such as title, category, organization, and tags. The draft can later be updated with full details before publishing.",
+	Tags = new[] { "Workshops" })]
 		[SwaggerResponse(StatusCodes.Status201Created, "Workshop draft created successfully", typeof(CreatedDto))]
 		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid or missing request body")]
 		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Error while creating workshop draft")]
 		public async Task<IActionResult> CreateDraft([FromBody] CreateWorkshopDraftCommand command)
-        {
-            if (command == null)
-                return BadRequest("Request body cannot be null");
+		{
+			if (command == null)
+				return BadRequest("Request body cannot be null");
+			try
+			{
+				var result = await _mediator.Send(command);
+				if (!result.Succeeded || result.Value == null)
+					return BadRequest(result.Errors);
 
-            try
-            {
-                var id = await _mediator.Send(command);
-				if (command.Id == null)
-				{
-					return CreatedAtAction(nameof(GetById), new { id }, new { id });
-				}
-				return Ok(id);
+				var id = result.Value.Id; 
+				return CreatedAtAction(nameof(GetById), new { id }, new { id }); 
 			}
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch
-            {
-                return StatusCode(500, new { message = "An error occurred while creating workshop draft" });
-            }
-        }
+			catch (ArgumentException ex)
+			{
+				return BadRequest(new { message = ex.Message });
+			}
+			catch
+			{
+				return StatusCode(500, new { message = "An error occurred while creating workshop draft" });
+			}
+		}
+
+
 
 
 		/// <summary>

@@ -47,14 +47,14 @@ namespace Wokiwoki.Application.Common.Mappings
     .ForMember(dest => dest.ScheduleType, opt => opt.Ignore())
     .ForMember(dest => dest.Summary, opt => opt.Ignore())
     .ForMember(dest => dest.DurationMinutes, opt => opt.Ignore())
-    .ForMember(dest => dest.DefaultCapacity, opt => opt.Ignore());
+    .ForMember(dest => dest.DefaultCapacity, opt => opt.Ignore()); 
 
 
 
-
-
-            CreateMap<Workshop, SearchWorkshopDto>();
+			CreateMap<Workshop, SearchWorkshopDto>();
 			CreateMap<Workshop, WorkshopDto>();
+			CreateMap<Workshop, CreatedDto>();
+
 
 			//Category
 			CreateMap<Category, CategoryDto>();
