@@ -30,10 +30,12 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
                 .Trim();
 
             Console.WriteLine("Sepay key: " + apiKey);
+            Console.WriteLine($"[ConfirmBooking] 🔍 Content nhận: {request.Content}");
 
-            // ✅ Regex tổng quát: bắt GUID có hoặc không có dấu '-'
+            // ✅ Regex tổng quát: Bắt đoạn GUID (32 hex) hoặc GUID có dấu '-'
+            // Dùng \b để tách ranh giới và tránh match nhầm số đầu như "105816810312-..."
             var match = Regex.Match(request.Content ?? string.Empty,
-                @"([0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12})");
+                @"\b([0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12})\b");
 
             if (!match.Success)
             {
@@ -42,9 +44,9 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
             }
 
             // ✅ Lấy chuỗi GUID dạng thô
-            var rawId = match.Value;
+            var rawId = match.Groups[1].Value;
 
-            // ✅ Nếu thiếu dấu '-', chèn vào đúng chuẩn
+            // ✅ Nếu thiếu dấu '-', chèn vào đúng chuẩn GUID
             string bookingIdText;
             if (!rawId.Contains('-') && rawId.Length == 32)
             {
@@ -75,6 +77,7 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
             Console.WriteLine($"[ConfirmBooking] ✅ Kết quả xác nhận: {result}");
             return result;
         }
+
 
         //public async Task<bool> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)
         //{
