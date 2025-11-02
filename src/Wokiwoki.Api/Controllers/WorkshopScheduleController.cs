@@ -5,6 +5,7 @@ using Wokiwoki.Application.Common.Models;
 using Wokiwoki.Application.DTOs;
 using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedule;
+using Wokiwoki.Application.Features.WorkshopSchedules.Commands.UpdateSchedule;
 using Wokiwoki.Application.Features.WorkshopSchedules.Queries.GetSchedule;
 using Wokiwoki.Domain.Entities;
 
@@ -19,6 +20,13 @@ namespace Wokiwoki.Api.Controllers
 		public WorkshopScheduleController(IMediator mediator)
 		{
 			_mediator = mediator;
+		}
+
+		[HttpPut]
+		public async Task<IActionResult> UpdateSchedule(UpdateScheduleCommand command)
+		{
+			var result = await _mediator.Send(command);
+			return Ok(result);
 		}
 
 		/// <summary>

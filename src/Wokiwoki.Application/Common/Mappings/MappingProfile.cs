@@ -10,6 +10,7 @@ using Wokiwoki.Application.Features.Tags.Commands.UpdateTag;
 using Wokiwoki.Application.Features.WorkshopHeroMedias.Queries.GetHeroMedias;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
 using Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedule;
+using Wokiwoki.Application.Features.WorkshopSchedules.Commands.UpdateSchedule;
 using Wokiwoki.Application.Features.WorkshopSessions.Commands;
 using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
@@ -89,9 +90,12 @@ namespace Wokiwoki.Application.Common.Mappings
             //WorkshopSchedule
             CreateMap<CreateScheduleCommand, WorkshopSchedule>();
 			CreateMap<WorkshopSchedule, WorkshopScheduleDto>();
+            CreateMap<UpdateScheduleCommand, WorkshopSchedule>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.WorkshopId, opt => opt.Ignore());
 
-			//WorkshopSession
-			CreateMap<CreateSessionCommand,  WorkshopSession>();
+            //WorkshopSession
+            CreateMap<CreateSessionCommand,  WorkshopSession>();
             CreateMap<UpdateSessionCommand, WorkshopSession>();
 			CreateMap<WorkshopSession, WorkshopSessionDto>();
 
