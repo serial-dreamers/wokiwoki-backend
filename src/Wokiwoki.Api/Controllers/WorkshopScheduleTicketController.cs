@@ -64,7 +64,7 @@ namespace Wokiwoki.Api.Controllers
 		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request or failed to create ticket")]
 		[SwaggerResponse(StatusCodes.Status404NotFound, "Workshop schedule not found")]
 		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error")]
-		public async Task<IActionResult> CreateScheduleTicket([FromBody] CreateScheduleTicketCommand command)
+		public async Task<IActionResult> Create([FromBody] CreateScheduleTicketCommand command)
 		{
 			if (command == null)
 				return BadRequest(new { message = "Request body is null." });

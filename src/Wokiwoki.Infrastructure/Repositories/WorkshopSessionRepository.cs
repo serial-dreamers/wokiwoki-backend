@@ -97,36 +97,39 @@ namespace Wokiwoki.Infrastructure.Repositories
                 }
             }
 
-            foreach (var date in dates)
-            { 
+			foreach (var date in dates)
+			{
+				var startInVietnam = date.Add(schedule.StartTime.ToTimeSpan());
+				var endInVietnam = date.Add(schedule.EndTime.ToTimeSpan());
+
 				var entity = new WorkshopSession
-                {
-                    Id = _uuidService.NewGuid(),
-                    WorkshopId = schedule.WorkshopId,
-                    ScheduleId = schedule.Id,
-                    Title = session.Title,
-                    Description = session.Description,
-                    Street = session.Street,
-                    Commune = session.Commune,
-                    Province = session.Province,
-                    Latitude = session.Latitude,
-                    Longitude = session.Longitude,
-                    AgeRestrictionType = session.AgeRestrictionType,
-                    MinimumAge = session.MinimumAge,
-                    ParkingType = session.ParkingType,
-                    ParkingDescription = session.ParkingDescription,
-                    Capacity = schedule.Capacity ?? session.Capacity,
-                    BookedCount = 0,
-                    StartTime = date.Add(schedule.StartTime.ToTimeSpan()),
-                    EndTime = date.Add(schedule.EndTime.ToTimeSpan()),
-                    IsActive = true
-                };
+				{
+					Id = _uuidService.NewGuid(),
+					WorkshopId = schedule.WorkshopId,
+					ScheduleId = schedule.Id,
+					Title = session.Title,
+					Description = session.Description,
+					Street = session.Street,
+					Commune = session.Commune,
+					Province = session.Province,
+					Latitude = session.Latitude,
+					Longitude = session.Longitude,
+					AgeRestrictionType = session.AgeRestrictionType,
+					MinimumAge = session.MinimumAge,
+					ParkingType = session.ParkingType,
+					ParkingDescription = session.ParkingDescription,
+					Capacity = schedule.Capacity ?? session.Capacity,
+					BookedCount = 0, 
+					StartTime = TimeZoneInfo.ConvertTimeToUtc(startInVietnam, TimeHelper.VietnamTimeZone),
+					EndTime = TimeZoneInfo.ConvertTimeToUtc(endInVietnam, TimeHelper.VietnamTimeZone),
+					IsActive = true
+				};
 
-                var created = await CreateAsync(entity, cancellationToken);
-                createdSessions.Add(created);
-            }
+				var created = await CreateAsync(entity, cancellationToken);
+				createdSessions.Add(created);
+			}
 
-            return createdSessions;
+			return createdSessions;
         }
 
 		public async Task<List<WorkshopSession>> GetSessionsWeekByScheduleId(
