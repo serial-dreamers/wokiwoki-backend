@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Wokiwoki.Application.Common.Models;
 using Wokiwoki.Application.DTOs;
 using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Bookings.Commands;
 using Wokiwoki.Application.Features.Categories.Commands.CreateCategory;
 using Wokiwoki.Application.Features.Categories.Commands.UpdateCategory;
+using Wokiwoki.Application.Features.Reviews.Command;
 using Wokiwoki.Application.Features.ScheduleTickets.Command;
 using Wokiwoki.Application.Features.Tags.Commands.CreateTag;
 using Wokiwoki.Application.Features.Tags.Commands.UpdateTag;
@@ -108,6 +110,7 @@ namespace Wokiwoki.Application.Common.Mappings
 			//Booking
 			CreateMap<CreateBookingCommand, Booking>()
             .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets));
+			
 
             //Ticket
             CreateMap<TicketCreateDTO, Ticket>();
@@ -115,6 +118,9 @@ namespace Wokiwoki.Application.Common.Mappings
             //ScheduleTicket
             CreateMap<CreateScheduleTicketCommand, WorkshopScheduleTicket>();
 			CreateMap<WorkshopScheduleTicket, WorkshopScheduleTicketDto>();
+
+			//Review
+			CreateMap<CreateReviewCommand, Review>();
 
 		}
 	}

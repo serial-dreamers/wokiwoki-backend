@@ -20,6 +20,16 @@ namespace Wokiwoki.Api.Controllers
             _mediator = mediator;
         }
 
+        [HttpGet("by-time")]
+        [SwaggerOperation(
+            Summary = "Get booking by time",
+            Tags = new[] { "Booking" })]
+        public async Task<IActionResult> GetBookingByTIme([FromQuery] GetBookingByTimeQuery query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
         /// <summary>
         /// Get booking by ID.
         /// </summary>

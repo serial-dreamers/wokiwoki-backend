@@ -5,7 +5,7 @@
         public Guid WorkshopId { get; set; }
         public Guid BookingId { get; set; }
 
-        public IFormFile? ImageUrl { get; set; } = null!;
+        public IFormFile? LogoFile { get; set; } = null!;
 
         public string UserId { get; set; } = null!;
 
