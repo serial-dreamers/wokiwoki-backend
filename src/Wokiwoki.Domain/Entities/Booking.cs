@@ -16,5 +16,8 @@
         public bool IsActive { get; set; } = true;
 
         public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+
+		public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
 	}
 }

@@ -133,6 +133,11 @@ namespace Wokiwoki.Infrastructure.Data
 					.WithOne(t => t.Booking)
 					.HasForeignKey(t => t.BookingId)
 					.OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasMany(e => e.Reviews)
+					.WithOne(t => t.Booking)
+					.HasForeignKey(t => t.BookingId)
+					.OnDelete(DeleteBehavior.Cascade);
 			});
 		}
 
@@ -396,7 +401,13 @@ namespace Wokiwoki.Infrastructure.Data
 
 				entity.HasOne(r => r.Workshop)
 					.WithMany(w => w.Reviews)
-					.HasForeignKey(r => r.WorkshopId);
+					.HasForeignKey(r => r.WorkshopId)
+					.OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(r => r.Booking)
+					.WithMany(w => w.Reviews)
+					.HasForeignKey(r => r.BookingId)
+					.OnDelete(DeleteBehavior.Cascade);
 			});
 		}
 

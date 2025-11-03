@@ -582,6 +582,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("bookingid");
+
                     b.Property<string>("Comment")
                         .IsRequired()
                         .HasColumnType("text")
@@ -623,6 +627,9 @@ namespace Wokiwoki.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_review");
+
+                    b.HasIndex("BookingId")
+                        .HasDatabaseName("ix_review_bookingid");
 
                     b.HasIndex("WorkshopId", "UserId")
                         .IsUnique();
@@ -1579,12 +1586,21 @@ namespace Wokiwoki.Infrastructure.Migrations
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Review", b =>
                 {
+                    b.HasOne("Wokiwoki.Domain.Entities.Booking", "Booking")
+                        .WithMany("Reviews")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_review_booking_bookingid");
+
                     b.HasOne("Wokiwoki.Domain.Entities.Workshop", "Workshop")
                         .WithMany("Reviews")
                         .HasForeignKey("WorkshopId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_review_workshop_workshopid");
+
+                    b.Navigation("Booking");
 
                     b.Navigation("Workshop");
                 });
@@ -1806,6 +1822,8 @@ namespace Wokiwoki.Infrastructure.Migrations
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Booking", b =>
                 {
+                    b.Navigation("Reviews");
+
                     b.Navigation("Tickets");
                 });
 
