@@ -1,4 +1,5 @@
-﻿using Wokiwoki.Domain.Entities;
+﻿using Wokiwoki.Application.Common.Models;
+using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
 
 namespace Wokiwoki.Application.Common.Interfaces.Repositories
@@ -10,5 +11,8 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
         Task<bool> CompleteBooking(Guid id, CancellationToken cancellationToken = default);
         Task<bool> ConfirmBooking(Guid id, CancellationToken cancellationToken = default);
         Task<bool> RefundBooking(Guid id, CancellationToken cancellationToken = default);
+        Task<PaginatedList<Booking>> GetBookingByMonth(DateTime time, int pageNo, int pageSize, CancellationToken cancellationToken = default);
+
+        Task<PaginatedList<Booking>> GetBookingByMonthAndOrganizer(DateTime time, Guid organizerId, Guid? categoryId, Guid? tagId, int pageNo, int pageSize, CancellationToken cancellationToken = default);
     }
 }

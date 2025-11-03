@@ -165,6 +165,7 @@ public static class DependencyInjection
 		builder.Services.AddScoped<IWorkshopHeroMediaRepository, WorkshopHeroMediaRepository>();
 		builder.Services.AddScoped<IBookingRepository, BookingRepository>();
         builder.Services.AddScoped<IWorkshopScheduleTicketRepository, WorkshopScheduleTicketRepository>();
+        builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 		builder.Services.AddScoped<IConversationChatRepository, ConversationChatRepository>();
 
