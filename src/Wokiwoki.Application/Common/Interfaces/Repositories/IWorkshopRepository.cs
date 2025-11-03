@@ -1,6 +1,8 @@
 ﻿using Wokiwoki.Application.Common.Models;
+using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery;
 using Wokiwoki.Domain.Entities;
+using Wokiwoki.Domain.Enums;
 
 namespace Wokiwoki.Application.Common.Interfaces.Repositories
 {
@@ -23,5 +25,14 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
         Task<Workshop?> GetWorkshopById(Guid workshopId, CancellationToken cancellationToken);
 
         Task<PaginatedList<Workshop>> GetWorkshopByWorkshopIdAsync(Guid orgId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+
+		Task<PaginatedList<Workshop>> GetByOrganizationWithFilterAsync(
+	        Guid organizationId,
+	        string? title,
+			WorkshopStatus? status,
+	        int pageNumber,
+	        int pageSize,
+	        CancellationToken cancellationToken = default
+        );
 	}
 }

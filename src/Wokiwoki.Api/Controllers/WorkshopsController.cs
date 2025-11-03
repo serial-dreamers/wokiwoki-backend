@@ -9,6 +9,7 @@ using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
 using Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery;
 using Wokiwoki.Application.Features.Workshops.Queries.GetWorkshop;
+using Wokiwoki.Domain.Enums;
 
 namespace Wokiwoki.Api.Controllers
 {
@@ -22,6 +23,38 @@ namespace Wokiwoki.Api.Controllers
 		public WorkshopsController(IMediator mediator)
 		{
 			_mediator = mediator;
+		}
+
+		[HttpGet("organization/filter")]
+		[SwaggerOperation(
+			Summary = "Get workshops by organization with filters",
+			Description = "Retrieves a paginated list of workshops for a specific organization with optional filters such as title and status.",
+			Tags = new[] { "Workshops" }
+		)]
+		[ProducesResponseType(typeof(PaginatedList<WorkshopDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		public async Task<IActionResult> GetByOrganizationWithFilter(
+			[FromQuery] Guid organizationId,
+			[FromQuery] string? title,
+			[FromQuery] WorkshopStatus? status,
+			[FromQuery] int pageNumber = 1,
+			[FromQuery] int pageSize = 10)
+			{
+			if (organizationId == Guid.Empty)
+				return BadRequest("OrganizationId cannot be empty.");
+
+			var query = new GetWorkshopsByOrganizationFilterQuery(
+				organizationId,
+				title,
+				status,
+				pageNumber,
+				pageSize
+			);
+
+			var result = await _mediator.Send(query);
+
+			return Ok(result);
 		}
 
 		[HttpGet("organization/{organizationId:guid}")]
