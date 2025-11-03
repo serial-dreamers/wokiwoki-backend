@@ -22,6 +22,6 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 
         Task<Workshop?> GetWorkshopById(Guid workshopId, CancellationToken cancellationToken);
 
-
+        Task<PaginatedList<Workshop>> GetWorkshopByWorkshopIdAsync(Guid orgId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 	}
 }

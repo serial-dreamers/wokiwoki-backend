@@ -21,11 +21,23 @@ namespace Wokiwoki.Api.Controllers
 			_mediator = mediator;
 		}
 
-		/// <summary>
-		/// Add a new hero media (image/video) for a workshop.
-		/// </summary>
-		/// <param name="command">The request containing HeroType, WorkshopId, and MediaId.</param>
-		/// <returns>Returns the ID of the created WorkshopHeroMedia.</returns>
+		[HttpGet("{workshopId}/heroes")]
+		[SwaggerOperation(
+			Summary = "Get hero media list for a specific workshop",
+			Description = "Retrieve all hero media items (images/videos) associated with the given workshop ID."
+		)]
+		[ProducesResponseType(typeof(List<WorkshopHeroMedia>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<IActionResult> GetHeroMediasByWorkshopId(Guid workshopId)
+		{
+			var result = await _mediator.Send(new GetHeroMediasByWorkshopIdQuery(workshopId));
+
+			//if (result == null || !result.Any())
+			//	return NotFound(new { message = "No hero media found for this workshop." });
+
+			return Ok(result);
+		}
+
 		[HttpPost("{workshopId}/hero")]
 		[Consumes("application/json")]
 		[SwaggerOperation(
@@ -43,11 +55,7 @@ namespace Wokiwoki.Api.Controllers
 			return CreatedAtAction(nameof(GetHeroMediaById), new { id }, new { id });
 		}
 
-		/// <summary>
-		/// Get a hero media by its ID.
-		/// </summary>
-		/// <param name="id">The ID of the WorkshopHeroMedia.</param>
-		/// <returns>Returns the hero media details.</returns>
+		 
 		[HttpGet("hero/{id:guid}")]
 		[SwaggerOperation(
 			Summary = "Get hero media by ID",
@@ -65,11 +73,7 @@ namespace Wokiwoki.Api.Controllers
 		}
 
 
-		/// <summary>
-		/// Sync a list of hero media for a workshop.
-		/// </summary>
-		/// <param name="command">Contains WorkshopId and a list of HeroMedias to sync.</param>
-		/// <returns>No content. Syncs hero media by adding, updating, or deactivating as needed.</returns>
+		 
 		[Authorize]		
 		[HttpPut("{workshopId}/heroes/sync")]
 		[Consumes("application/json")]
@@ -88,24 +92,7 @@ namespace Wokiwoki.Api.Controllers
 			await _mediator.Send(command);
 			return NoContent(); // 204, vì command trả Unit
 		}
-
-
-		[HttpGet("{workshopId}/heroes")]
-		[SwaggerOperation(
-			Summary = "Get hero media list for a specific workshop",
-			Description = "Retrieve all hero media items (images/videos) associated with the given workshop ID."
-		)]
-		[ProducesResponseType(typeof(List<WorkshopHeroMedia>), StatusCodes.Status200OK)]
-		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public async Task<IActionResult> GetHeroMediasByWorkshopId(Guid workshopId)
-		{
-			var result = await _mediator.Send(new GetHeroMediasByWorkshopIdQuery(workshopId));
-
-			if (result == null || !result.Any())
-				return NotFound(new { message = "No hero media found for this workshop." });
-
-			return Ok(result);
-		}
+		 
 
 	}
 }

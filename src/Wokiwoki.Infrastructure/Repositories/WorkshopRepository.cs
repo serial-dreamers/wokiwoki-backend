@@ -1,8 +1,10 @@
-﻿using Wokiwoki.Application.Common.Interfaces.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using QuestPDF.Helpers;
+using Wokiwoki.Application.Common.Interfaces.Repositories;
 using Wokiwoki.Application.Common.Models;
-using Wokiwoki.Infrastructure.Data.Extensions;
-using Microsoft.EntityFrameworkCore;
 using Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery;
+using Wokiwoki.Domain.Entities;
+using Wokiwoki.Infrastructure.Data.Extensions;
 
 namespace Wokiwoki.Infrastructure.Repositories
 {
@@ -117,6 +119,12 @@ namespace Wokiwoki.Infrastructure.Repositories
 			return await _context.Workshops 
 				.Include(wt => wt.Tags)
 				.FirstOrDefaultAsync(w => w.Id == workshopId && w.IsActive, cancellationToken);
+		}
+
+		public async Task<PaginatedList<Workshop>> GetWorkshopByWorkshopIdAsync(Guid orgId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+		{
+			return await _context.Workshops.Where(w => w.OrganizationId == orgId).OrderByDescending(wsc => wsc.Id).ToPaginatedListAsync(pageNumber, pageSize, cancellationToken); 
+
 		}
 		//public async Task<bool> UpdateAsync(Guid id, CancellationToken cancellationToken = default)
 		//{

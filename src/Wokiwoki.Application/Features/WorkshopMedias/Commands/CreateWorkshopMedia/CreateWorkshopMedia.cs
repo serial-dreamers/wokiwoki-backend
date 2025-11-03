@@ -59,10 +59,10 @@ namespace Wokiwoki.Application.Features.WorkshopMedias.Commands.CreateWorkshopMe
 				ImageUrl = imgUrl,
 				WorkshopId = request.WorkshopId,
 				MediaType = request.mediaType,
-				Created = TimeHelper.NowInVietnam(),
+				Created = DateTime.UtcNow,
 				CreatedBy = _userContext.UserId,
 				IsActive = true,
-				LastModified = TimeHelper.NowInVietnam(),
+				LastModified = DateTime.UtcNow,
 				LastModifiedBy = _userContext.UserId,
 			};
 			var workshopMediaCreated = await _workshopMediaRepository.CreateAsync(workshopMedia, cancellationToken);

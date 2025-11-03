@@ -34,12 +34,7 @@ namespace Wokiwoki.Api.Controllers
 		}
 
 
-		/// <summary>
-		/// Send a verification code to an email address.
-		/// </summary>
-		/// <remarks>
-		/// Use this endpoint during registration or password reset flows.
-		/// </remarks>
+		 
 		[HttpPost("register/send")]
 		[Consumes("application/json")]
 		[SwaggerOperation(

@@ -22,6 +22,23 @@ namespace Wokiwoki.Api.Controllers
 			_mediator = mediator;
 		}
 
+		[HttpGet("by-category")]
+		[Produces("application/json")]
+		[SwaggerOperation(
+			Summary = "Get tags by category",
+			Description = "Retrieve all tags that belong to the specified category.",
+			Tags = new[] { "Tags" })]
+		[ProducesResponseType(typeof(List<TagDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<ActionResult<List<TagDto>>> GetTagsByCategory([FromQuery] Guid categoryId)
+		{
+			if (categoryId == Guid.Empty)
+				return BadRequest("Invalid categoryId.");
+
+			var tags = await _mediator.Send(new GetTagsByCategoryQuery(categoryId));
+			return Ok(tags);
+		}
+
 		/// <summary>
 		/// Get a tag by ID.
 		/// </summary>
@@ -126,32 +143,7 @@ namespace Wokiwoki.Api.Controllers
 				return NotFound(new { Message = $"Tag with id '{id}' not found." });
 
 			return Ok(new { Message = "Tag deleted successfully." });
-		}
-
-
-		/// <summary>
-		/// Get tags for a specific category.
-		/// </summary>
-		/// <remarks>
-		/// Provide the categoryId as a query parameter. Returns a list of TagDto associated with the category.
-		/// Example: GET /api/category?categoryId=00000000-0000-0000-0000-000000000000
-		/// </remarks> 
-		[HttpGet("by-category")]
-		[Produces("application/json")]
-		[SwaggerOperation(
-			Summary = "Get tags by category",
-			Description = "Retrieve all tags that belong to the specified category.",
-			Tags = new[] { "Tags" })]
-		[ProducesResponseType(typeof(List<TagDto>), StatusCodes.Status200OK)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest)]
-		public async Task<ActionResult<List<TagDto>>> GetTagsByCategory([FromQuery] Guid categoryId)
-		{
-			if (categoryId == Guid.Empty)
-				return BadRequest("Invalid categoryId.");
-
-			var tags = await _mediator.Send(new GetTagsByCategoryQuery(categoryId));
-			return Ok(tags);
-		}
+		} 
 
 	}
 }
