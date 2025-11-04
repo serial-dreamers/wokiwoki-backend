@@ -90,8 +90,12 @@ namespace Wokiwoki.Application.Common.Mappings
 			CreateMap<Organization, OrganizationDto>();
 
             //WorkshopSchedule
-            CreateMap<CreateScheduleCommand, WorkshopSchedule>();
-			CreateMap<WorkshopSchedule, WorkshopScheduleDto>();
+            CreateMap<CreateScheduleCommand, WorkshopSchedule>()
+    .ForMember(dest => dest.StartTime,
+               opt => opt.MapFrom(src => TimeOnly.Parse(src.StartTime)))
+    .ForMember(dest => dest.EndTime,
+               opt => opt.MapFrom(src => TimeOnly.Parse(src.EndTime)));
+            CreateMap<WorkshopSchedule, WorkshopScheduleDto>();
             CreateMap<UpdateScheduleCommand, WorkshopSchedule>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.WorkshopId, opt => opt.Ignore());

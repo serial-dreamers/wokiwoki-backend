@@ -12,8 +12,8 @@ namespace Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedul
         RecurrenceType RecurrenceType,
         string? DaysOfWeek,
         string? DaysOfMonth,
-        TimeOnly StartTime,
-        TimeOnly EndTime,
+        string StartTime,
+        string EndTime,
         DateTime ValidFrom,
         DateTime? ValidUntil,
         int? Capacity
@@ -36,14 +36,17 @@ namespace Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedul
         }
         public async Task<Result<Guid>> Handle(CreateScheduleCommand request, CancellationToken cancellationToken)
         { 
-            var workshop = await _workshopRepository.GetByIdAsync(request.WorkshopId);
+            var workshop = await _workshopRepository.GetByIdActiveAsync(request.WorkshopId);
 
-            if (workshop == null)
-				return Result<Guid>.Failure(new[] { "Workshop not found" });
+            //        if (workshop == null)
+            //return Result<Guid>.Failure(new[] { "Workshop not found" });
 
-			var schedule = _mapper.Map<WorkshopSchedule>(request);
-			schedule.Created = DateTime.UtcNow;
-             
+            var schedule = _mapper.Map<WorkshopSchedule>(request);
+            schedule.WorkshopId = request.WorkshopId; // đảm bảo không bị Guid.Empty
+            schedule.Created = DateTime.UtcNow;
+            //schedule.StartTime = TimeOnly.Parse(request.StartTime);
+            //schedule.EndTime = TimeOnly.Parse(request.EndTime);
+
             var result = await _repo.CreateAsync(schedule);
 
 			if (result == null)
