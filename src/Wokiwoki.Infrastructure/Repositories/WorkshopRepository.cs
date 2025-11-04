@@ -2,8 +2,10 @@
 using QuestPDF.Helpers;
 using Wokiwoki.Application.Common.Interfaces.Repositories;
 using Wokiwoki.Application.Common.Models;
+using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery;
 using Wokiwoki.Domain.Entities;
+using Wokiwoki.Domain.Enums;
 using Wokiwoki.Infrastructure.Data.Extensions;
 
 namespace Wokiwoki.Infrastructure.Repositories
@@ -126,6 +128,53 @@ namespace Wokiwoki.Infrastructure.Repositories
 			return await _context.Workshops.Where(w => w.OrganizationId == orgId).OrderByDescending(wsc => wsc.Id).ToPaginatedListAsync(pageNumber, pageSize, cancellationToken); 
 
 		}
+
+		public async Task<PaginatedList<Workshop>> GetByOrganizationWithFilterAsync(Guid organizationId, string? title, WorkshopStatus? status, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+		{
+			var query = _context.Workshops
+				.Where(w => w.OrganizationId == organizationId);
+
+			if (!string.IsNullOrEmpty(title))
+				query = query.Where(w => w.Title.Trim().ToLower().Contains(title.Trim().ToLower()));
+
+			if (status.HasValue)
+				query = query.Where(w => w.Status == status.Value);
+
+			// Không include WorkshopSessions nữa để tối ưu performance
+			// Sessions sẽ được lấy riêng qua GetSessionsByOrganizationAndDateRangeAsync cho Calendar view
+			return await query
+				.OrderByDescending(w => w.Created)
+				.ToPaginatedListAsync(pageNumber, pageSize, cancellationToken);
+		}
+
+		public async Task<List<WorkshopSession>> GetSessionsByOrganizationAndDateRangeAsync(
+			Guid organizationId,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken = default)
+		{
+			return await _context.WorkshopSessions
+				.Include(s => s.Workshop)
+				.Where(s => s.Workshop.OrganizationId == organizationId
+					&& s.StartTime >= startDate
+					&& s.StartTime <= endDate
+					&& s.IsActive)
+				.OrderBy(s => s.StartTime)
+				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<List<Guid>> GetOrganizationIdsByCategoryAsync(Guid categoryId, int limit, CancellationToken cancellationToken = default)
+		{
+			return await _context.Workshops
+				.Where(w => w.CategoryId == categoryId 
+					&& w.IsActive 
+					&& w.OrganizationId != null)
+				.Select(w => w.OrganizationId!)
+				.Distinct()
+				.Take(limit)
+				.ToListAsync(cancellationToken);
+		}
+
 		//public async Task<bool> UpdateAsync(Guid id, CancellationToken cancellationToken = default)
 		//{
 		//	var w = await _context.Workshops.FirstOrDefaultAsync(w => w.Id == id);

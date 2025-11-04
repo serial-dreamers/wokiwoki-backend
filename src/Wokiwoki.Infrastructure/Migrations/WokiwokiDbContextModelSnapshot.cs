@@ -1392,6 +1392,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("accessfailedcount");
 
+                    b.Property<string>("Commune")
+                        .HasColumnType("text")
+                        .HasColumnName("commune");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text")
@@ -1410,6 +1414,14 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("fullname");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("imageurl");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("latitude");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("lockoutenabled");
@@ -1417,6 +1429,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lockoutend");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("longitude");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -1444,9 +1460,17 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("phonenumberconfirmed");
 
+                    b.Property<string>("Province")
+                        .HasColumnType("text")
+                        .HasColumnName("province");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")
                         .HasColumnName("securitystamp");
+
+                    b.Property<string>("Street")
+                        .HasColumnType("text")
+                        .HasColumnName("street");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean")

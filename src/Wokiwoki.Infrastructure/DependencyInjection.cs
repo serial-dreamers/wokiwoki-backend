@@ -166,6 +166,9 @@ public static class DependencyInjection
 		builder.Services.AddScoped<IBookingRepository, BookingRepository>();
         builder.Services.AddScoped<IWorkshopScheduleTicketRepository, WorkshopScheduleTicketRepository>();
         builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+		builder.Services.AddScoped<IUserOrganizationFollowRepository, UserOrganizationFollowRepository>();
+		builder.Services.AddScoped<IUserTagPreferenceRepository, UserTagPreferenceRepository>();
+
 
 		builder.Services.AddScoped<IConversationChatRepository, ConversationChatRepository>();
 
@@ -189,6 +192,9 @@ public static class DependencyInjection
 		builder.Services.AddScoped<IUserContext, UserContext>();
 		builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 		builder.Services.AddScoped<IAzureOpenAIChatService, AzureOpenAIChatService>();
+
+		builder.Services.AddHttpClient<IGoongMapService, GoongMapService>();
+
 
 
 	}

@@ -9,6 +9,8 @@ using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
 using Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery;
 using Wokiwoki.Application.Features.Workshops.Queries.GetWorkshop;
+using Wokiwoki.Application.Features.Workshops.Queries.GetWorkshopSessionsByDateRange;
+using Wokiwoki.Domain.Enums;
 
 namespace Wokiwoki.Api.Controllers
 {
@@ -22,6 +24,70 @@ namespace Wokiwoki.Api.Controllers
 		public WorkshopsController(IMediator mediator)
 		{
 			_mediator = mediator;
+		}
+
+		[HttpGet("sessions/calendar")]
+		[SwaggerOperation(
+			Summary = "Get workshop sessions for calendar view",
+			Description = "Retrieves workshop sessions within a date range for calendar display. Optimized for performance by only returning sessions in the specified date range.",
+			Tags = new[] { "Workshops" }
+		)]
+		[ProducesResponseType(typeof(List<WorkshopSessionCalendarDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		public async Task<IActionResult> GetSessionsForCalendar(
+			[FromQuery] Guid organizationId,
+			[FromQuery] DateTime startDate,
+			[FromQuery] DateTime endDate)
+		{
+			if (organizationId == Guid.Empty)
+				return BadRequest("OrganizationId cannot be empty.");
+
+			if (startDate > endDate)
+				return BadRequest("StartDate must be before EndDate.");
+
+			var query = new GetWorkshopSessionsByDateRangeQuery
+			{
+				OrganizationId = organizationId,
+				StartDate = startDate,
+				EndDate = endDate
+			};
+
+			var result = await _mediator.Send(query);
+
+			return Ok(result);
+		}
+
+		[HttpGet("organization/filter")]
+		[SwaggerOperation(
+			Summary = "Get workshops by organization with filters",
+			Description = "Retrieves a paginated list of workshops for a specific organization with optional filters such as title and status.",
+			Tags = new[] { "Workshops" }
+		)]
+		[ProducesResponseType(typeof(PaginatedList<WorkshopDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		public async Task<IActionResult> GetByOrganizationWithFilter(
+			[FromQuery] Guid organizationId,
+			[FromQuery] string? title,
+			[FromQuery] WorkshopStatus? status,
+			[FromQuery] int pageNumber = 1,
+			[FromQuery] int pageSize = 10)
+			{
+			if (organizationId == Guid.Empty)
+				return BadRequest("OrganizationId cannot be empty.");
+
+			var query = new GetWorkshopsByOrganizationFilterQuery(
+				organizationId,
+				title,
+				status,
+				pageNumber,
+				pageSize
+			);
+
+			var result = await _mediator.Send(query);
+
+			return Ok(result);
 		}
 
 		[HttpGet("organization/{organizationId:guid}")]
@@ -143,8 +209,7 @@ namespace Wokiwoki.Api.Controllers
 
 			var id = await _mediator.Send(command); 
 			return CreatedAtAction(nameof(GetById), new { id = id }, new { id });
-		}   
-
+		} 
 
 	}
 }
