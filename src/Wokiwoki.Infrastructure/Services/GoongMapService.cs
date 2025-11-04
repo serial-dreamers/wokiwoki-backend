@@ -1,0 +1,28 @@
+﻿using Microsoft.Extensions.Configuration;
+using System.Net.Http.Json;
+using Wokiwoki.Application.Common.Interfaces.Services;
+using Wokiwoki.Application.DTOs;
+
+namespace Wokiwoki.Infrastructure.Services
+{
+	public class GoongMapService : IGoongMapService
+	{
+		private readonly HttpClient _httpClient;
+		private readonly string _apiKey;
+
+		public GoongMapService(HttpClient httpClient, IConfiguration config)
+		{
+			_httpClient = httpClient;
+			_apiKey = config["Goong:ApiKey"]!;
+		}
+
+		public async Task<(double lat, double lng)?> GetCoordinatesAsync(string address)
+		{
+			var url = $"https://rsapi.goong.io/geocode?address={Uri.EscapeDataString(address)}&api_key={_apiKey}";
+			var response = await _httpClient.GetFromJsonAsync<GoongMapDto>(url);
+			var location = response?.Results?.FirstOrDefault()?.Geometry?.Location;
+			return location is not null ? (location.Lat, location.Lng) : null;
+		}
+
+	}
+}

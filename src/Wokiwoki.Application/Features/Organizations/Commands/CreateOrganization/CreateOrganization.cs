@@ -45,7 +45,7 @@ namespace Wokiwoki.Application.Features.Organizations.Commands.CreateOrganizatio
 				Commune = request.Commune,
 				Province = request.Province,
 				LogoUrl = request.LogoUrl,
-				Created = TimeHelper.NowInVietnam(),
+				Created = DateTime.UtcNow,
 				IsActive = true,
 				FollowerCount= 0,
 				CreatedBy = _userContext.UserId,

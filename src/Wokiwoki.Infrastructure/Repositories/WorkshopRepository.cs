@@ -135,14 +135,44 @@ namespace Wokiwoki.Infrastructure.Repositories
 				.Where(w => w.OrganizationId == organizationId);
 
 			if (!string.IsNullOrEmpty(title))
-				query = query.Where(w => w.Title.Contains(title));
+				query = query.Where(w => w.Title.Trim().ToLower().Contains(title.Trim().ToLower()));
 
 			if (status.HasValue)
 				query = query.Where(w => w.Status == status.Value);
 
+			// Không include WorkshopSessions nữa để tối ưu performance
+			// Sessions sẽ được lấy riêng qua GetSessionsByOrganizationAndDateRangeAsync cho Calendar view
 			return await query
-			.OrderByDescending(w => w.Id)
-					.ToPaginatedListAsync(pageNumber, pageSize, cancellationToken);
+				.OrderByDescending(w => w.Created)
+				.ToPaginatedListAsync(pageNumber, pageSize, cancellationToken);
+		}
+
+		public async Task<List<WorkshopSession>> GetSessionsByOrganizationAndDateRangeAsync(
+			Guid organizationId,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken = default)
+		{
+			return await _context.WorkshopSessions
+				.Include(s => s.Workshop)
+				.Where(s => s.Workshop.OrganizationId == organizationId
+					&& s.StartTime >= startDate
+					&& s.StartTime <= endDate
+					&& s.IsActive)
+				.OrderBy(s => s.StartTime)
+				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<List<Guid>> GetOrganizationIdsByCategoryAsync(Guid categoryId, int limit, CancellationToken cancellationToken = default)
+		{
+			return await _context.Workshops
+				.Where(w => w.CategoryId == categoryId 
+					&& w.IsActive 
+					&& w.OrganizationId != null)
+				.Select(w => w.OrganizationId!)
+				.Distinct()
+				.Take(limit)
+				.ToListAsync(cancellationToken);
 		}
 
 		//public async Task<bool> UpdateAsync(Guid id, CancellationToken cancellationToken = default)

@@ -34,5 +34,20 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 	        int pageSize,
 	        CancellationToken cancellationToken = default
         );
+
+		/// <summary>
+		/// Lấy danh sách WorkshopSessions theo OrganizationId và date range (cho Calendar view)
+		/// </summary>
+		Task<List<WorkshopSession>> GetSessionsByOrganizationAndDateRangeAsync(
+			Guid organizationId,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken = default
+		);
+
+		/// <summary>
+		/// Lấy danh sách Organization IDs có workshops trong category cụ thể
+		/// </summary>
+		Task<List<Guid>> GetOrganizationIdsByCategoryAsync(Guid categoryId, int limit, CancellationToken cancellationToken = default);
 	}
 }
