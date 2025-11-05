@@ -13,6 +13,7 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
         Task<bool> RefundBooking(Guid id, CancellationToken cancellationToken = default);
         Task<PaginatedList<Booking>> GetBookingByMonth(DateTime time, int pageNo, int pageSize, CancellationToken cancellationToken = default);
 
-        Task<PaginatedList<Booking>> GetBookingByMonthAndOrganizer(DateTime time, Guid organizerId, Guid? categoryId, Guid? tagId, int pageNo, int pageSize, CancellationToken cancellationToken = default);
+        
+        Task<PaginatedList<Booking>> GetBookingByMonthAndOrganizer(DateTime time, Guid? organizerId, Guid? categoryId, Guid? tagId, int pageNo, int pageSize, CancellationToken cancellationToken);
     }
 }
