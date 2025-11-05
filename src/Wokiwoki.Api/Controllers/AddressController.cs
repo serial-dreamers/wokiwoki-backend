@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using Wokiwoki.Application.Common.Interfaces.Services;
 
 namespace Wokiwoki.Api.Controllers
 {
@@ -9,10 +10,12 @@ namespace Wokiwoki.Api.Controllers
 	public class AddressController : ControllerBase
 	{
 		private readonly HttpClient _httpClient;
+		private readonly IGoongMapService _goongMapService;
 
-		public AddressController(HttpClient httpClient)
+		public AddressController(HttpClient httpClient, IGoongMapService goongMapService)
 		{
 			_httpClient = httpClient;
+			_goongMapService = goongMapService;
 		}
 
 
@@ -96,6 +99,65 @@ namespace Wokiwoki.Api.Controllers
 			{
 				// Optionally log `ex`
 				return StatusCode(StatusCodes.Status502BadGateway, new { message = "Failed to retrieve communes", detail = ex.Message });
+			}
+		}
+
+		/// <summary>
+		/// Geocode an address to get coordinates (latitude, longitude).
+		/// </summary>
+		[HttpGet("geocode")]
+		[Produces("application/json")]
+		[SwaggerOperation(
+			Summary = "Geocode address",
+			Description = "Converts an address string to geographic coordinates (latitude, longitude).",
+			Tags = new[] { "Address" })]
+		[SwaggerResponse(StatusCodes.Status200OK, "Coordinates returned")]
+		[SwaggerResponse(StatusCodes.Status400BadRequest, "Address parameter is missing or invalid")]
+		[SwaggerResponse(StatusCodes.Status404NotFound, "Address not found")]
+		public async Task<IActionResult> GeocodeAddress([FromQuery] string address, CancellationToken cancellationToken)
+		{
+			if (string.IsNullOrWhiteSpace(address))
+				return BadRequest(new { message = "address parameter is required" });
+
+			try
+			{
+				var coordinates = await _goongMapService.GetCoordinatesAsync(address);
+				
+				if (coordinates.HasValue)
+					return Ok(new { lat = coordinates.Value.lat, lng = coordinates.Value.lng });
+				
+				return NotFound(new { message = "Address not found" });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to geocode address", detail = ex.Message });
+			}
+		}
+
+		/// <summary>
+		/// Get place suggestions (autocomplete) for an input string.
+		/// </summary>
+		[HttpGet("place-suggestions")]
+		[Produces("application/json")]
+		[SwaggerOperation(
+			Summary = "Get place suggestions",
+			Description = "Returns a list of place suggestions based on the input string using Goong Maps Autocomplete API.",
+			Tags = new[] { "Address" })]
+		[SwaggerResponse(StatusCodes.Status200OK, "Place suggestions returned")]
+		[SwaggerResponse(StatusCodes.Status400BadRequest, "Input parameter is missing")]
+		public async Task<IActionResult> GetPlaceSuggestions([FromQuery] string input, CancellationToken cancellationToken)
+		{
+			if (string.IsNullOrWhiteSpace(input))
+				return BadRequest(new { message = "input parameter is required" });
+
+			try
+			{
+				var suggestions = await _goongMapService.GetPlaceSuggestionsAsync(input, cancellationToken);
+				return Ok(suggestions);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to get place suggestions", detail = ex.Message });
 			}
 		}
 

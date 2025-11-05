@@ -49,5 +49,17 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 		/// Lấy danh sách Organization IDs có workshops trong category cụ thể
 		/// </summary>
 		Task<List<Guid>> GetOrganizationIdsByCategoryAsync(Guid categoryId, int limit, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Lấy workshops theo tag IDs (dành cho personalized recommendations)
+		/// </summary>
+		Task<List<Workshop>> GetWorkshopsByTagIdsAsync(List<Guid> tagIds, int limit, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Lấy workshops có sessions trong khoảng thời gian cụ thể
+		/// </summary>
+		Task<List<Workshop>> GetWorkshopsByDateRangeAsync(DateTime startDate, DateTime endDate, int limit, CancellationToken cancellationToken = default);
+
+		Task<List<Workshop>> GetDiscoverWorkshopsAsync(int limit, CancellationToken cancellationToken = default);
 	}
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Wokiwoki.Application.DTOs.Response;
+using Wokiwoki.Application.Common.Interfaces.Repositories;
 
 namespace Wokiwoki.Application.Features.Workshops.Queries.GetWorkshop
 {
@@ -31,5 +32,6 @@ namespace Wokiwoki.Application.Features.Workshops.Queries.GetWorkshop
 
 			return _mapper.Map<WorkshopDto>(workshop);
 		}
-	} 
+	}
 }
+ 

@@ -32,15 +32,33 @@ namespace Wokiwoki.Application.Features.WorkshopSessions.Commands
     {
         private readonly IWorkshopSessionRepository _repo;
 		private readonly IMapper _mapper;
+        private readonly IGoongMapService _goongMapService;
 
-		public Create1MonthSession (IWorkshopSessionRepository repo, IMapper mapper)
+		public Create1MonthSession (IWorkshopSessionRepository repo, IMapper mapper, IGoongMapService goongMapService)
         {
             _repo = repo; 
             _mapper = mapper;
+            _goongMapService = goongMapService;
         }
         public async Task<List<CreatedDto>> Handle(Create1MonthSessionCommand request, CancellationToken cancellationToken)
         {
 			var session = _mapper.Map<WorkshopSession>(request);
+			
+			// Auto-fetch coordinates if address is provided and coordinates are missing
+            if (!string.IsNullOrWhiteSpace(request.Street) && 
+                !string.IsNullOrWhiteSpace(request.Commune) && 
+                !string.IsNullOrWhiteSpace(request.Province) &&
+                (request.Latitude == null || request.Latitude == 0 || request.Longitude == null || request.Longitude == 0))
+            {
+                var address = $"{request.Street}, {request.Commune}, {request.Province}";
+                var coordinates = await _goongMapService.GetCoordinatesAsync(address);
+                if (coordinates.HasValue)
+                {
+                    session.Latitude = coordinates.Value.lat;
+                    session.Longitude = coordinates.Value.lng;
+                }
+            }
+			
 			var result = await _repo.Create1MonthSession(request.scheduleId, session, cancellationToken);
 
 			return _mapper.Map<List<CreatedDto>>(result);

@@ -69,4 +69,30 @@ namespace Wokiwoki.Application.DTOs.Response
 	}
 
 
+	public class DiscoverWorkshopDto
+	{
+		public Guid Id { get; set; }
+		public string Title { get; set; } = null!;
+		public string Summary { get; set; } = null!;
+		public string ImageUrl { get; set; } = string.Empty;
+		public string? DisplayAddress { get; set; }
+		public decimal? StartingPrice { get; set; }
+		public int LikeCount { get; set; }
+		public int ReviewCount { get; set; }
+		public double AverageRating { get; set; }
+		public WorkshopDeliveryType DeliveryType { get; set; }
+
+		// Organization info for discover section
+		public DiscoverOrganizationDto? Organization { get; set; }
+	}
+
+	public class DiscoverOrganizationDto
+	{
+		public Guid Id { get; set; }
+		public string Name { get; set; } = string.Empty;
+		public string? LogoUrl { get; set; }
+		public string? Description { get; set; }
+	}
+
+
 }

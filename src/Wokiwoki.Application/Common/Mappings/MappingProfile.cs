@@ -122,6 +122,10 @@ namespace Wokiwoki.Application.Common.Mappings
 			//Review
 			CreateMap<CreateReviewCommand, Review>();
 
+			//Discover Workshop
+			CreateMap<Workshop, DiscoverWorkshopDto>();
+			CreateMap<Organization, DiscoverOrganizationDto>();
+
 		}
 	}
 }

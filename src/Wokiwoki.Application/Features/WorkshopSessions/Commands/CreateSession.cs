@@ -32,12 +32,15 @@ namespace Wokiwoki.Application.Features.WorkshopSessions.Commands
         private readonly IWorkshopSessionRepository _repo; 
         private readonly IMapper _mapper;
         private readonly IUuidService _uuidService;
+        private readonly IGoongMapService _goongMapService;
+        
         public CreateSession(IWorkshopSessionRepository repo
-            , IMapper mapper, IUuidService uuidService)
+            , IMapper mapper, IUuidService uuidService, IGoongMapService goongMapService)
         {
             _mapper = mapper;
             _repo = repo; 
             _uuidService = uuidService;
+            _goongMapService = goongMapService;
         }
 
         public async Task<WorkshopSessionDto> Handle(CreateSessionCommand request, CancellationToken cancellationToken)
@@ -49,6 +52,21 @@ namespace Wokiwoki.Application.Features.WorkshopSessions.Commands
                 session.Id = _uuidService.NewGuid();
                 session.Created = DateTime.UtcNow;
                 session.IsActive = true;
+
+                // Auto-fetch coordinates if address is provided and coordinates are missing
+                if (!string.IsNullOrWhiteSpace(request.Street) && 
+                    !string.IsNullOrWhiteSpace(request.Commune) && 
+                    !string.IsNullOrWhiteSpace(request.Province) &&
+                    (request.Latitude == null || request.Latitude == 0 || request.Longitude == null || request.Longitude == 0))
+                {
+                    var address = $"{request.Street}, {request.Commune}, {request.Province}";
+                    var coordinates = await _goongMapService.GetCoordinatesAsync(address);
+                    if (coordinates.HasValue)
+                    {
+                        session.Latitude = coordinates.Value.lat;
+                        session.Longitude = coordinates.Value.lng;
+                    }
+                }
 
 				var result = await _repo.CreateAsync(session);
                 return _mapper.Map<WorkshopSessionDto>(result); 

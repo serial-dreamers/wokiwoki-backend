@@ -119,6 +119,7 @@ namespace Wokiwoki.Api.Controllers
 		Summary = "Update existing session",
 		Description = "Updates an existing session by its ID.",
 		Tags = new[] { "Workshop Session" })]
+		[ProducesResponseType(typeof(List<WorkshopSessionDto>), StatusCodes.Status201Created)]
 		[SwaggerResponse(StatusCodes.Status200OK, "Session updated successfully")]
 		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid ID or request body")]
 		public async Task<IActionResult> Update([FromBody] UpdateSessionCommand command)

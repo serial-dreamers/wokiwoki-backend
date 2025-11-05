@@ -23,11 +23,18 @@ namespace Wokiwoki.Infrastructure.Repositories
 			var query = _context.Workshops
 				.Include(w => w.WorkshopSessions)
 				.Include(w => w.Tags)
-				.Include(w => w.Category) 
+				.Include(w => w.Category)
+				.Include(w => w.Schedules)
+				.ThenInclude(s => s.Tickets)
 				.AsQueryable();
 
-			var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-			var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+			// Title filter - search in workshop title
+			if (!string.IsNullOrEmpty(request.Title))
+			{
+				var titleLower = request.Title.Trim().ToLower();
+				query = query.Where(w => w.Title.ToLower().Contains(titleLower));
+			}
+
 			// category
 			if (request.CategoryId.HasValue)
 				query = query.Where(w => w.CategoryId == request.CategoryId.Value);
@@ -36,39 +43,164 @@ namespace Wokiwoki.Infrastructure.Repositories
 			if (request.TagIds != null && request.TagIds.Any())
 				query = query.Where(w => w.Tags.Any(t => request.TagIds.Contains(t.Id)));
 
-			// date type
-			//if (!string.IsNullOrEmpty(request.DateFilterType))
-			//{
-			//	if (request.DateFilterType.Equals("today", StringComparison.OrdinalIgnoreCase))
-			//		query = query.Where(w => w.StartTime == vietnamNow.Date);
-			//	else if (request.DateFilterType.Equals("upcoming", StringComparison.OrdinalIgnoreCase))
-			//		query = query.Where(w => w.StartTime > vietnamNow);
-			//}
+			// date type - filter by workshop sessions
+			if (!string.IsNullOrEmpty(request.DateFilterType))
+			{
+				var now = DateTime.UtcNow;
+				switch (request.DateFilterType.ToLower())
+				{
+					case "today":
+						var todayStart = now.Date;
+						var todayEnd = todayStart.AddDays(1).AddTicks(-1);
+						query = query.Where(w => w.WorkshopSessions.Any(s =>
+							s.StartTime >= todayStart && s.StartTime <= todayEnd && s.IsActive));
+						break;
+					case "tomorrow":
+						var tomorrowStart = now.Date.AddDays(1);
+						var tomorrowEnd = tomorrowStart.AddDays(1).AddTicks(-1);
+						query = query.Where(w => w.WorkshopSessions.Any(s =>
+							s.StartTime >= tomorrowStart && s.StartTime <= tomorrowEnd && s.IsActive));
+						break;
+					case "this_weekend":
+						var dayOfWeek = (int)now.DayOfWeek;
+						var daysToSaturday = (6 - dayOfWeek) % 7;
+						var saturdayStart = now.Date.AddDays(daysToSaturday == 0 ? 7 : daysToSaturday);
+						var sundayEnd = saturdayStart.AddDays(1).AddDays(1).AddTicks(-1);
+						query = query.Where(w => w.WorkshopSessions.Any(s =>
+							s.StartTime >= saturdayStart && s.StartTime <= sundayEnd && s.IsActive));
+						break;
+					case "this_week":
+						var startOfWeek = now.AddDays(-(int)now.DayOfWeek + 1).Date;
+						var endOfWeek = startOfWeek.AddDays(7).AddTicks(-1);
+						query = query.Where(w => w.WorkshopSessions.Any(s =>
+							s.StartTime >= startOfWeek && s.StartTime <= endOfWeek && s.IsActive));
+						break;
+					case "next_week":
+						var nextWeekStart = now.AddDays(7 - (int)now.DayOfWeek + 1).Date;
+						var nextWeekEnd = nextWeekStart.AddDays(7).AddTicks(-1);
+						query = query.Where(w => w.WorkshopSessions.Any(s =>
+							s.StartTime >= nextWeekStart && s.StartTime <= nextWeekEnd && s.IsActive));
+						break;
+					case "this_month":
+						var startOfMonth = new DateTime(now.Year, now.Month, 1);
+						var endOfMonth = startOfMonth.AddMonths(1).AddTicks(-1);
+						query = query.Where(w => w.WorkshopSessions.Any(s =>
+							s.StartTime >= startOfMonth && s.StartTime <= endOfMonth && s.IsActive));
+						break;
+					case "next_month":
+						var startOfNextMonth = new DateTime(now.Year, now.Month, 1).AddMonths(1);
+						var endOfNextMonth = startOfNextMonth.AddMonths(1).AddTicks(-1);
+						query = query.Where(w => w.WorkshopSessions.Any(s =>
+							s.StartTime >= startOfNextMonth && s.StartTime <= endOfNextMonth && s.IsActive));
+						break;
+				}
+			}
 
-			//// date range
-			//if (request.StartDate.HasValue && request.EndDate.HasValue)
-			//	query = query.Where(w => w.StartTime >= request.StartDate && w.EndTime <= request.EndDate);
+			// date range
+			if (request.StartDate.HasValue && request.EndDate.HasValue)
+				query = query.Where(w => w.WorkshopSessions.Any(s =>
+					s.StartTime.Date >= request.StartDate.Value.Date &&
+					s.StartTime.Date <= request.EndDate.Value.Date &&
+					s.IsActive));
 
-			// free
+			// free/paid
 			if (request.IsFree.HasValue)
 			{
 				if (request.IsFree.Value)
 					query = query.Where(w => w.Schedules.All(s => s.Tickets.All(t => t.Price == 0)));
 				else
 					query = query.Where(w => w.Schedules.Any(s => s.Tickets.Any(t => t.Price > 0)));
-			}
-			 
-			if (request.WorkshopTypeId.HasValue)
-				query = query.Where(w => (int)w.ScheduleType == request.WorkshopTypeId);
+			} 
+
+			// Only return active and published workshops
+			query = query.Where(w => w.IsActive && w.Status == WorkshopStatus.Published);
 
 			var totalCount = await query.CountAsync(cancellationToken);
-
-
 
 			var listWorkshop = await query.OrderByDescending(w => w.Created)
 							.ToPaginatedListAsync(request.PageNumber, request.PageSize, cancellationToken);
 
+			// Filter by location/distance if coordinates provided
+			if (request.Latitude.HasValue && request.Longitude.HasValue)
+			{
+				var radiusKm = request.RadiusInKm ?? 10.0; // Default 10km radius
+				var filteredWorkshops = new List<Workshop>();
+
+				foreach (var workshop in listWorkshop.Records)
+				{
+					double? workshopLat = null;
+					double? workshopLng = null;
+
+					// Priority: workshop level coordinates
+					if (workshop.Latitude.HasValue && workshop.Longitude.HasValue &&
+						workshop.Latitude.Value != 0 && workshop.Longitude.Value != 0)
+					{
+						workshopLat = workshop.Latitude.Value;
+						workshopLng = workshop.Longitude.Value;
+					}
+					// Fallback to session coordinates
+					else if (workshop.WorkshopSessions != null && workshop.WorkshopSessions.Any())
+					{
+						var sessionWithCoords = workshop.WorkshopSessions
+							.FirstOrDefault(s => s.Latitude.HasValue && s.Longitude.HasValue &&
+								s.Latitude.Value != 0 && s.Longitude.Value != 0);
+
+						if (sessionWithCoords != null)
+						{
+							workshopLat = sessionWithCoords.Latitude.Value;
+							workshopLng = sessionWithCoords.Longitude.Value;
+						}
+					}
+
+					if (workshopLat.HasValue && workshopLng.HasValue)
+					{
+						var distance = CalculateDistance(
+							request.Latitude.Value,
+							request.Longitude.Value,
+							workshopLat.Value,
+							workshopLng.Value
+						);
+
+						if (distance <= radiusKm)
+						{
+							filteredWorkshops.Add(workshop);
+						}
+					}
+				}
+
+				// Return filtered results with updated pagination
+				return new PaginatedList<Workshop>(
+					filteredWorkshops.Skip((request.PageNumber - 1) * request.PageSize)
+						.Take(request.PageSize)
+						.ToList(),
+					filteredWorkshops.Count,
+					request.PageNumber,
+					request.PageSize
+				);
+			}
+
 			return listWorkshop;
+		}
+
+		// Calculate distance between two coordinates using Haversine formula
+		// Returns distance in kilometers
+		private double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
+		{
+			const double R = 6371; // Earth radius in kilometers
+			var dLat = ToRadians(lat2 - lat1);
+			var dLon = ToRadians(lon2 - lon1);
+
+			var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+					Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2)) *
+					Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+			var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+			return R * c;
+		}
+
+		private double ToRadians(double degrees)
+		{
+			return degrees * Math.PI / 180.0;
 		}
 
 		public async Task<List<Workshop>> GetAllActiveAsync(CancellationToken cancellationToken = default)
@@ -172,6 +304,42 @@ namespace Wokiwoki.Infrastructure.Repositories
 				.Select(w => w.OrganizationId!)
 				.Distinct()
 				.Take(limit)
+				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<List<Workshop>> GetDiscoverWorkshopsAsync(int limit, CancellationToken cancellationToken = default)
+		{
+			return await _context.Workshops
+				.Where(w => w.IsActive && w.Status == WorkshopStatus.Published)
+				.OrderByDescending(w => w.LikeCount) // Sort by popularity first
+				.ThenByDescending(w => w.Created) // Then by newest
+				.Take(limit)
+				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<List<Workshop>> GetWorkshopsByTagIdsAsync(List<Guid> tagIds, int limit, CancellationToken cancellationToken = default)
+		{
+			return await _context.Workshops
+				.Where(w => w.IsActive && w.Status == WorkshopStatus.Published)
+				.Where(w => w.Tags.Any(t => tagIds.Contains(t.Id)))
+				.OrderByDescending(w => w.LikeCount)
+				.ThenByDescending(w => w.Created)
+				.Take(limit)
+				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<List<Workshop>> GetWorkshopsByDateRangeAsync(DateTime startDate, DateTime endDate, int limit, CancellationToken cancellationToken = default)
+		{
+			return await _context.Workshops
+				.Where(w => w.IsActive && w.Status == WorkshopStatus.Published)
+				.Where(w => w.WorkshopSessions.Any(s =>
+					s.StartTime.Date >= startDate &&
+					s.StartTime.Date <= endDate &&
+					s.IsActive))
+				.OrderByDescending(w => w.LikeCount)
+				.ThenByDescending(w => w.Created)
+				.Take(limit)
+				.Distinct()
 				.ToListAsync(cancellationToken);
 		}
 

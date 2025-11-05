@@ -7,10 +7,11 @@ using Wokiwoki.Application.Common.Models;
 using Wokiwoki.Application.DTOs;
 using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
+using Wokiwoki.Application.Features.Workshops.Queries.GetDiscoverWorkshops;
 using Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery;
 using Wokiwoki.Application.Features.Workshops.Queries.GetWorkshop;
 using Wokiwoki.Application.Features.Workshops.Queries.GetWorkshopSessionsByDateRange;
-using Wokiwoki.Domain.Enums;
+using Wokiwoki.Domain.Enums; 
 
 namespace Wokiwoki.Api.Controllers
 {
@@ -24,6 +25,26 @@ namespace Wokiwoki.Api.Controllers
 		public WorkshopsController(IMediator mediator)
 		{
 			_mediator = mediator;
+		}
+
+		[HttpGet("discover")]
+		[Produces("application/json")]
+		[SwaggerOperation(
+			Summary = "Get discover workshops",
+			Description = "Retrieves featured workshops for the discover section with organization information. Returns up to the specified limit of workshops. Supports filtering by type: All, My (user preferences), Today, Week.",
+			Tags = new[] { "Workshops" }
+		)]
+		[SwaggerResponse(StatusCodes.Status200OK, "Discover workshops retrieved successfully", typeof(List<DiscoverWorkshopDto>))]
+		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid limit parameter")]
+		public async Task<IActionResult> GetDiscoverWorkshops([FromQuery] int limit = 8, [FromQuery] DiscoverFilterType filterType = DiscoverFilterType.All, [FromQuery] string? userId = null)
+		{
+			if (limit <= 0 || limit > 20)
+				return BadRequest("Limit must be between 1 and 20");
+
+			var query = new GetDiscoverWorkshopsQuery(limit, filterType, userId);
+			var result = await _mediator.Send(query);
+
+			return Ok(result);
 		}
 
 		[HttpGet("sessions/calendar")]
@@ -194,7 +215,7 @@ namespace Wokiwoki.Api.Controllers
 		}
 
 		[HttpPost("draft/details")]
-		[Consumes("application/json")] 
+		[Consumes("application/json")]
 		[SwaggerOperation(
 			Summary = "Add or update draft details",
 			Description = "Add additional information (description, refund policy, etc.) to an existing workshop draft.",
@@ -207,7 +228,7 @@ namespace Wokiwoki.Api.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var id = await _mediator.Send(command); 
+			var id = await _mediator.Send(command);
 			return CreatedAtAction(nameof(GetById), new { id = id }, new { id });
 		} 
 

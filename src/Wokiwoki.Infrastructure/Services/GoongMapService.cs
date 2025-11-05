@@ -24,5 +24,20 @@ namespace Wokiwoki.Infrastructure.Services
 			return location is not null ? (location.Lat, location.Lng) : null;
 		}
 
+		public async Task<List<GoongPlaceSuggestion>> GetPlaceSuggestionsAsync(string input, CancellationToken cancellationToken = default)
+		{
+			if (string.IsNullOrWhiteSpace(input))
+				return new List<GoongPlaceSuggestion>();
+
+			var url = $"https://rsapi.goong.io/Place/AutoComplete?api_key={_apiKey}&input={Uri.EscapeDataString(input)}";
+			var response = await _httpClient.GetFromJsonAsync<GoongAutocompleteResponse>(url, cancellationToken);
+			return response?.Predictions?
+				.Select(p => new GoongPlaceSuggestion
+				{
+					Description = p.Description ?? string.Empty,
+					PlaceId = p.PlaceId ?? string.Empty
+				})
+				.ToList() ?? new List<GoongPlaceSuggestion>();
+		}
 	}
 }
