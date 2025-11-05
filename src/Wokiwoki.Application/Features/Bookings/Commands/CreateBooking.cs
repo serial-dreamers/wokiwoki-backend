@@ -11,7 +11,7 @@ using Wokiwoki.Domain.Enums;
 namespace Wokiwoki.Application.Features.Bookings.Commands
 {
     public sealed record CreateBookingCommand(
-        Guid UserId,
+        string UserId,
         Guid WorkshopId,
         decimal TotalPrice,
         List<TicketCreateDTO> Tickets
@@ -41,6 +41,13 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
             var entity = new Booking();
             _mapper.Map(command, entity);
             entity.Status = BookingStatus.Pending;
+            entity.Created = DateTime.UtcNow;
+            entity.CreatedBy = command.UserId;
+            foreach(var ticket in entity.Tickets)
+            {
+                ticket.Created = DateTime.UtcNow;
+                ticket.CreatedBy = command.UserId;
+            }
             var result = await _bookingRepository.CreateAsync(entity, cancellationToken);
             if (result != null)
             {

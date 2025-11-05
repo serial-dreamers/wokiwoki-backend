@@ -19,6 +19,15 @@ namespace Wokiwoki.Api.Controllers
         {
             _mediator = mediator;
         }
+        [HttpGet]
+        [SwaggerOperation(
+            Summary = "Get booking by time, organizer?, category?, tag? with paging",
+            Tags = new[] { "Booking" })]
+        public async Task<IActionResult> GetBookingFilter([FromQuery] GetBookingFilterQuery query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
 
         [HttpGet("by-time")]
         [SwaggerOperation(

@@ -60,22 +60,26 @@ namespace Wokiwoki.Infrastructure.Repositories
                 .Where(b => b.Created.Month == time.Month
                          && b.Created.Year == time.Year
                          && b.Status == BookingStatus.Confirmed)
-                .Include(b => b.Workshop);
+                .Include(b => b.Tickets);
 
             // ✅ Thực thi truy vấn ngay trong cùng scope (không deferred)
             return await query.ToPaginatedListAsync(pageNo, pageSize, cancellationToken);
         }
 
-        public async Task<PaginatedList<Booking>> GetBookingByMonthAndOrganizer(DateTime time, Guid organizerId, Guid? categoryId, Guid? tagId, int pageNo, int pageSize, CancellationToken cancellationToken)
+        public async Task<PaginatedList<Booking>> GetBookingByMonthAndOrganizer(DateTime time, Guid? organizerId, Guid? categoryId, Guid? tagId, int pageNo, int pageSize, CancellationToken cancellationToken)
         {
-            var bL = _context.Bookings.Where(b => b.Created.Month == time.Month && b.Created.Year == time.Year && b.Status == BookingStatus.Confirmed && b.Tickets.All(t => t.WorkshopSession.Workshop.OrganizationId == organizerId)).Include(b => b.Workshop).AsQueryable();
+            var bL = _context.Bookings.Where(b => b.Created.Month == time.Month && b.Created.Year == time.Year && b.Status == BookingStatus.Confirmed).Include(b => b.Tickets).AsQueryable();
+            if (organizerId != null)
+            {
+                bL = bL.Where(b => b.Workshop.OrganizationId == organizerId);
+            }
             if (categoryId != null)
             {
-                bL = bL.Where(b => b.Tickets.All(b => b.WorkshopSession.Workshop.CategoryId == categoryId));
+                bL = bL.Where(b => b.Tickets.Any(b => b.WorkshopSession.Workshop.CategoryId == categoryId));
             }
             if (tagId != null)
             {
-                bL = bL.Where(b => b.Tickets.All(b => b.WorkshopSession.Workshop.Tags.All(t => t.Id == tagId)));
+                bL = bL.Where(b => b.Tickets.Any(b => b.WorkshopSession.Workshop.Tags.All(t => t.Id == tagId)));
             }
             var result = await bL.ToPaginatedListAsync(pageNo, pageSize, cancellationToken);
             return result;
