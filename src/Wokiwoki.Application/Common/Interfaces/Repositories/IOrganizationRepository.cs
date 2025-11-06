@@ -13,5 +13,7 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 
 		Task DecrementFollowerCountAsync(Guid organizationId, CancellationToken cancellationToken);
 
+		Task<List<Organization>> GetTopOrganizationsByFollowerCountAsync(int limit, CancellationToken cancellationToken = default);
+
 	}
 }

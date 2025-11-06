@@ -132,6 +132,42 @@ namespace Wokiwoki.Api.Controllers
 			return Ok(result);
 		}
 
+		/// <summary>
+		/// Get workshops by organization with time-based status filter
+		/// </summary>
+		[HttpGet("organization/{organizationId:guid}/time-status")]
+		[SwaggerOperation(
+			Summary = "Get workshops by organization with time-based status",
+			Description = "Retrieves a paginated list of workshops for a specific organization filtered by time-based status (upcoming, ongoing, completed) based on sessions.",
+			Tags = new[] { "Workshops" }
+		)]
+		[ProducesResponseType(typeof(PaginatedList<WorkshopDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		public async Task<IActionResult> GetByOrganizationAndTimeStatus(
+			[FromRoute] Guid organizationId,
+			[FromQuery] int timeStatus = 0, // 0: all, 1: upcoming, 2: ongoing, 3: completed
+			[FromQuery] int pageNumber = 1,
+			[FromQuery] int pageSize = 10)
+		{
+			if (organizationId == Guid.Empty)
+				return BadRequest("OrganizationId cannot be empty.");
+
+			if (timeStatus < 0 || timeStatus > 3)
+				return BadRequest("TimeStatus must be between 0 and 3 (0: all, 1: upcoming, 2: ongoing, 3: completed).");
+
+			var query = new GetWorkshopsByOrganizationAndTimeStatusQuery(
+				organizationId,
+				timeStatus,
+				pageNumber,
+				pageSize
+			);
+
+			var result = await _mediator.Send(query);
+
+			return Ok(result);
+		}
+
 		[HttpGet("search")]
 		[SwaggerOperation(
 			Summary = "Search workshops",

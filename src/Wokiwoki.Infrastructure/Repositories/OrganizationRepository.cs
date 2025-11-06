@@ -42,5 +42,16 @@ namespace Wokiwoki.Infrastructure.Repositories
 			cancellationToken
 			);
 		}
+
+		public async Task<List<Organization>> GetTopOrganizationsByFollowerCountAsync(int limit, CancellationToken cancellationToken = default)
+		{
+			return await _context.Organizations
+				.Where(org => org.IsActive 
+					&& org.Status == OrganizationStatus.Accepted 
+					&& org.FollowerCount > 0)
+				.OrderByDescending(org => org.FollowerCount)
+				.Take(limit)
+				.ToListAsync(cancellationToken);
+		}
 	}
 }

@@ -53,6 +53,7 @@ namespace Wokiwoki.Infrastructure.Data
 			ConfigureOrganization(modelBuilder);
 			ConfigureRefreshToken(modelBuilder);
 			ConfigureTag(modelBuilder);
+			ConfigureCategory(modelBuilder);
 			ConfigureUserTagPreference(modelBuilder);
 			ConfigureUserWorkshopLike(modelBuilder);
 			ConfigureUserOrganizationFollow(modelBuilder);
@@ -120,6 +121,8 @@ namespace Wokiwoki.Infrastructure.Data
 			{
 				entity.HasKey(e => e.Id);
 				entity.Property(e => e.TotalPrice).HasColumnType("numeric(18,2)");
+				entity.Property(e=>e.FullName).HasMaxLength(250);
+				entity.Property(e => e.PhoneNumber).HasMaxLength(11);
 
 				entity.HasOne(e => e.Workshop)
 					.WithMany()
@@ -169,6 +172,21 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.HasIndex(e => e.Token);
 			});
 		}
+
+		private static void ConfigureCategory(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<Category>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+				entity.Property(e => e.Description).HasMaxLength(500);
+				entity.Property(e => e.IconUrl).HasMaxLength(255);
+				entity.Property(e => e.ImageUrl).HasMaxLength(255);
+
+				entity.HasIndex(e => e.Name).IsUnique(false);
+			});
+		}
+
 
 		private static void ConfigureTag(ModelBuilder modelBuilder)
 		{
@@ -368,8 +386,7 @@ namespace Wokiwoki.Infrastructure.Data
 			modelBuilder.Entity<Ticket>(entity =>
 			{
 				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Price).HasColumnType("numeric(18,2)");
-				entity.Property(e => e.QrCodeImage).IsRequired();
+				entity.Property(e => e.Price).HasColumnType("numeric(18,2)"); 
 				entity.Property(e => e.Quantity).IsRequired();
 
 				entity.HasOne(e => e.TicketType)

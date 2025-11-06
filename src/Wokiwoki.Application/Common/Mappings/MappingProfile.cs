@@ -117,7 +117,8 @@ namespace Wokiwoki.Application.Common.Mappings
 			
 
             //Ticket
-            CreateMap<TicketCreateDTO, Ticket>();
+            CreateMap<TicketCreateDTO, Ticket>()
+                .ForMember(dest => dest.QrCodeImage, opt => opt.MapFrom(src => string.Empty));
 
             //ScheduleTicket
             CreateMap<CreateScheduleTicketCommand, WorkshopScheduleTicket>();

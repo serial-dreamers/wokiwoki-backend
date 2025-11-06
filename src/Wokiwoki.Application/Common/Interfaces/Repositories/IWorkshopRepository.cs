@@ -61,5 +61,19 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 		Task<List<Workshop>> GetWorkshopsByDateRangeAsync(DateTime startDate, DateTime endDate, int limit, CancellationToken cancellationToken = default);
 
 		Task<List<Workshop>> GetDiscoverWorkshopsAsync(int limit, CancellationToken cancellationToken = default);
+
+		Task<Workshop?> GetWorkshopByIdAsync(Guid workshopId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Lấy workshops theo organization và time-based status (upcoming, ongoing, completed)
+		/// Dựa vào sessions của workshop để xác định status
+		/// </summary>
+		Task<PaginatedList<Workshop>> GetWorkshopsByOrganizationAndTimeStatusAsync(
+			Guid organizationId,
+			int timeStatus, // 0: all, 1: upcoming, 2: ongoing, 3: completed
+			int pageNumber,
+			int pageSize,
+			CancellationToken cancellationToken = default
+		);
 	}
 }

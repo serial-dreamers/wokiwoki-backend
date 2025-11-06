@@ -343,11 +343,59 @@ namespace Wokiwoki.Infrastructure.Repositories
 				.ToListAsync(cancellationToken);
 		}
 
+		public async Task<Workshop?> GetWorkshopByIdAsync(Guid workshopId, CancellationToken cancellationToken = default)
+		{
+			return await _context.Workshops 
+				.Include(w => w.Category)
+				.Include(w => w.Tags)
+				.FirstOrDefaultAsync(w => w.Id == workshopId && w.IsActive);
+		}
+
 		//public async Task<bool> UpdateAsync(Guid id, CancellationToken cancellationToken = default)
 		//{
 		//	var w = await _context.Workshops.FirstOrDefaultAsync(w => w.Id == id);
 		//	w.
 		//}
 
+		public async Task<PaginatedList<Workshop>> GetWorkshopsByOrganizationAndTimeStatusAsync(
+			Guid organizationId,
+			int timeStatus,
+			int pageNumber,
+			int pageSize,
+			CancellationToken cancellationToken = default)
+		{
+			var now = DateTime.UtcNow;
+			var query = _context.Workshops
+				.Include(w => w.WorkshopSessions)
+				.Where(w => w.OrganizationId == organizationId 
+					&& w.Status == WorkshopStatus.Published 
+					&& w.IsActive);
+
+			// Filter by time-based status based on sessions
+			if (timeStatus == 1) // Upcoming - Sắp diễn ra
+			{
+				// Workshops có sessions với startTime > now
+				query = query.Where(w => w.WorkshopSessions.Any(s => 
+					s.StartTime > now && s.IsActive));
+			}
+			else if (timeStatus == 2) // Ongoing - Đang diễn ra
+			{
+				// Workshops có sessions với startTime <= now && endTime >= now
+				query = query.Where(w => w.WorkshopSessions.Any(s => 
+					s.StartTime <= now && s.EndTime >= now && s.IsActive));
+			}
+			else if (timeStatus == 3) // Completed - Đã kết thúc
+			{
+				// Workshops có tất cả sessions đã kết thúc (max endTime < now)
+				// Hoặc workshops có sessions nhưng tất cả đã kết thúc
+				query = query.Where(w => w.WorkshopSessions.Any(s => s.IsActive) &&
+					w.WorkshopSessions.Where(s => s.IsActive).Max(s => s.EndTime) < now);
+			}
+			// timeStatus == 0: all - lấy tất cả published workshops
+
+			return await query
+				.OrderByDescending(w => w.Created)
+				.ToPaginatedListAsync(pageNumber, pageSize, cancellationToken);
+		}
 	}
 }

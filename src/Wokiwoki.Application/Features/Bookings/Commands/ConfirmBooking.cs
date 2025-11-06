@@ -3,6 +3,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Wokiwoki.Application.Common.Interfaces.Services;
 
 namespace Wokiwoki.Application.Features.Bookings.Commands
 {
@@ -14,10 +15,12 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
 	public class ConfirmBooking : IRequestHandler<ConfirmBookingCommand, bool>
 	{
 		private readonly IBookingRepository _repository;
+		private readonly IBookingNotificationService _notificationService;
 
-		public ConfirmBooking(IBookingRepository repository)
+		public ConfirmBooking(IBookingRepository repository, IBookingNotificationService notificationService)
 		{
 			_repository = repository;
+			_notificationService = notificationService;
 		}
         public async Task<bool> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)
         {
@@ -42,11 +45,9 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
                 Console.WriteLine($"[ConfirmBooking] ❌ Không tìm thấy BookingId trong content: {request.Content}");
                 return false;
             }
-
-            // ✅ Lấy chuỗi GUID dạng thô
+             
             var rawId = match.Groups[1].Value;
-
-            // ✅ Nếu thiếu dấu '-', chèn vào đúng chuẩn GUID
+             
             string bookingIdText;
             if (!rawId.Contains('-') && rawId.Length == 32)
             {
@@ -61,20 +62,21 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
             {
                 bookingIdText = rawId;
             }
-
-            Console.WriteLine($"[ConfirmBooking] ✅ BookingId trích xuất: {bookingIdText}");
-
-            // ✅ Kiểm tra định dạng GUID hợp lệ
+             
+             
             if (!Guid.TryParse(bookingIdText, out Guid bookingId))
-            {
-                Console.WriteLine($"[ConfirmBooking] ❌ BookingId không hợp lệ: {bookingIdText}");
+            { 
                 return false;
             }
-
-            // ✅ Xác nhận booking trong repository
+             
             var result = await _repository.ConfirmBooking(bookingId, cancellationToken);
+             
+            if (result)
+            {
+                await _notificationService.NotifyBookingStatusChanged(bookingId.ToString(), 1); // 1 = Confirmed
+                await _notificationService.NotifyPaymentSuccess(bookingId.ToString()); 
+            }
 
-            Console.WriteLine($"[ConfirmBooking] ✅ Kết quả xác nhận: {result}");
             return result;
         }
 

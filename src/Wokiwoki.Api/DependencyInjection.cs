@@ -1,8 +1,10 @@
 ﻿
 using Microsoft.OpenApi.Models;
-using System.Diagnostics; 
-using System.Text.Json.Serialization;
-using Wokiwoki.Api.Middlewares; 
+using System.Diagnostics;
+using System.Text.Json.Serialization; 
+using Wokiwoki.Api.Middlewares;
+using Wokiwoki.Api.Services;
+using Wokiwoki.Application.Common.Interfaces.Services; 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
 {
@@ -77,6 +79,12 @@ public static class DependencyInjection
 						   .AllowCredentials();
 				});
 		});
+
+		// SignalR
+		builder.Services.AddSignalR();
+
+		// Booking notification service
+		builder.Services.AddScoped<IBookingNotificationService, BookingNotificationService>();
 
 		// Midlewares
 		builder.Services.AddSingleton<Stopwatch>();

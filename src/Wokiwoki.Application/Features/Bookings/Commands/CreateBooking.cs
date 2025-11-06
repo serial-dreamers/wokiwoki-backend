@@ -1,10 +1,5 @@
 ﻿using AutoMapper;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediatR; 
 using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
 
@@ -14,7 +9,9 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
         string UserId,
         Guid WorkshopId,
         decimal TotalPrice,
-        List<TicketCreateDTO> Tickets
+        string FullName,
+        string PhoneNumber,
+		List<TicketCreateDTO> Tickets
         ) : IRequest<Booking>;
 
     public class CreateBooking : IRequestHandler<CreateBookingCommand, Booking>
@@ -41,6 +38,8 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
             var entity = new Booking();
             _mapper.Map(command, entity);
             entity.Status = BookingStatus.Pending;
+            entity.FullName = command.FullName;
+            entity.PhoneNumber = command.PhoneNumber;
             entity.Created = DateTime.UtcNow;
             entity.CreatedBy = command.UserId;
             foreach(var ticket in entity.Tickets)
@@ -73,7 +72,7 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
 
         public Guid SessionId { get; set; }
 
-        public string QrCodeImage { get; set; } = null!;
+        //public string QrCodeImage { get; set; } = null!;
 
         public decimal Price { get; set; }
 

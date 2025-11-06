@@ -11,5 +11,6 @@
 		public string? Commune { get; set; }
 		public string? Province { get; set; }
 		public string? LogoUrl { get; set; }
+		public int FollowerCount { get; set; }
 	}
 }

@@ -54,8 +54,8 @@ namespace Wokiwoki.Application.DTOs.Response
 		public Guid CategoryId { get; set; }
 
 		public bool IsActive { get; set; } = true;
-		 
-		public CategoryDto? Category { get; set; }
+
+		public CategoryDto Category { get; set; } = null!;
 
 		public OrganizationDto? Organization { get; set; }
 
