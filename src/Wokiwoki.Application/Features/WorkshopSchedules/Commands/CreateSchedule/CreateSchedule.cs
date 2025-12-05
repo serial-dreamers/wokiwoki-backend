@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR; 
 using Wokiwoki.Application.Common.Interfaces.Services;
+using Wokiwoki.Application.Common.Models;
 using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
 
@@ -11,14 +12,14 @@ namespace Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedul
         RecurrenceType RecurrenceType,
         string? DaysOfWeek,
         string? DaysOfMonth,
-        TimeOnly StartTime,
-        TimeOnly EndTime,
+        string StartTime,
+        string EndTime,
         DateTime ValidFrom,
         DateTime? ValidUntil,
         int? Capacity
-	) : IRequest<WorkshopSchedule>;
+	) : IRequest<Result<Guid>>;
 
-    public class CreateScheduleCommandHandler : IRequestHandler<CreateScheduleCommand, WorkshopSchedule>
+    public class CreateScheduleCommandHandler : IRequestHandler<CreateScheduleCommand, Result<Guid>>
     {
         private readonly IWorkshopScheduleRepository _repo;
         private readonly IWorkshopRepository _workshopRepository;
@@ -33,24 +34,25 @@ namespace Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedul
             _mapper = mapper;
             _uuidService = uuidService;
         }
-        public async Task<WorkshopSchedule> Handle(CreateScheduleCommand request, CancellationToken cancellationToken)
-        {
-            // 1️⃣ Lấy workshop hiện có (draft)
-            var workshop = await _workshopRepository.GetByIdAsync(request.WorkshopId);
-            if (workshop == null)
-                throw new Exception("Workshop not found");
-            var schedule = new WorkshopSchedule();
+        public async Task<Result<Guid>> Handle(CreateScheduleCommand request, CancellationToken cancellationToken)
+        { 
+            var workshop = await _workshopRepository.GetByIdActiveAsync(request.WorkshopId);
 
-            _mapper.Map(request, schedule);
-                
-           
+            //        if (workshop == null)
+            //return Result<Guid>.Failure(new[] { "Workshop not found" });
+
+            var schedule = _mapper.Map<WorkshopSchedule>(request);
+            schedule.WorkshopId = request.WorkshopId; // đảm bảo không bị Guid.Empty
+            schedule.Created = DateTime.UtcNow;
+            //schedule.StartTime = TimeOnly.Parse(request.StartTime);
+            //schedule.EndTime = TimeOnly.Parse(request.EndTime);
+
             var result = await _repo.CreateAsync(schedule);
 
-            if (result == null)
-                throw new Exception("Create schedule failed");
+			if (result == null)
+				return Result<Guid>.Failure(new[] { "Create schedule failed" });
 
-            // 4️⃣ Trả về ID
-            return result;
-        }
+            return Result<Guid>.Success(result.Id);
+		}
     }
 }

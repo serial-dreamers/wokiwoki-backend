@@ -1,12 +1,5 @@
 ﻿using AutoMapper;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Wokiwoki.Application.Common.Interfaces.Services;
-using Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedule;
+using MediatR; 
 using Wokiwoki.Domain.Entities;
 
 namespace Wokiwoki.Application.Features.WorkshopSessions.Queries
@@ -15,13 +8,13 @@ namespace Wokiwoki.Application.Features.WorkshopSessions.Queries
     public class GetSessionById : IRequestHandler<GetSessionByIdQuery, WorkshopSession>
     {
         private readonly IWorkshopSessionRepository _repo;
-        private readonly IWorkshopRepository _workshopRepository;
+        //private readonly IWorkshopRepository _workshopRepository;
+        private readonly IMapper _mapper;
 
-
-        public GetSessionById(IWorkshopSessionRepository repo, IWorkshopRepository workshopRepository)
+        public GetSessionById(IWorkshopSessionRepository repo, IMapper mapper)
         {
             _repo = repo;
-            _workshopRepository = workshopRepository;
+            _mapper = mapper;
         }
         public async Task<WorkshopSession> Handle(GetSessionByIdQuery request, CancellationToken cancellationToken)
         {
@@ -29,7 +22,8 @@ namespace Wokiwoki.Application.Features.WorkshopSessions.Queries
             var session = await _repo.GetByIdAsync(request.id);
             if (session == null)
                 throw new Exception("Sesion not found");
-            return session;
+
+            return _mapper.Map<WorkshopSession>(session);
         }
     }
 }

@@ -1,11 +1,6 @@
 ﻿using AutoMapper;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Wokiwoki.Application.DTOs.Response;
+using MediatR; 
+using Wokiwoki.Application.DTOs.Response; 
 
 namespace Wokiwoki.Application.Features.Workshops.Queries.GetWorkshop
 {
@@ -24,12 +19,13 @@ namespace Wokiwoki.Application.Features.Workshops.Queries.GetWorkshop
 		// Implement the handler logic here
 		public async Task<WorkshopDto?> Handle(GetWorkshopByIdQuery request, CancellationToken cancellationToken)
 		{
-			var workshop = await _workshopRepository.GetByIdAsync(request.Id);
+			var workshop = await _workshopRepository.GetWorkshopByIdAsync(request.Id, cancellationToken);
 
 			if (workshop is null)
 				return null;
 
 			return _mapper.Map<WorkshopDto>(workshop);
 		}
-	} 
+	}
 }
+ 

@@ -256,6 +256,11 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("createdby");
 
+                    b.Property<string>("FullName")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("fullname");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("isactive");
@@ -267,6 +272,11 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text")
                         .HasColumnName("lastmodifiedby");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)")
+                        .HasColumnName("phonenumber");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")
@@ -311,15 +321,18 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnName("createdby");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("description");
 
                     b.Property<string>("IconUrl")
-                        .HasColumnType("text")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("iconurl");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("text")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("imageurl");
 
                     b.Property<bool>("IsActive")
@@ -336,11 +349,14 @@ namespace Wokiwoki.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
                     b.HasKey("Id")
                         .HasName("pk_category");
+
+                    b.HasIndex("Name");
 
                     b.ToTable("category");
                 });
@@ -582,6 +598,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("bookingid");
+
                     b.Property<string>("Comment")
                         .IsRequired()
                         .HasColumnType("text")
@@ -623,6 +643,9 @@ namespace Wokiwoki.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_review");
+
+                    b.HasIndex("BookingId")
+                        .HasDatabaseName("ix_review_bookingid");
 
                     b.HasIndex("WorkshopId", "UserId")
                         .IsUnique();
@@ -1385,6 +1408,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("accessfailedcount");
 
+                    b.Property<string>("Commune")
+                        .HasColumnType("text")
+                        .HasColumnName("commune");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text")
@@ -1403,6 +1430,14 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("fullname");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("imageurl");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("latitude");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("lockoutenabled");
@@ -1410,6 +1445,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lockoutend");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("longitude");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -1437,9 +1476,17 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("phonenumberconfirmed");
 
+                    b.Property<string>("Province")
+                        .HasColumnType("text")
+                        .HasColumnName("province");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")
                         .HasColumnName("securitystamp");
+
+                    b.Property<string>("Street")
+                        .HasColumnType("text")
+                        .HasColumnName("street");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean")
@@ -1579,12 +1626,21 @@ namespace Wokiwoki.Infrastructure.Migrations
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Review", b =>
                 {
+                    b.HasOne("Wokiwoki.Domain.Entities.Booking", "Booking")
+                        .WithMany("Reviews")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_review_booking_bookingid");
+
                     b.HasOne("Wokiwoki.Domain.Entities.Workshop", "Workshop")
                         .WithMany("Reviews")
                         .HasForeignKey("WorkshopId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_review_workshop_workshopid");
+
+                    b.Navigation("Booking");
 
                     b.Navigation("Workshop");
                 });
@@ -1806,6 +1862,8 @@ namespace Wokiwoki.Infrastructure.Migrations
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Booking", b =>
                 {
+                    b.Navigation("Reviews");
+
                     b.Navigation("Tickets");
                 });
 

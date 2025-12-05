@@ -21,5 +21,13 @@ namespace Wokiwoki.Application.Common.Interfaces.Services
 		Task<string?> FindByEmailAsync(string email);
 
 		Task<Result> ResetPasswordAsync(string userId, string newPassword);
+
+		Task<UserDto?> GetUserByIdAsync(string userId);
+
+		Task<Result> UpdateUserProfileAsync(string userId, string fullName, string? phoneNumber);
+
+		Task<Result> UpdateUserAvatarAsync(string userId, string imageUrl);
+
+		Task<Result> UpdateUserLocationAsync(string userId, string? location, double? latitude, double? longitude);
 	}
 }

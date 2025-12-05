@@ -19,17 +19,7 @@ namespace Wokiwoki.Api.Controllers
 			_mediator = mediator;
 		}
 
-		/// <summary>
-		/// Like a workshop.
-		/// </summary>
-		/// <remarks>
-		/// Allows an authenticated user to like a workshop by its ID.
-		/// The user must be authenticated with a valid JWT token containing a UserId claim.
-		/// If the user has already liked the workshop, the request will be ignored.
-		/// Increments the workshop's like count and creates a new like record.
-		/// </remarks>
-		/// <param name="workshopId">The ID of the workshop to like.</param>
-		/// <returns>A 201 Created response with the ID of the new like record.</returns>
+		 
 		[Authorize(Policy = "RequireCustomerRole")]
 		[HttpPost("{workshopId:guid}")]
 		[SwaggerOperation(

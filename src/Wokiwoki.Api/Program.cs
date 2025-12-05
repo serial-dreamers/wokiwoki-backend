@@ -1,5 +1,6 @@
-using dotenv.net; 
-using Wokiwoki.Api; 
+using dotenv.net;
+using Wokiwoki.Api;
+using Wokiwoki.Api.Hubs; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,14 +15,10 @@ builder.AddWebAPIServices();
 
 
 
-var app = builder.Build();
-
-// Middlewares
-app.UseWebAPIMiddlewares();
+var app = builder.Build(); 
 
 var swaggerEnabled = app.Configuration.GetValue<bool>("Swagger:Enabled");
 
-app.UseCors("AllowFrontend");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || swaggerEnabled)
@@ -41,10 +38,19 @@ if (app.Environment.IsDevelopment() || swaggerEnabled)
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
+
+app.UseCors("AllowFrontend");
+
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+
+// Middlewares
+app.UseWebAPIMiddlewares();
+
 app.MapControllers();
+app.MapHub<BookingHub>("/hubs/booking");
 
 app.Run();

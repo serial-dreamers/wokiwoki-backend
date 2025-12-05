@@ -1,13 +1,13 @@
 ﻿using MediatR;
 using Wokiwoki.Application.Common.Interfaces.Services;
+using Wokiwoki.Application.Common.Utils;
 using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
 
 namespace Wokiwoki.Application.Features.WorkshopMedias.Commands.CreateWorkshopMedia
 {
 	public record CreateWorkshopMediaCommand
-	(  
-		//string ImageUrl,
+	(   
 		Guid WorkshopId,
 		MediaType mediaType,
 		string FileName,
@@ -22,16 +22,20 @@ namespace Wokiwoki.Application.Features.WorkshopMedias.Commands.CreateWorkshopMe
 		private readonly IWorkshopRepository _workshopRepository;
 		private readonly IBlobStorageService _blobStorageService;
 		private readonly IUuidService _uuidService;
+		private readonly IUserContext _userContext;
+
 
 		public CreateWorkshopMediaCommandHandler(IWorkshopMediaRepository workshopMediaRepository,
 			IWorkshopRepository workshopRepository,
 			IBlobStorageService blobStorageService,
-			IUuidService uuidService)
+			IUuidService uuidService,
+			IUserContext userContext)
 		{
 			_workshopMediaRepository = workshopMediaRepository;
 			_workshopRepository = workshopRepository;
 			_blobStorageService = blobStorageService;
 			_uuidService = uuidService;
+			_userContext = userContext;
 		}
 
 		public async Task<Guid> Handle(CreateWorkshopMediaCommand request, CancellationToken cancellationToken)
@@ -56,10 +60,10 @@ namespace Wokiwoki.Application.Features.WorkshopMedias.Commands.CreateWorkshopMe
 				WorkshopId = request.WorkshopId,
 				MediaType = request.mediaType,
 				Created = DateTime.UtcNow,
-				CreatedBy = "00000000-0000-0000-0000-000000000001",
+				CreatedBy = _userContext.UserId,
 				IsActive = true,
 				LastModified = DateTime.UtcNow,
-				LastModifiedBy = "00000000-0000-0000-0000-000000000001",
+				LastModifiedBy = _userContext.UserId,
 			};
 			var workshopMediaCreated = await _workshopMediaRepository.CreateAsync(workshopMedia, cancellationToken);
 			if (workshopMediaCreated == null) 

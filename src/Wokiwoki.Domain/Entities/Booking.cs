@@ -11,10 +11,17 @@
 
 		public BookingStatus Status { get; set; }
 
+		public string? FullName { get; set; }
+
+		public string? PhoneNumber { get; set; }
+
 		public Workshop Workshop { get; set; } = null!;
 
         public bool IsActive { get; set; } = true;
 
         public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+
+		public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
 	}
 }

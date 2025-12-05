@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Wokiwoki.Application.Common.Interfaces.Repositories;
+using Wokiwoki.Application.Common.Models;
 using Wokiwoki.Domain.Enums;
+using Wokiwoki.Infrastructure.Data.Extensions;
 
 namespace Wokiwoki.Infrastructure.Repositories
 {
@@ -49,6 +51,38 @@ namespace Wokiwoki.Infrastructure.Repositories
         public async Task<bool> RefundBooking(Guid id, CancellationToken cancellationToken = default)
         {
             return await UpdateBookingStatus(id, BookingStatus.Refunded, cancellationToken);
+        }
+        public async Task<PaginatedList<Booking>> GetBookingByMonth(
+    DateTime time, int pageNo, int pageSize, CancellationToken cancellationToken)
+        {
+            var query = _context.Bookings
+                .AsNoTracking() // ✅ Không giữ context tracking, giảm nguy cơ ObjectDisposedException
+                .Where(b => b.Created.Month == time.Month
+                         && b.Created.Year == time.Year
+                         && b.Status == BookingStatus.Confirmed)
+                .Include(b => b.Tickets);
+
+            // ✅ Thực thi truy vấn ngay trong cùng scope (không deferred)
+            return await query.ToPaginatedListAsync(pageNo, pageSize, cancellationToken);
+        }
+
+        public async Task<PaginatedList<Booking>> GetBookingByMonthAndOrganizer(DateTime time, Guid? organizerId, Guid? categoryId, Guid? tagId, int pageNo, int pageSize, CancellationToken cancellationToken)
+        {
+            var bL = _context.Bookings.Where(b => b.Created.Month == time.Month && b.Created.Year == time.Year && b.Status == BookingStatus.Confirmed).Include(b => b.Tickets).AsQueryable();
+            if (organizerId != null)
+            {
+                bL = bL.Where(b => b.Workshop.OrganizationId == organizerId);
+            }
+            if (categoryId != null)
+            {
+                bL = bL.Where(b => b.Tickets.Any(b => b.WorkshopSession.Workshop.CategoryId == categoryId));
+            }
+            if (tagId != null)
+            {
+                bL = bL.Where(b => b.Tickets.Any(b => b.WorkshopSession.Workshop.Tags.All(t => t.Id == tagId)));
+            }
+            var result = await bL.ToPaginatedListAsync(pageNo, pageSize, cancellationToken);
+            return result;
         }
     }
 }

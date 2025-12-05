@@ -1,9 +1,5 @@
-﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using MediatR; 
 using Wokiwoki.Domain.Entities;
 
 namespace Wokiwoki.Application.Features.WorkshopSessions.Queries
@@ -14,13 +10,18 @@ namespace Wokiwoki.Application.Features.WorkshopSessions.Queries
     public class GetSessionByScheduleId : IRequestHandler<GetSessionByScheduleIdQuery, List<WorkshopSession>>
     {
         private readonly IWorkshopSessionRepository _workshopSessionRepository;
-        public GetSessionByScheduleId(IWorkshopSessionRepository workshopSessionRepository)
+        private readonly IMapper _mapper;
+
+        public GetSessionByScheduleId(IWorkshopSessionRepository workshopSessionRepository,
+            IMapper mapper)
         {
             _workshopSessionRepository = workshopSessionRepository;
+            _mapper = mapper;
         }
         public async Task<List<WorkshopSession>> Handle(GetSessionByScheduleIdQuery request, CancellationToken cancellationToken)
         {
-            return await _workshopSessionRepository.GetSessionByScheduleId(request.ScheduleId, cancellationToken);
+            var sessions= await _workshopSessionRepository.GetSessionByScheduleId(request.ScheduleId, cancellationToken);
+			return _mapper.Map<List<WorkshopSession>>(sessions);
         }
     }
 }

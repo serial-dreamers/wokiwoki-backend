@@ -196,5 +196,96 @@ namespace Wokiwoki.Infrastructure.Services
 
 			return Result.Success();
 		}
+
+		public async Task<UserDto?> GetUserByIdAsync(string userId)
+		{
+			var user = await _userManager.Users
+				.Include(u => u.OwnedOrganization)
+				.FirstOrDefaultAsync(u => u.Id == userId);
+
+			if (user == null)
+				return null;
+
+			var roles = await _userManager.GetRolesAsync(user);
+
+			return new UserDto
+			{
+				Id = user.Id,
+				FullName = user.FullName ?? string.Empty,
+				Email = user.Email ?? string.Empty,
+				PhoneNumber = user.PhoneNumber,
+				ImageUrl = user.ImageUrl,
+				OwnedOrganizationId = user.OwnedOrganizationId,
+				OrganizationName = user.OwnedOrganization?.Name,
+				Roles = roles.ToList()
+			};
+		}
+
+		public async Task<Result> UpdateUserProfileAsync(string userId, string fullName, string? phoneNumber)
+		{
+			var user = await _userManager.FindByIdAsync(userId);
+			if (user == null)
+				return Result.Failure(new[] { "User not found" });
+
+			user.FullName = fullName;
+			user.PhoneNumber = phoneNumber;
+
+			var result = await _userManager.UpdateAsync(user);
+
+			if (!result.Succeeded)
+			{
+				var errors = result.Errors.Select(e => e.Description).ToArray();
+				return Result.Failure(errors);
+			}
+
+			return Result.Success();
+		}
+
+		public async Task<Result> UpdateUserAvatarAsync(string userId, string imageUrl)
+		{
+			var user = await _userManager.FindByIdAsync(userId);
+			if (user == null)
+				return Result.Failure(new[] { "User not found" });
+
+			user.ImageUrl = imageUrl;
+
+			var result = await _userManager.UpdateAsync(user);
+
+			if (!result.Succeeded)
+			{
+				var errors = result.Errors.Select(e => e.Description).ToArray();
+				return Result.Failure(errors);
+			}
+
+			return Result.Success();
+		}
+
+		public async Task<Result> UpdateUserLocationAsync(string userId, string? location, double? latitude, double? longitude)
+		{
+			var user = await _userManager.FindByIdAsync(userId);
+			if (user == null)
+				return Result.Failure(new[] { "User not found" });
+
+			if (!string.IsNullOrEmpty(location))
+			{
+				user.Province = location;
+			}
+
+			if (latitude.HasValue && longitude.HasValue)
+			{
+				user.Latitude = latitude.Value;
+				user.Longitude = longitude.Value;
+			}
+
+			var result = await _userManager.UpdateAsync(user);
+
+			if (!result.Succeeded)
+			{
+				var errors = result.Errors.Select(e => e.Description).ToArray();
+				return Result.Failure(errors);
+			}
+
+			return Result.Success();
+		}
 	}
 }

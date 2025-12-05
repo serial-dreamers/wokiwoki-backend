@@ -5,8 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Wokiwoki.Api.Request;
 using Wokiwoki.Application.Common.Interfaces.Services; 
+using Wokiwoki.Application.Common.Models;
+using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Organizations.Commands.CreateOrganization;
+using Wokiwoki.Application.Features.Organizations.Commands.FollowOrganization;
+using Wokiwoki.Application.Features.Organizations.Commands.UnfollowOrganization;
 using Wokiwoki.Application.Features.Organizations.Queries.GetOrganizationById;
+using Wokiwoki.Application.Features.Organizations.Queries.GetOrganizationsByCategory;
+using Wokiwoki.Application.Features.Organizations.Queries.GetTopOrganizationsByFollowerCount;
 using Wokiwoki.Domain.Enums;
 
 namespace Wokiwoki.Api.Controllers
@@ -24,14 +30,26 @@ namespace Wokiwoki.Api.Controllers
 		}
 
 		/// <summary>
-		/// Create a new organization.
+		/// Get top organizations by follower count
 		/// </summary>
-		/// <remarks>
-		/// Accepts multipart/form-data including files and fields to create a new organization.
-		/// Returns the created resource ID and sets the Location header pointing to the created organization.
-		/// </remarks>
-		/// <param name="request">The organization creation request including name, contact info, address, and optional logo file.</param>
-		/// <returns>Returns 201 Created with the organization ID and Location header.</returns>
+		[HttpGet("top-by-followers")]
+		[SwaggerOperation(
+			Summary = "Get top organizations by follower count",
+			Description = "Retrieve the top organizations sorted by follower count.",
+			Tags = new[] { "Organizations" })]
+		[ProducesResponseType(typeof(List<OrganizationDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> GetTopOrganizationsByFollowerCount([FromQuery] int limit = 6)
+		{
+			if (limit <= 0 || limit > 100)
+				return BadRequest(new { message = "Limit must be between 1 and 100." });
+
+			var query = new GetTopOrganizationsByFollowerCountQuery(limit);
+			var result = await _mediator.Send(query);
+
+			return Ok(result);
+		}
+		 
 		[Authorize]
 		[HttpPost]
 		[Consumes("multipart/form-data")]
@@ -93,6 +111,74 @@ namespace Wokiwoki.Api.Controllers
 			if (organization == null)
 				return NotFound();
 			return Ok(organization);
+		}
+
+		/// <summary>
+		/// Get organizations by categories
+		/// </summary>
+		[HttpPost("by-categories")]
+		[Consumes("application/json")]
+		[SwaggerOperation(
+			Summary = "Get organizations by categories",
+			Description = "Retrieve organizations grouped by categories that have workshops in the specified categories.",
+			Tags = new[] { "Organizations" })]
+		[ProducesResponseType(typeof(List<OrganizationsByCategoryDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> GetByCategories([FromBody] GetOrganizationsByCategoryRequest request)
+		{
+			if (request.CategoryIds == null || !request.CategoryIds.Any())
+				return BadRequest(new { message = "CategoryIds are required." });
+
+			var query = new GetOrganizationsByCategoryQuery(request.CategoryIds, request.LimitPerCategory ?? 3);
+			var result = await _mediator.Send(query);
+			
+			return Ok(result);
+		}
+
+		/// <summary>
+		/// Follow an organization
+		/// </summary>
+		[Authorize]
+		[HttpPost("{id:guid}/follow")]
+		[SwaggerOperation(
+			Summary = "Follow organization",
+			Description = "Follow an organization to get notified about their workshops.",
+			Tags = new[] { "Organizations" })]
+		[ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> FollowOrganization(Guid id)
+		{
+			var command = new FollowOrganizationCommand(id);
+			var result = await _mediator.Send(command);
+
+			if (!result.Succeeded)
+				return BadRequest(result);
+
+			return Ok(result);
+		}
+
+		/// <summary>
+		/// Unfollow an organization
+		/// </summary>
+		[Authorize]
+		[HttpDelete("{id:guid}/follow")]
+		[SwaggerOperation(
+			Summary = "Unfollow organization",
+			Description = "Stop following an organization.",
+			Tags = new[] { "Organizations" })]
+		[ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> UnfollowOrganization(Guid id)
+		{
+			var command = new UnfollowOrganizationCommand(id);
+			var result = await _mediator.Send(command);
+
+			if (!result.Succeeded)
+				return BadRequest(result);
+
+			return Ok(result);
 		} 
 
 	}

@@ -11,7 +11,7 @@
 
 		public Guid SessionId { get; set; }
 
-		public string QrCodeImage { get; set; } = null!;
+		public string? QrCodeImage { get; set; } = null!;
 
 		public decimal Price { get; set; }
 

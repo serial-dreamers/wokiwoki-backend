@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Annotations;
 using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Categories.Commands.CreateCategory;
@@ -23,13 +24,43 @@ namespace Wokiwoki.Api.Controllers
 			_mediator = mediator;
 		}
 
-		/// <summary>
-		/// Get category details by ID
-		/// </summary>
-		/// <param name="id">Category ID</param>
+		[HttpGet("with-tags")]
+		[Produces("application/json")]
+		[SwaggerOperation(
+			Summary = "Get all categories with tags",
+			Description = "Fetch all categories along with their associated tags.",
+			 Tags = new[] { "Categories" }
+		)]
+		[ProducesResponseType(typeof(List<CategoryDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		public async Task<IActionResult> GetAllWithTags()
+		{
+			var result = await _mediator.Send(new GetCategoriesWithTagsQuery());
+			return Ok(result);
+		}
+
+
+		[HttpGet]
+		[SwaggerOperation(
+			Summary = "Get all categories",
+			Description = "Fetch list of all available categories.",
+			Tags = new[] { "Categories" }
+		)]
+		[ProducesResponseType(typeof(List<CategoryDto>), StatusCodes.Status200OK)]
+		public async Task<ActionResult<List<CategoryDto>>> Get(CancellationToken cancellationToken)
+		{
+			var result = await _mediator.Send(new GetCategoriesQuery(), cancellationToken);
+			return Ok(result);
+		}
+
+
 		[HttpGet("{id:guid}")]
-		[SwaggerOperation(Summary = "Get category by ID", Description = "Fetch detailed information for a single category.")]
-		[ProducesResponseType(typeof(Category), StatusCodes.Status200OK)]
+		[SwaggerOperation(
+			Summary = "Get category by ID",
+			Description = "Fetch detailed information for a single category.",
+			Tags = new[] { "Categories" }
+		)]
+		[ProducesResponseType(typeof(CategoryDto), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> GetById(Guid id)
 		{
@@ -41,29 +72,14 @@ namespace Wokiwoki.Api.Controllers
 			return Ok(category);
 		}
 
-
-		/// <summary>
-		/// Get all categories
-		/// </summary> 
-		[HttpGet]
-		[SwaggerOperation(Summary = "Get all categories", Description = "Fetch list of all available categories.")]
-		[ProducesResponseType(typeof(List<Category>), StatusCodes.Status200OK)]
-		public async Task<ActionResult<List<CategoryDto>>> Get(CancellationToken cancellationToken)
-		{
-			//var query = new GetCategoriesQuery();
-			//var categories = await _mediator.Send(query, cancellationToken);
-			var result = await _mediator.Send(new GetCategoriesQuery(), cancellationToken);
-			return Ok(result);
-		}
-
-		/// <summary>
-		/// Create a new category
-		/// </summary>
-		/// <param name="command">Category creation request</param>
-		/// <returns>Created category Id</returns>
+		[Authorize(Policy = "RequireAdminRole")]
 		[HttpPost]
 		[Consumes("application/json")]
-		[SwaggerOperation(Summary = "Create a new category", Description = "Add a new category to the system.")]
+		[SwaggerOperation(
+			Summary = "Create a new category",
+			Description = "Add a new category to the system.",
+			Tags = new[] { "Categories" }
+		)]
 		[ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command)
@@ -72,14 +88,15 @@ namespace Wokiwoki.Api.Controllers
 			return Ok(new { id = categoryId, message = "Category created successfully." });
 		}
 
-		/// <summary>
-		/// Update an existing category
-		/// </summary>
-		/// <param name="id">Category ID</param>
-		/// <param name="command">Updated category data</param>
+
+		[Authorize(Policy = "RequireAdminRole")]
 		[HttpPut("{id:guid}")]
 		[Consumes("application/json")]
-		[SwaggerOperation(Summary = "Update an existing category", Description = "Modify category name, description, or images.")]
+		[SwaggerOperation(
+			Summary = "Update an existing category",
+			Description = "Modify category name, description, or images.",
+			Tags = new[] { "Categories" }
+		)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -95,12 +112,13 @@ namespace Wokiwoki.Api.Controllers
 			return Ok(new { message = "Category updated successfully." });
 		}
 
-		/// <summary>
-		/// Delete category by ID
-		/// </summary>
-		/// <param name="id">Category ID</param>
+
 		[HttpDelete("{id:guid}")]
-		[SwaggerOperation(Summary = "Delete a category", Description = "Remove a category from the system.")]
+		[SwaggerOperation(
+			Summary = "Delete a category",
+			Description = "Remove a category from the system.",
+			Tags = new[] { "Categories" }
+		)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> Delete(Guid id)
@@ -110,30 +128,7 @@ namespace Wokiwoki.Api.Controllers
 				return NotFound();
 
 			return Ok(new { message = "Category deleted successfully." });
-		}
-
-		/// <summary>
-		/// Get all categories including their related tags.
-		/// </summary>
-		/// <remarks>
-		/// This endpoint retrieves a list of all active categories,
-		/// including their associated tags if available.
-		/// </remarks>
-		/// <returns>
-		/// A list of <see cref="CategoryDto"/> objects containing category and tag information.
-		/// </returns>
-		[HttpGet("with-tags")]
-		[Produces("application/json")]
-		[SwaggerOperation(
-			Summary = "Get all categories with tags",
-			Description = "Fetch all categories along with their associated tags.")]
-		[ProducesResponseType(typeof(List<CategoryDto>), StatusCodes.Status200OK)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-		public async Task<IActionResult> GetAllWithTags()
-		{
-			var result = await _mediator.Send(new GetCategoriesWithTagsQuery());
-			return Ok(result);
-		}
+		} 
 
 	}
 }

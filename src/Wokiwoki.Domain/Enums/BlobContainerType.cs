@@ -4,6 +4,7 @@
 	{
 		OrganizationLogos,
 		WorkshopMedia,
+		UserAvatars,
 		Default
 	}
 }

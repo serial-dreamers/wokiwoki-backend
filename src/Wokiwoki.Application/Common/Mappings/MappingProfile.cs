@@ -1,14 +1,18 @@
-﻿using AutoMapper; 
+﻿using AutoMapper;
+using Wokiwoki.Application.Common.Models;
+using Wokiwoki.Application.DTOs;
 using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Bookings.Commands;
 using Wokiwoki.Application.Features.Categories.Commands.CreateCategory;
 using Wokiwoki.Application.Features.Categories.Commands.UpdateCategory;
+using Wokiwoki.Application.Features.Reviews.Command;
 using Wokiwoki.Application.Features.ScheduleTickets.Command;
 using Wokiwoki.Application.Features.Tags.Commands.CreateTag;
 using Wokiwoki.Application.Features.Tags.Commands.UpdateTag;
 using Wokiwoki.Application.Features.WorkshopHeroMedias.Queries.GetHeroMedias;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
 using Wokiwoki.Application.Features.WorkshopSchedules.Commands.CreateSchedule;
+using Wokiwoki.Application.Features.WorkshopSchedules.Commands.UpdateSchedule;
 using Wokiwoki.Application.Features.WorkshopSessions.Commands;
 using Wokiwoki.Domain.Entities;
 using Wokiwoki.Domain.Enums;
@@ -45,14 +49,14 @@ namespace Wokiwoki.Application.Common.Mappings
     .ForMember(dest => dest.ScheduleType, opt => opt.Ignore())
     .ForMember(dest => dest.Summary, opt => opt.Ignore())
     .ForMember(dest => dest.DurationMinutes, opt => opt.Ignore())
-    .ForMember(dest => dest.DefaultCapacity, opt => opt.Ignore());
+    .ForMember(dest => dest.DefaultCapacity, opt => opt.Ignore()); 
 
 
 
-
-
-            CreateMap<Workshop, SearchWorkshopDto>();
+			CreateMap<Workshop, SearchWorkshopDto>();
 			CreateMap<Workshop, WorkshopDto>();
+			CreateMap<Workshop, CreatedDto>();
+
 
 			//Category
 			CreateMap<Category, CategoryDto>();
@@ -86,21 +90,47 @@ namespace Wokiwoki.Application.Common.Mappings
 			CreateMap<Organization, OrganizationDto>();
 
             //WorkshopSchedule
-            CreateMap<CreateScheduleCommand, WorkshopSchedule>();
+            CreateMap<CreateScheduleCommand, WorkshopSchedule>()
+    .ForMember(dest => dest.StartTime,
+               opt => opt.MapFrom(src => TimeOnly.Parse(src.StartTime)))
+    .ForMember(dest => dest.EndTime,
+               opt => opt.MapFrom(src => TimeOnly.Parse(src.EndTime)));
+            CreateMap<WorkshopSchedule, WorkshopScheduleDto>();
+            CreateMap<UpdateScheduleCommand, WorkshopSchedule>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.WorkshopId, opt => opt.Ignore());
 
             //WorkshopSession
             CreateMap<CreateSessionCommand,  WorkshopSession>();
             CreateMap<UpdateSessionCommand, WorkshopSession>();
+			CreateMap<WorkshopSession, WorkshopSessionDto>();
 
-            //Booking
-            CreateMap<CreateBookingCommand, Booking>()
+			CreateMap<Create1MonthSessionCommand, WorkshopSession>()
+			.ForMember(dest => dest.Id, opt => opt.Ignore())
+			.ForMember(dest => dest.ScheduleId, opt => opt.Ignore());
+
+			CreateMap<WorkshopSession, CreatedDto>(); 
+
+			//Booking
+			CreateMap<CreateBookingCommand, Booking>()
             .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets));
+			
 
             //Ticket
-            CreateMap<TicketCreateDTO, Ticket>();
+            CreateMap<TicketCreateDTO, Ticket>()
+                .ForMember(dest => dest.QrCodeImage, opt => opt.MapFrom(src => string.Empty));
 
             //ScheduleTicket
             CreateMap<CreateScheduleTicketCommand, WorkshopScheduleTicket>();
-        }
+			CreateMap<WorkshopScheduleTicket, WorkshopScheduleTicketDto>();
+
+			//Review
+			CreateMap<CreateReviewCommand, Review>();
+
+			//Discover Workshop
+			CreateMap<Workshop, DiscoverWorkshopDto>();
+			CreateMap<Organization, DiscoverOrganizationDto>();
+
+		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -33,6 +34,7 @@ namespace Wokiwoki.Api.Controllers
 		/// </summary>
 		/// <param name="request">The media upload request containing the file and associated workshop ID.</param>
 		/// <returns>Returns the ID of the created workshop media.</returns>
+		[Authorize]		
 		[HttpPost]
 		[Consumes("multipart/form-data")]
 		[SwaggerOperation(

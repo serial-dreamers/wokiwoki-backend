@@ -31,10 +31,6 @@ namespace Wokiwoki.Api.Controllers
 		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Error occurred while generating QR code")]
 		public async Task<IActionResult> GenerateQRCode([FromBody] GenerateQRCodeCommand command)
 		{
-			var authHeader = Request.Headers["Authorization"].ToString();
-			if (string.IsNullOrEmpty(authHeader))
-				return Unauthorized("Authorization header is required");
-
 			var result = await _mediator.Send(command);
 			return Ok(result);
 		}
