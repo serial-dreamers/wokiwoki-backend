@@ -17,7 +17,7 @@ Built with Clean Architecture on ASP.NET Core 8, powered by Azure cloud services
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#-overview)
 - [Tech Stack](#-tech-stack)
@@ -32,13 +32,13 @@ Built with Clean Architecture on ASP.NET Core 8, powered by Azure cloud services
 
 ---
 
-## 🧩 Overview
+## Overview
 
 **Wokiwoki** is a platform that connects workshop organizers with participants. Organizers can list workshops with schedules, ticketing, and media; participants can discover, book, review, and chat about workshops. The API handles the full lifecycle — from authentication and discovery through booking, payment confirmation, and real-time notifications.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -62,7 +62,7 @@ Built with Clean Architecture on ASP.NET Core 8, powered by Azure cloud services
 
 ---
 
-## 🏛️ Architecture
+## Architecture
 
 The project follows **Clean Architecture** (also known as Onion Architecture), enforcing strict separation of concerns across four layers:
 
@@ -90,7 +90,7 @@ graph TD
 
 ---
 
-## 🗂️ Domain Model
+## Domain Model
 
 Core entities in the system:
 
@@ -119,7 +119,7 @@ Core entities in the system:
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 All routes are prefixed with `/api`. JWT Bearer token is required for protected routes.
 
@@ -155,50 +155,50 @@ All routes are prefixed with `/api`. JWT Bearer token is required for protected 
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🔐 Authentication & Authorization
+### Authentication & Authorization
 - **JWT Bearer** authentication with configurable expiry and zero clock skew
 - **Refresh Token** rotation stored in the database
 - **Google OAuth 2.0** sign-in support
 - Role-based authorization: `admin` and `customer` policies
 
-### 🗓️ Workshop Management
+### Workshop Management
 - Workshops support **Online**, **Offline**, and **Hybrid** delivery types
 - Schedules can be **Recurring** or **One-Time**
 - Configurable registration deadline, refund policies, and seating capacity
 - Geo-location support (latitude/longitude + display address via Goong Maps)
 
-### 🎟️ Booking & Ticketing
+### Booking & Ticketing
 - Multi-ticket-type bookings per schedule
 - Real-time booking status pushed via **SignalR** (`BookingHub`)
 - Payment integration via **Sepay** webhook and **VietQR** QR code generation
 - QR ticket generation with **QRCoder** and PDF output via **QuestPDF**
 
-### 🤖 AI-Powered Chatbot
+### AI-Powered Chatbot
 - Conversational chatbot using **Azure OpenAI** and **Google Gemini**
 - Per-user conversation threads stored in the database
 
-### 📦 Media & Storage
+### Media & Storage
 - Workshop gallery and hero image upload to **Azure Blob Storage**
 - Organized container management with configurable file-type and size constraints
 
-### 📧 Email Notifications
+### Email Notifications
 - Async email delivery via **Azure Service Bus** queue
 - Templated emails rendered with **Razor** views through **FluentEmail + MailKit**
 - Hosted background service (`EmailConsumerHosted`) processes the queue
 
-### ⚡ Caching
+### Caching
 - **Redis** cache layer (`IRedisCacheService`) for frequently accessed data (e.g., listings, filters)
 
-### 🔍 Observability
+### Observability
 - `PerformanceMiddleware` — logs request execution time
 - `GlobalExceptionMiddleware` — centralized error handling and consistent error responses
 - EF Core detailed query logging in development
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Wokiwoki/
@@ -244,7 +244,7 @@ Wokiwoki/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -325,7 +325,7 @@ https://localhost:5001/swagger
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 | Key | Description |
 |---|---|
@@ -345,7 +345,7 @@ https://localhost:5001/swagger
 
 ---
 
-## 🗃️ Database Migrations
+## Database Migrations
 
 ```bash
 # Add a new migration
@@ -366,6 +366,6 @@ dotnet ef migrations remove \
 
 ---
 
-## 📄 License
+## License
 
-This project is private and proprietary. All rights reserved © Wokiwoki Team.
+This project is private and proprietary. All rights reserved © Serial-dreamer Team.
