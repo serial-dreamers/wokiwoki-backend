@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -9,6 +10,7 @@ using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Workshops.Commands.CreateWorkshop;
 using Wokiwoki.Application.Features.Workshops.Queries.GetDiscoverWorkshops;
 using Wokiwoki.Application.Features.Workshops.Queries.GetFilterPagedWorkshopsQuery;
+using Wokiwoki.Application.Features.Workshops.Queries.GetOrganizerWorkshops;
 using Wokiwoki.Application.Features.Workshops.Queries.GetWorkshop;
 using Wokiwoki.Application.Features.Workshops.Queries.GetWorkshopSessionsByDateRange;
 using Wokiwoki.Domain.Enums; 
@@ -266,7 +268,36 @@ namespace Wokiwoki.Api.Controllers
 
 			var id = await _mediator.Send(command);
 			return CreatedAtAction(nameof(GetById), new { id = id }, new { id });
-		} 
+		}
+
+		/// <summary>
+		/// Get simple list of workshops for organizer (for dropdown/filter)
+		/// </summary>
+		[HttpGet("organizer/list")]
+		[Authorize]
+		[SwaggerOperation(
+			Summary = "Get organizer's workshops",
+			Description = "Retrieves simple list of workshops owned by the authenticated organizer for dropdown/filter purposes.",
+			Tags = new[] { "Workshops", "Organizer" })]
+		[SwaggerResponse(StatusCodes.Status200OK, "Workshops retrieved successfully", typeof(List<WorkshopSimpleDto>))]
+		[SwaggerResponse(StatusCodes.Status401Unauthorized, "User not authenticated")]
+		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Error while retrieving workshops")]
+		public async Task<IActionResult> GetOrganizerWorkshops()
+		{
+			try
+			{
+				var result = await _mediator.Send(new GetOrganizerWorkshopsQuery());
+				return Ok(result);
+			}
+			catch (UnauthorizedAccessException ex)
+			{
+				return Unauthorized(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+			}
+		}
 
 	}
 }

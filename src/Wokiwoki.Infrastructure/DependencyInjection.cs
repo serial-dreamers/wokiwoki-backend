@@ -10,7 +10,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using StackExchange.Redis; 
+using StackExchange.Redis;
+using System.Security.Claims;
 using System.Text;
 using Wokiwoki.Application.Common.Interfaces.Messaging;
 using Wokiwoki.Application.Common.Interfaces.Repositories;
@@ -51,11 +52,12 @@ public static class DependencyInjection
         .AddEntityFrameworkStores<WokiwokiDbContext>()
         .AddSignInManager()
         .AddDefaultTokenProviders();
+         
 
 		builder.Services.AddSingleton(x =>
 		{
-			var config = builder.Configuration.GetSection("AzureBlobStorage").Get<AzureBlobStorageOptions>();
-			return new BlobServiceClient(builder.Configuration["AzureBlobStorage:ConnectionString"]);
+			var config = builder.Configuration.GetSection("AzureBlob").Get<AzureBlobStorageOptions>();
+			return new BlobServiceClient(builder.Configuration["AzureBlob:ConnectionString"]);
 		});
 
 
@@ -85,9 +87,9 @@ public static class DependencyInjection
             };
 
             return ConnectionMultiplexer.Connect(options);
-        });
+        }); 
 
-        builder.Services.AddSingleton<ServiceBusClient>(sp =>
+		builder.Services.AddSingleton<ServiceBusClient>(sp =>
         {
             var connectionStringServiceBus = builder.Configuration["AzureServiceBus:ConnectionString"];
             return new ServiceBusClient(connectionStringServiceBus);
@@ -131,12 +133,12 @@ public static class DependencyInjection
                 ValidateIssuer = false,
                 ValidateAudience = true,
                 ValidateLifetime = true,
-
                 ValidIssuer = builder.Configuration["Jwt:Issuer"],
                 ValidAudience = builder.Configuration["Jwt:Audience"],
+                ClockSkew = TimeSpan.Zero,
+				RoleClaimType = ClaimTypes.Role
+			};
 
-                ClockSkew = TimeSpan.Zero
-            };
 
             options.Events = new JwtBearerEvents
             {
@@ -147,6 +149,15 @@ public static class DependencyInjection
                 }
             };
         });
+
+
+		builder.Services.AddAuthorization(options =>
+		{
+			options.AddPolicy("RequireAdminRole", policy =>
+				policy.RequireRole("admin"));
+
+			options.AddPolicy("RequireCustomerRole", policy => policy.RequireRole("customer"));
+		});
 
 		builder.Services.AddHttpContextAccessor();
 
@@ -168,13 +179,15 @@ public static class DependencyInjection
         builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 		builder.Services.AddScoped<IUserOrganizationFollowRepository, UserOrganizationFollowRepository>();
 		builder.Services.AddScoped<IUserTagPreferenceRepository, UserTagPreferenceRepository>();
-
+		builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 
 		builder.Services.AddScoped<IConversationChatRepository, ConversationChatRepository>();
+		builder.Services.AddScoped<IOrganizationPayoutAccountRepository, OrganizationPayoutAccountRepository>();
 
 
-        // Services
-        builder.Services.AddHostedService<EmailConsumerHosted>();
+
+		// Services
+		builder.Services.AddHostedService<EmailConsumerHosted>();
 
         builder.Services.AddSingleton<IMessagePublisher, AzureServiceBusPublisher>();
         builder.Services.AddSingleton<IMessageSubscriber, AzureServiceBusSubscriber>();

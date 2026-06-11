@@ -397,5 +397,108 @@ namespace Wokiwoki.Infrastructure.Repositories
 				.OrderByDescending(w => w.Created)
 				.ToPaginatedListAsync(pageNumber, pageSize, cancellationToken);
 		}
+
+		public async Task<List<WorkshopSimpleDto>> GetOrganizerWorkshopsAsync(string userId, CancellationToken cancellationToken = default)
+		{
+			var organizationIds = await _context.Organizations
+				.Where(o => o.OwnerId == userId)
+				.Select(o => o.Id)
+				.ToListAsync(cancellationToken);
+
+			if (!organizationIds.Any())
+				return new List<WorkshopSimpleDto>();
+
+			return await _context.Workshops
+				.Where(w => organizationIds.Contains(w.OrganizationId))
+				.Where(w => w.IsActive)
+				.OrderByDescending(w => w.Created)
+				.Select(w => new WorkshopSimpleDto
+				{
+					Id = w.Id,
+					Title = w.Title,
+					ImageUrl = w.ImageUrl
+				})
+				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<PaginatedList<AdminWorkshopDto>> GetAdminWorkshopsAsync(
+			int? status,
+			string? searchTerm,
+			Guid? organizationId,
+			int pageNumber,
+			int pageSize,
+			CancellationToken cancellationToken = default)
+		{
+			var query = _context.Workshops
+				.AsNoTracking()
+				.Include(w => w.Organization)
+				.Include(w => w.Category)
+				.AsQueryable();
+
+			// Filter by status
+			if (status.HasValue)
+			{
+				query = query.Where(w => (int)w.Status == status.Value);
+			}
+
+			// Filter by organization
+			if (organizationId.HasValue)
+			{
+				query = query.Where(w => w.OrganizationId == organizationId.Value);
+			}
+
+			// Filter by search term
+			if (!string.IsNullOrWhiteSpace(searchTerm))
+			{
+				var searchLower = searchTerm.ToLower();
+				query = query.Where(w =>
+					w.Title.ToLower().Contains(searchLower) ||
+					w.Organization.Name.ToLower().Contains(searchLower));
+			}
+
+			// Get total count
+			var totalCount = await query.CountAsync(cancellationToken);
+
+			// Apply pagination
+			var workshops = await query
+				.OrderByDescending(w => w.Created)
+				.Skip((pageNumber - 1) * pageSize)
+				.Take(pageSize)
+				.ToListAsync(cancellationToken);
+
+			var dtos = new List<AdminWorkshopDto>();
+			foreach (var workshop in workshops)
+			{
+				// Get booking statistics
+				var bookings = await _context.Bookings
+					.Where(b => b.WorkshopId == workshop.Id)
+					.Where(b => b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.Completed)
+					.Include(b => b.Tickets)
+					.ToListAsync(cancellationToken);
+
+				var totalTickets = bookings.SelectMany(b => b.Tickets).Sum(t => t.Quantity);
+				var totalRevenue = bookings.SelectMany(b => b.Tickets).Sum(t => t.Price * t.Quantity);
+
+				dtos.Add(new AdminWorkshopDto
+				{
+					Id = workshop.Id,
+					Title = workshop.Title,
+					Summary = workshop.Summary,
+					ImageUrl = workshop.ImageUrl,
+					Status = (int)workshop.Status,
+					Reason = workshop.Reason,
+					OrganizationName = workshop.Organization.Name,
+					OrganizationId = workshop.OrganizationId,
+					CategoryName = workshop.Category.Name,
+					TotalBookings = bookings.Count,
+					TotalTicketsSold = totalTickets,
+					TotalRevenue = totalRevenue,
+					Created = workshop.Created,
+					LastModified = workshop.LastModified
+				});
+			}
+
+			return new PaginatedList<AdminWorkshopDto>(dtos, totalCount, pageNumber, pageSize);
+		}
 	}
 }

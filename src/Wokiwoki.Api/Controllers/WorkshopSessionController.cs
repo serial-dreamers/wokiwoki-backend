@@ -6,6 +6,7 @@ using Wokiwoki.Application.DTOs;
 using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.WorkshopSessions.Commands;
 using Wokiwoki.Application.Features.WorkshopSessions.Queries;
+using Wokiwoki.Application.Features.WorkshopSessions.Queries.GetSessionsByWorkshop;
 using Wokiwoki.Domain.Entities;
 
 namespace Wokiwoki.Api.Controllers
@@ -162,6 +163,33 @@ namespace Wokiwoki.Api.Controllers
 			);
 		}
 
+		/// <summary>
+		/// Get sessions by workshop ID (for dropdown/filter)
+		/// </summary>
+		[HttpGet("by-workshop/{workshopId:guid}")]
+		[Produces("application/json")]
+		[SwaggerOperation(
+			Summary = "Get sessions by workshop ID",
+			Description = "Retrieves simple list of sessions for a specific workshop for dropdown/filter purposes.",
+			Tags = new[] { "Workshop Session", "Organizer" })]
+		[SwaggerResponse(StatusCodes.Status200OK, "Sessions retrieved successfully", typeof(List<SessionSimpleDto>))]
+		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid workshop ID")]
+		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Error while retrieving sessions")]
+		public async Task<IActionResult> GetSessionsByWorkshop(Guid workshopId)
+		{
+			try
+			{
+				if (workshopId == Guid.Empty)
+					return BadRequest("Workshop ID is required.");
+
+				var result = await _mediator.Send(new GetSessionsByWorkshopQuery(workshopId));
+				return Ok(result);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+			}
+		}
 
 	}
 }

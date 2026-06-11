@@ -3,7 +3,7 @@
 	[Table("booking")]
 	public class Booking : BaseAuditableEntity
 	{
-		public Guid UserId { get; set; }
+		public string UserId { get; set; }
 
 		public Guid WorkshopId { get; set; }
 
@@ -19,7 +19,9 @@
 
         public bool IsActive { get; set; } = true;
 
-        public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+		public bool? AllowReminder { get; set; } = false;
+
+		public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 
 		public ICollection<Review> Reviews { get; set; } = new List<Review>();
 

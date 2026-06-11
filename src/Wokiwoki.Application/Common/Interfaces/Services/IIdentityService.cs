@@ -29,5 +29,15 @@ namespace Wokiwoki.Application.Common.Interfaces.Services
 		Task<Result> UpdateUserAvatarAsync(string userId, string imageUrl);
 
 		Task<Result> UpdateUserLocationAsync(string userId, string? location, double? latitude, double? longitude);
+
+		/// <summary>
+		/// Get admin users list with filters and pagination
+		/// </summary>
+		Task<PaginatedList<AdminUserDto>> GetAdminUsersAsync(
+			string? role,
+			string? searchTerm,
+			int pageNumber,
+			int pageSize,
+			CancellationToken cancellationToken = default);
 	}
 }

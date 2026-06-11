@@ -152,6 +152,15 @@ namespace Wokiwoki.Infrastructure.Repositories
 			return await query.ToListAsync(cancellationToken);
 		}
 
+		public async Task<List<WorkshopSession>> GetSessionsByWorkshopId(Guid workshopId, CancellationToken cancellationToken = default)
+		{
+			return await _context.WorkshopSessions
+				.Where(s => s.WorkshopId == workshopId)
+				.Where(s => s.IsActive)
+				.OrderBy(s => s.StartTime)
+				.ToListAsync(cancellationToken);
+		}
+
 	}
 }
 
