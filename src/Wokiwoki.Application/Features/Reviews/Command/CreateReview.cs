@@ -29,13 +29,15 @@ namespace Wokiwoki.Application.Features.Reviews.Command
         private readonly IReviewRepository _repo;
         private readonly IMapper _mapper;
         private readonly IBlobStorageService _blobStorageService;
-        public CreateReview(IWorkshopRepository workshopRepo, IBookingRepository bookingRepo, IReviewRepository repo, IMapper mapper, IBlobStorageService blobStorageService)
+        private readonly IUuidService _uuidService;
+		public CreateReview(IWorkshopRepository workshopRepo, IBookingRepository bookingRepo, IReviewRepository repo, IMapper mapper, IBlobStorageService blobStorageService, IUuidService uuidService)
         {
             _workshopRepo = workshopRepo;
             _bookingRepo = bookingRepo;
             _repo = repo;
             _mapper = mapper;
-            _blobStorageService = blobStorageService;
+            _uuidService = uuidService;
+			_blobStorageService = blobStorageService;
         }
 
         public async Task<Review> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
@@ -50,19 +52,31 @@ namespace Wokiwoki.Application.Features.Reviews.Command
             {
                 return null;
             }
-            string imgUrl = await _blobStorageService.UploadFileAsync(
-            request.FileStream,
-            request.FileName,
-            request.ContentType,
-            request.FileLength,
-            BlobContainerType.WorkshopMedia
-            );
+            string? imgUrl = null;
+            // Only upload file if it exists
+            if (request.FileStream != Stream.Null && request.FileLength > 0)
+            {
+				var fileExtension = Path.GetExtension(request.FileName).ToLowerInvariant();
+				var fileName = $"review_{request.UserId}_{Guid.NewGuid()}{fileExtension}";
+
+				imgUrl = await _blobStorageService.UploadFileAsync(
+			        request.FileStream,
+			        fileName,  
+			        request.ContentType,
+			        request.FileLength,
+			        BlobContainerType.WorkshopMedia
+		        );
+			}
+
             var r = new Review
             {
-                BookingId = request.BookingId,
-                Comment = request.Comment,
+                Id = _uuidService.NewGuid(),
+				BookingId = request.BookingId,
+                WorkshopId = request.WorkshopId,
+                UserId = request.UserId,
+				Comment = request.Comment,
                 Created = DateTime.UtcNow,
-                CreatedBy = request.UserId,
+				CreatedBy = request.UserId,
                 Rating = request.Rating,
                 ImageUrl = imgUrl,
             };

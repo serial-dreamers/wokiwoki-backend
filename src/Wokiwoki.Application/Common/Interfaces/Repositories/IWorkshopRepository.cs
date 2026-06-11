@@ -75,5 +75,21 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 			int pageSize,
 			CancellationToken cancellationToken = default
 		);
+
+		/// <summary>
+		/// Lấy simple list workshops của organizer (dành cho dropdown/filter)
+		/// </summary>
+		Task<List<WorkshopSimpleDto>> GetOrganizerWorkshopsAsync(string userId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Get admin workshops list with filters
+		/// </summary>
+		Task<PaginatedList<AdminWorkshopDto>> GetAdminWorkshopsAsync(
+			int? status,
+			string? searchTerm,
+			Guid? organizationId,
+			int pageNumber,
+			int pageSize,
+			CancellationToken cancellationToken = default);
 	}
 }

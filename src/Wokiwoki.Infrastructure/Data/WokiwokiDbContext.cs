@@ -14,6 +14,7 @@ namespace Wokiwoki.Infrastructure.Data
 		public DbSet<Booking> Bookings => Set<Booking>();
 		public DbSet<Category> Categories => Set<Category>();
 		public DbSet<Organization> Organizations => Set<Organization>();
+		public DbSet<OrganizationPayoutAccount> OrganizationPayoutAccounts => Set<OrganizationPayoutAccount>();
 		public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 		public DbSet<Tag> Tags => Set<Tag>();
 		public DbSet<Ticket> Tickets => Set<Ticket>();
@@ -51,6 +52,7 @@ namespace Wokiwoki.Infrastructure.Data
 			ConfigureAuditLog(modelBuilder);
 			ConfigureBooking(modelBuilder);	
 			ConfigureOrganization(modelBuilder);
+			ConfigureOrganizationPayoutAccount(modelBuilder);
 			ConfigureRefreshToken(modelBuilder);
 			ConfigureTag(modelBuilder);
 			ConfigureCategory(modelBuilder);
@@ -157,8 +159,50 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.Property(e => e.Street).HasMaxLength(255);
 				entity.Property(e => e.Commune).HasMaxLength(100);
 				entity.Property(e => e.Province).HasMaxLength(100);
+
+				entity.HasOne(e => e.PayoutAccount)
+					.WithOne(pa => pa.Organization)
+					.HasForeignKey<OrganizationPayoutAccount>(pa => pa.OrganizationId)
+					.OnDelete(DeleteBehavior.Cascade);
 			});
 		}
+
+		private static void ConfigureOrganizationPayoutAccount(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<OrganizationPayoutAccount>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+
+				entity.Property(e => e.BankCode)
+					  .HasMaxLength(20)
+					  .IsRequired();
+
+				entity.Property(e => e.BankName)
+					  .HasMaxLength(255)
+					  .IsRequired();
+
+				entity.Property(e => e.SwiftCode)
+					  .HasMaxLength(20);
+
+				entity.Property(e => e.AccountNumber)
+					  .HasMaxLength(50)
+					  .IsRequired();
+
+				entity.Property(e => e.AccountHolder)
+					  .HasMaxLength(255)
+					  .IsRequired();
+
+				entity.Property(e => e.LogoUrl)
+					  .HasMaxLength(500);
+
+				// Liên kết 1:1 với Organization đã khai báo trong ConfigureOrganization
+				entity.HasOne(pa => pa.Organization)
+					  .WithOne(o => o.PayoutAccount)
+					  .HasForeignKey<OrganizationPayoutAccount>(pa => pa.OrganizationId)
+					  .OnDelete(DeleteBehavior.Cascade);
+			});
+		}
+
 
 		private static void ConfigureRefreshToken(ModelBuilder modelBuilder)
 		{
@@ -261,6 +305,8 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.Property(e => e.OnlineEventUrl).HasMaxLength(500);
 				entity.Property(e => e.StartingPrice).HasColumnType("numeric(18,2)");
 				entity.Property(e => e.RefundPolicyDescription).HasMaxLength(1000);
+
+				entity.Property(e => e.Reason).HasMaxLength(255);
 
 				entity.HasOne(e => e.Organization)
 					.WithMany()
@@ -367,7 +413,7 @@ namespace Wokiwoki.Infrastructure.Data
 		{
 			modelBuilder.Entity<WorkshopHeroMedia>(entity =>
 			{
-				entity.HasKey(e => e.Id);
+				entity.HasKey(e => e.Id); 
 
 				entity.HasOne(e => e.Workshop)
 					.WithMany(e => e.WorkshopHeroMedias)
@@ -388,6 +434,8 @@ namespace Wokiwoki.Infrastructure.Data
 				entity.HasKey(e => e.Id);
 				entity.Property(e => e.Price).HasColumnType("numeric(18,2)"); 
 				entity.Property(e => e.Quantity).IsRequired();
+				entity.Property(e => e.IsCheckedIn);
+				entity.Property(e => e.CheckedInAt);
 
 				entity.HasOne(e => e.TicketType)
 					.WithMany(st => st.Tickets)
@@ -413,7 +461,7 @@ namespace Wokiwoki.Infrastructure.Data
 			modelBuilder.Entity<Review>(entity =>
 			{
 				entity.HasKey(r => r.Id);
-				entity.HasIndex(r => new { r.WorkshopId, r.UserId }).IsUnique();
+				entity.HasIndex(r => new { r.WorkshopId, r.UserId, r.BookingId }).IsUnique();
 				entity.Property(r => r.Rating).IsRequired();
 
 				entity.HasOne(r => r.Workshop)

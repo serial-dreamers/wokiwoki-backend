@@ -38,6 +38,8 @@ if (app.Environment.IsDevelopment() || swaggerEnabled)
 }
 
 app.UseHttpsRedirection();
+
+
 app.UseRouting();
 
 app.UseCors("AllowFrontend");
@@ -51,6 +53,6 @@ app.UseAuthorization();
 app.UseWebAPIMiddlewares();
 
 app.MapControllers();
-app.MapHub<BookingHub>("/hubs/booking");
+app.MapHub<BookingHub>("/hubs/booking").RequireCors("AllowFrontend");
 
 app.Run();

@@ -7,12 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Features\Tickets\**" />
-    <EmbeddedResource Remove="Features\Tickets\**" />
-    <None Remove="Features\Tickets\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="dotenv.net" Version="4.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />

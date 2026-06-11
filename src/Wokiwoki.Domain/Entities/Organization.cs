@@ -22,14 +22,13 @@
 		public string? Province { get; set; }
 
 		public string OwnerId { get; set; } = null!;
-
-		/// <summary>
-		/// Trạng thái của organization: Pending (chờ duyệt), Accepted (hoạt động), Suspended (bị khóa)
-		/// </summary>
+		 
 		public OrganizationStatus Status { get; set; } 
 
 		public bool IsActive { get; set; } = true;
 
-		public ICollection<UserOrganizationFollow> Followers { get; set; } = new List<UserOrganizationFollow>(); 
+		public ICollection<UserOrganizationFollow> Followers { get; set; } = new List<UserOrganizationFollow>();
+
+		public OrganizationPayoutAccount? PayoutAccount { get; set; }
 	}
 }

@@ -10,9 +10,12 @@ using Wokiwoki.Application.DTOs.Response;
 using Wokiwoki.Application.Features.Organizations.Commands.CreateOrganization;
 using Wokiwoki.Application.Features.Organizations.Commands.FollowOrganization;
 using Wokiwoki.Application.Features.Organizations.Commands.UnfollowOrganization;
+using Wokiwoki.Application.Features.Organizations.Commands.UpdateOrganizationInfo;
+using Wokiwoki.Application.Features.Organizations.Commands.UpdateOrganizationLogo;
 using Wokiwoki.Application.Features.Organizations.Queries.GetOrganizationById;
 using Wokiwoki.Application.Features.Organizations.Queries.GetOrganizationsByCategory;
 using Wokiwoki.Application.Features.Organizations.Queries.GetTopOrganizationsByFollowerCount;
+using Wokiwoki.Application.Features.Organizations.Queries.GetMyOrganization;
 using Wokiwoki.Domain.Enums;
 
 namespace Wokiwoki.Api.Controllers
@@ -179,7 +182,97 @@ namespace Wokiwoki.Api.Controllers
 				return BadRequest(result);
 
 			return Ok(result);
-		} 
+		}
 
+		/// <summary>
+		/// Get my organization
+		/// </summary>
+		[Authorize]
+		[HttpGet("my-organization")]
+		[SwaggerOperation(
+			Summary = "Get my organization",
+			Description = "Get the organization owned by the authenticated user.",
+			Tags = new[] { "Organizations" })]
+		[ProducesResponseType(typeof(OrganizationDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<IActionResult> GetMyOrganization()
+		{
+			try
+			{
+				var result = await _mediator.Send(new GetMyOrganizationQuery());
+				if (result == null)
+					return NotFound(new { message = "Organization not found" });
+				return Ok(result);
+			}
+			catch (UnauthorizedAccessException ex)
+			{
+				return Unauthorized(ex.Message);
+			}
+		}
+
+		/// <summary>
+		/// Update organization info
+		/// </summary>
+		[Authorize]
+		[HttpPut("info")]
+		[SwaggerOperation(
+			Summary = "Update organization info",
+			Description = "Update organization information (name, description, contact, address).",
+			Tags = new[] { "Organizations" })]
+		[ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> UpdateOrganizationInfo([FromBody] UpdateOrganizationInfoCommand command)
+		{
+			try
+			{
+				var result = await _mediator.Send(command);
+				if (!result.Succeeded)
+					return BadRequest(result);
+				return Ok(result);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+			}
+		}
+
+		/// <summary>
+		/// Update organization logo
+		/// </summary>
+		[Authorize]
+		[HttpPut("logo")]
+		[Consumes("multipart/form-data")]
+		[SwaggerOperation(
+			Summary = "Update organization logo",
+			Description = "Upload and update organization logo.",
+			Tags = new[] { "Organizations" })]
+		[ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> UpdateOrganizationLogo([FromForm] UpdateOrganizationLogoRequest request)
+		{
+			var logoFile = request.LogoFile;
+			if (logoFile == null || logoFile.Length == 0)
+				return BadRequest(new { message = "Logo file is required" });
+
+			using var stream = logoFile.OpenReadStream();
+			var logoUrl = await _blobStorageService.UploadFileAsync(
+				stream,
+				logoFile.FileName,
+				logoFile.ContentType,
+				logoFile.Length,
+				BlobContainerType.OrganizationLogos
+			);
+
+			var command = new UpdateOrganizationLogoCommand(logoUrl);
+			var result = await _mediator.Send(command);
+
+			if (!result.Succeeded)
+				return BadRequest(result);
+
+			return Ok(new { logoUrl, result });
+		}
 	}
 }

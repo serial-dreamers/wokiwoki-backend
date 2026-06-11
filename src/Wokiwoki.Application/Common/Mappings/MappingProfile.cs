@@ -114,14 +114,18 @@ namespace Wokiwoki.Application.Common.Mappings
 			//Booking
 			CreateMap<CreateBookingCommand, Booking>()
             .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets));
-			
+			CreateMap<Booking, BookingDto>();
 
-            //Ticket
-            CreateMap<TicketCreateDTO, Ticket>()
+
+
+			//Ticket
+			CreateMap<TicketCreateDTO, Ticket>()
                 .ForMember(dest => dest.QrCodeImage, opt => opt.MapFrom(src => string.Empty));
+			CreateMap<Ticket, TicketDto>();
 
-            //ScheduleTicket
-            CreateMap<CreateScheduleTicketCommand, WorkshopScheduleTicket>();
+
+			//ScheduleTicket
+			CreateMap<CreateScheduleTicketCommand, WorkshopScheduleTicket>();
 			CreateMap<WorkshopScheduleTicket, WorkshopScheduleTicketDto>();
 
 			//Review
@@ -130,6 +134,8 @@ namespace Wokiwoki.Application.Common.Mappings
 			//Discover Workshop
 			CreateMap<Workshop, DiscoverWorkshopDto>();
 			CreateMap<Organization, DiscoverOrganizationDto>();
+
+			 
 
 		}
 	}

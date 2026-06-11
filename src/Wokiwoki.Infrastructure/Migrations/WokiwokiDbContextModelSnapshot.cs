@@ -248,6 +248,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<bool?>("AllowReminder")
+                        .HasColumnType("boolean")
+                        .HasColumnName("allowreminder");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
@@ -286,8 +290,9 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("totalprice");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("userid");
 
                     b.Property<Guid>("WorkshopId")
@@ -539,6 +544,78 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.ToTable("organization");
                 });
 
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.OrganizationPayoutAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccountHolder")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("accountholder");
+
+                    b.Property<string>("AccountNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("accountnumber");
+
+                    b.Property<string>("BankCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("bankcode");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("bankname");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("createdby");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lastmodified");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("lastmodifiedby");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("logourl");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organizationid");
+
+                    b.Property<string>("SwiftCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("swiftcode");
+
+                    b.HasKey("Id")
+                        .HasName("pk_organization_payout_account");
+
+                    b.HasIndex("OrganizationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_organization_payout_account_organizationid");
+
+                    b.ToTable("organization_payout_account");
+                });
+
             modelBuilder.Entity("Wokiwoki.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -616,7 +693,6 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnName("createdby");
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("imageurl");
 
@@ -647,7 +723,7 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.HasIndex("BookingId")
                         .HasDatabaseName("ix_review_bookingid");
 
-                    b.HasIndex("WorkshopId", "UserId")
+                    b.HasIndex("WorkshopId", "UserId", "BookingId")
                         .IsUnique();
 
                     b.ToTable("review");
@@ -712,6 +788,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("bookingid");
 
+                    b.Property<DateTime?>("CheckedInAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("checkedinat");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
@@ -723,6 +803,10 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("isactive");
+
+                    b.Property<bool>("IsCheckedIn")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ischeckedin");
 
                     b.Property<DateTime>("LastModified")
                         .HasColumnType("timestamp with time zone")
@@ -737,7 +821,6 @@ namespace Wokiwoki.Infrastructure.Migrations
                         .HasColumnName("price");
 
                     b.Property<string>("QrCodeImage")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("qrcodeimage");
 
@@ -996,6 +1079,11 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid")
                         .HasColumnName("organizationid");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("reason");
 
                     b.Property<int>("RefundPolicy")
                         .HasColumnType("integer")
@@ -1624,6 +1712,18 @@ namespace Wokiwoki.Infrastructure.Migrations
                     b.Navigation("ConversationChat");
                 });
 
+            modelBuilder.Entity("Wokiwoki.Domain.Entities.OrganizationPayoutAccount", b =>
+                {
+                    b.HasOne("Wokiwoki.Domain.Entities.Organization", "Organization")
+                        .WithOne("PayoutAccount")
+                        .HasForeignKey("Wokiwoki.Domain.Entities.OrganizationPayoutAccount", "OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_organization_payout_account_organization_organizationid");
+
+                    b.Navigation("Organization");
+                });
+
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Review", b =>
                 {
                     b.HasOne("Wokiwoki.Domain.Entities.Booking", "Booking")
@@ -1882,6 +1982,8 @@ namespace Wokiwoki.Infrastructure.Migrations
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Organization", b =>
                 {
                     b.Navigation("Followers");
+
+                    b.Navigation("PayoutAccount");
                 });
 
             modelBuilder.Entity("Wokiwoki.Domain.Entities.Tag", b =>

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;
@@ -36,6 +37,24 @@ namespace Wokiwoki.Api.Controllers
         public async Task<IActionResult> GetBookingByTIme([FromQuery] GetBookingByTimeQuery query)
         {
             var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Get all tickets (bookings) for current user with paging
+        /// </summary>
+        [Authorize]
+        [HttpGet("my-tickets")]
+        [SwaggerOperation(
+            Summary = "Get user's tickets with paging",
+            Description = "Retrieves paginated tickets (Confirmed and Completed bookings) for the authenticated user.",
+            Tags = new[] { "Booking" })]
+        [SwaggerResponse(StatusCodes.Status200OK, "Tickets retrieved successfully", typeof(PaginatedList<Booking>))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "User not authenticated")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Error while retrieving tickets")]
+        public async Task<IActionResult> GetMyTickets([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _mediator.Send(new GetUserBookingsQuery(pageNumber, pageSize));
             return Ok(result);
         }
 

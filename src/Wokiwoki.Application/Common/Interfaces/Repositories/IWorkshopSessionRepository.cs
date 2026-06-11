@@ -14,5 +14,6 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
 				DateTime? endDate,
 				CancellationToken cancellationToken);
 
+		Task<List<WorkshopSession>> GetSessionsByWorkshopId(Guid workshopId, CancellationToken cancellationToken = default);
 	}
 }

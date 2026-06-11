@@ -81,7 +81,38 @@ namespace Wokiwoki.Api.Controllers
 
 			return CreatedAtAction(nameof(GetById), new { id = result.Value }, new { id = result.Value });
 			 
-		} 
+		}
+
+		[HttpPut("{id:guid}")]
+		[Consumes("application/json")]
+		[SwaggerOperation(
+			Summary = "Update a schedule ticket",
+			Description = "Updates an existing ticket under a specific workshop schedule.",
+			Tags = new[] { "Schedule Tickets" })]
+		[SwaggerResponse(StatusCodes.Status200OK, "Ticket updated successfully")]
+		[SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request or failed to update ticket")]
+		[SwaggerResponse(StatusCodes.Status404NotFound, "Ticket not found")]
+		[SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error")]
+		public async Task<IActionResult> Update(Guid id, [FromBody] UpdateScheduleTicketCommand command)
+		{
+			if (command == null)
+				return BadRequest(new { message = "Request body is null." });
+
+			if (id != command.Id)
+				return BadRequest(new { message = "ID mismatch between route and body." });
+
+			var result = await _mediator.Send(command);
+
+			if (!result.Succeeded)
+			{
+				if (result.Errors.Any(e => e.Contains("not found", StringComparison.OrdinalIgnoreCase)))
+					return NotFound(new { errors = result.Errors });
+
+				return BadRequest(new { errors = result.Errors });
+			}
+
+			return Ok(new { message = "Ticket updated successfully", id = result.Value });
+		}
 
 	}
 }

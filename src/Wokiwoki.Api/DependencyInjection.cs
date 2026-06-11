@@ -51,19 +51,8 @@ public static class DependencyInjection
 				});
 
 			c.EnableAnnotations();
-		});
-
-		builder.Services.AddAuthorization(options =>
-		{
-			options.AddPolicy("RequireAdminRole", policy =>
-				policy.RequireRole("Admin"));  
-		});
-
-		builder.Services.AddAuthorization(options =>
-		{
-			options.AddPolicy("RequireCustomerRole", policy =>
-				policy.RequireRole("Customer"));
-		});
+		}); 
+		 
 
 		builder.Services.AddCors(options =>
 		{

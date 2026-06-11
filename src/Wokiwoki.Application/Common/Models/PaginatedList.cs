@@ -16,14 +16,17 @@ namespace Wokiwoki.Application.Common.Models
 		 
 		public IReadOnlyCollection<T> Records { get; }
 
-		public PaginatedList(IReadOnlyCollection<T> records, int count, int pageNumber, int pageSize)
-		{
-			PageNumber = pageNumber;
-			TotalCount = count;
-			TotalPages = (int)Math.Ceiling(count / (double)pageSize);
-			Records = records;
-		}
-
-		
+	public PaginatedList(IReadOnlyCollection<T> records, int count, int pageNumber, int pageSize)
+	{
+		PageNumber = pageNumber;
+		TotalCount = count;
+		TotalPages = (int)Math.Ceiling(count / (double)pageSize);
+		Records = records;
 	}
+
+	public static PaginatedList<T> Create(IReadOnlyCollection<T> records, int count, int pageNumber, int pageSize)
+	{
+		return new PaginatedList<T>(records, count, pageNumber, pageSize);
+	}
+}
 }

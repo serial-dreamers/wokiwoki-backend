@@ -17,6 +17,10 @@
 
 		public bool IsActive { get; set; } = true;
 
+		public bool IsCheckedIn { get; set; } = false;
+
+		public DateTime? CheckedInAt { get; set; }
+
 		public WorkshopScheduleTicket TicketType { get; set; } = null!;
 
 		public WorkshopSession WorkshopSession { get; set; } = null!;

@@ -4,7 +4,7 @@ namespace Wokiwoki.Application.Common.Interfaces.Services
 {
 	public interface IAzureOpenAIChatService
 	{
-		Task<ChatResponse> ChatAsync(string userMessage, string userId);
+		Task<ChatResponse> ChatAsync(string userMessage, string? userId);
 
 	}
 }

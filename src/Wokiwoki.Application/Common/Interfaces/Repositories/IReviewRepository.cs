@@ -12,5 +12,6 @@ namespace Wokiwoki.Application.Common.Interfaces.Repositories
     {
         Task<PaginatedList<Review>> GetByWorkshopId(Guid workshopId, int pageNo, int pageSize, CancellationToken cancellationToken);
 
-    }
+        Task<Review?> GetByBookingIdAsync(Guid bookingId, CancellationToken cancellationToken);
+	}
 }

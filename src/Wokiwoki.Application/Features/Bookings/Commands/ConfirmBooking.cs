@@ -3,6 +3,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Wokiwoki.Application.Common.Interfaces.Repositories;
 using Wokiwoki.Application.Common.Interfaces.Services;
 
 namespace Wokiwoki.Application.Features.Bookings.Commands
@@ -16,11 +17,15 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
 	{
 		private readonly IBookingRepository _repository;
 		private readonly IBookingNotificationService _notificationService;
+		private readonly IWorkshopSessionRepository _workshopSessionRepository;
+		private readonly IWorkshopRepository _workshopRepository;
 
-		public ConfirmBooking(IBookingRepository repository, IBookingNotificationService notificationService)
+		public ConfirmBooking(IBookingRepository repository, IBookingNotificationService notificationService, IWorkshopSessionRepository workshopSessionRepository, IWorkshopRepository workshopRepository)
 		{
 			_repository = repository;
 			_notificationService = notificationService;
+			_workshopSessionRepository = workshopSessionRepository;
+			_workshopRepository = workshopRepository;
 		}
         public async Task<bool> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)
         {
@@ -70,11 +75,34 @@ namespace Wokiwoki.Application.Features.Bookings.Commands
             }
              
             var result = await _repository.ConfirmBooking(bookingId, cancellationToken);
-             
+
             if (result)
             {
+                // Update BookedCount for each session in the booking
+                var booking = await _repository.GetByIdAsync(bookingId);
+                if (booking != null && booking.Tickets != null)
+                {
+                    foreach (var ticket in booking.Tickets)
+                    {
+                        var session = await _workshopSessionRepository.GetByIdAsync(ticket.SessionId);
+                        if (session != null)
+                        {
+                            session.BookedCount++;
+                            await _workshopSessionRepository.UpdateAsync(session.Id, session);
+                        }
+                    }
+
+                    // Update TotalBookings for the workshop
+                    var workshop = await _workshopRepository.GetByIdAsync(booking.WorkshopId);
+                    if (workshop != null)
+                    {
+                        workshop.TotalBookings++;
+                        await _workshopRepository.UpdateAsync(workshop.Id, workshop);
+                    }
+                }
+
                 await _notificationService.NotifyBookingStatusChanged(bookingId.ToString(), 1); // 1 = Confirmed
-                await _notificationService.NotifyPaymentSuccess(bookingId.ToString()); 
+                await _notificationService.NotifyPaymentSuccess(bookingId.ToString());
             }
 
             return result;

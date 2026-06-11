@@ -1,18 +1,23 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Wokiwoki.Application.Common.Interfaces;
 using Wokiwoki.Application.Common.Interfaces.Services;
 using Wokiwoki.Application.Common.Models;
 using Wokiwoki.Application.DTOs.Response;
+using Wokiwoki.Domain.Entities;
+using Wokiwoki.Domain.Enums;
 
 namespace Wokiwoki.Infrastructure.Services
 {
 	public class IdentityService : IIdentityService
 	{
 		private readonly UserManager<ApplicationUser> _userManager;
+		private readonly WokiwokiDbContext _context;
 
-		public IdentityService(UserManager<ApplicationUser> userManager)
+		public IdentityService(UserManager<ApplicationUser> userManager, WokiwokiDbContext context)
 		{
 			_userManager = userManager;
+			_context = context;
 		}
 
 		public async Task<string?> GetUserNameAsync(string userId)
@@ -286,6 +291,91 @@ namespace Wokiwoki.Infrastructure.Services
 			}
 
 			return Result.Success();
+		}
+
+		public async Task<PaginatedList<AdminUserDto>> GetAdminUsersAsync(
+			string? role,
+			string? searchTerm,
+			int pageNumber,
+			int pageSize,
+			CancellationToken cancellationToken = default)
+		{
+			var query = _userManager.Users.AsQueryable();
+
+			// Apply search filter
+			if (!string.IsNullOrWhiteSpace(searchTerm))
+			{
+				var searchLower = searchTerm.ToLower();
+				query = query.Where(u =>
+					(u.FullName != null && u.FullName.ToLower().Contains(searchLower)) ||
+					u.Email.ToLower().Contains(searchLower));
+			}
+
+			// Get all matching users first (for role filtering)
+			var allUsers = await query
+				.OrderByDescending(u => u.Id)
+				.ToListAsync(cancellationToken);
+
+			// Filter by role if specified (must check roles for each user)
+			if (!string.IsNullOrWhiteSpace(role))
+			{
+				var filteredUsers = new List<ApplicationUser>();
+				foreach (var user in allUsers)
+				{
+					var userRoles = await _userManager.GetRolesAsync(user);
+					if (userRoles.Contains(role))
+					{
+						filteredUsers.Add(user);
+					}
+				}
+				allUsers = filteredUsers;
+			}
+
+			// Get total count after role filtering
+			var totalCount = allUsers.Count;
+
+			// Apply pagination
+			var users = allUsers
+				.Skip((pageNumber - 1) * pageSize)
+				.Take(pageSize)
+				.ToList();
+
+			var userDtos = new List<AdminUserDto>();
+
+			foreach (var user in users)
+			{
+				var roles = await _userManager.GetRolesAsync(user);
+
+				// Get booking statistics
+				var totalBookings = await _context.Bookings
+					.Where(b => b.UserId == user.Id)
+					.CountAsync(cancellationToken);
+
+				var totalSpent = await _context.Bookings
+					.Where(b => b.UserId == user.Id)
+					.SelectMany(b => b.Tickets)
+					.SumAsync(t => t.Price * t.Quantity, cancellationToken);
+
+				userDtos.Add(new AdminUserDto
+				{
+					Id = user.Id,
+					FullName = user.FullName,
+					Email = user.Email!,
+					PhoneNumber = user.PhoneNumber,
+					AvatarUrl = user.ImageUrl,
+					Roles = roles.ToList(),
+					IsEmailConfirmed = user.EmailConfirmed, 
+					TotalBookings = totalBookings,
+					TotalSpent = totalSpent
+				});
+			}
+
+			return new PaginatedList<AdminUserDto>(
+				userDtos,
+				totalCount,
+				pageNumber,
+				pageSize
+			);
 		}
 	}
 }

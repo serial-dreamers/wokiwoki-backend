@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Wokiwoki.Api.Request;
 using Wokiwoki.Application.DTOs;
-using Wokiwoki.Application.Features.Chatbots.Commands.CreateChatAIMessage; 
+using Wokiwoki.Application.Features.Chatbots.Commands.CreateChatAIMessage;
 
 namespace Wokiwoki.Api.Controllers
 {
@@ -50,5 +50,6 @@ namespace Wokiwoki.Api.Controllers
 
 			return Ok(response);
 		}
-	}
+
+}
 }

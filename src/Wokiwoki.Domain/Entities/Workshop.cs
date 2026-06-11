@@ -31,10 +31,10 @@
 		public string? RefundPolicyDescription { get; set; }
 
 		public decimal? StartingPrice { get; set; }
-		/// <summary>
-		/// Trạng thái của workshop: Draft, PendingReview, Published, Hidden, Cancelled
-		/// </summary>
+		
 		public WorkshopStatus Status { get; set; }
+		public string? Reason { get; set; } 
+
 		public WorkshopDeliveryType DeliveryType { get; set; }  // Online, Offline, Hybrid
 		public WorkshopScheduleType ScheduleType { get; set; }  // Recurring, OneTime 
 
